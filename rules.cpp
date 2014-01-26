@@ -50,27 +50,27 @@ Direction opposite_direction(Direction direction) {
     return WEST;
   case WEST:
     return EAST;
+  case SOUTHEAST:
+    return NORTHWEST;
+  case NORTHWEST:
+    return SOUTHEAST;
+  case SOUTHWEST:
+    return NORTHEAST;
+  case NORTHEAST:
+    return SOUTHWEST;
   default:
     throw logic_error("Unknown direction");
   }
 }
 
-bool should_flip_direction(Direction direction, Player player) {
-  if (player == RED)
-    return false;
-  switch (direction) {
-  case NORTH:
-  case SOUTH:
-    return true;
-  default:
-    return false;
-  }
+bool should_flip_direction(Player player) {
+  return player != RED;
 }
 
 Position move_direction(const Position& position, Direction direction, Player player) {
   // Players have north/south flipped since they sit on opposite ends
   direction =
-    should_flip_direction(direction, player)
+    should_flip_direction(player)
     ? opposite_direction(direction)
     : direction
     ;
@@ -83,6 +83,14 @@ Position move_direction(const Position& position, Direction direction, Player pl
     return mkPosition(position.rank, position.file + 1);
   case EAST:
     return mkPosition(position.rank, position.file - 1);
+  case SOUTHEAST:
+    return mkPosition(position.rank - 1, position.file - 1);
+  case SOUTHWEST:
+    return mkPosition(position.rank - 1, position.file + 1);
+  case NORTHEAST:
+    return mkPosition(position.rank + 1, position.file - 1);
+  case NORTHWEST:
+    return mkPosition(position.rank + 1, position.file + 1);
   default:
     throw logic_error("Unknown direction");
   }
@@ -99,6 +107,10 @@ set<Move> available_moves_for_general(GameState& state, Position position, Playe
 
 set<Move> available_moves_for_advisor(GameState& state, Position position, Player owner) {
   auto ret = set<Move>();
+  ret.insert(mkMove(position, move_direction(position, NORTHEAST, owner)));
+  ret.insert(mkMove(position, move_direction(position, SOUTHEAST, owner)));
+  ret.insert(mkMove(position, move_direction(position, NORTHWEST,  owner)));
+  ret.insert(mkMove(position, move_direction(position, SOUTHWEST,  owner)));
   return ret;
 }
 

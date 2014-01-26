@@ -6,7 +6,7 @@
 using namespace std;
 
 enum PieceType { EMPTY, GENERAL, ADVISOR, ELEPHANT, HORSE, CHARIOT, CANON, SOLDIER };
-enum Direction { NORTH, SOUTH, EAST, WEST };
+enum Direction { NORTH, SOUTH, EAST, WEST, NORTHEAST, NORTHWEST, SOUTHEAST, SOUTHWEST };
 enum Player { RED, BLACK };
 
 struct Piece {

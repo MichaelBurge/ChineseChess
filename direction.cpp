@@ -78,3 +78,11 @@ Position move_direction(const Position& position, Direction direction) {
     throw logic_error("Unknown direction");
   }
 }
+
+void with_90_degree_rotations(Direction direction, function<void(Direction)> action) {
+  action(direction);
+  action(direction = rotate_90_left(direction));
+  action(direction = rotate_90_left(direction));
+  action(direction = rotate_90_left(direction));
+}
+

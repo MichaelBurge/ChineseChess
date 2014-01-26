@@ -2,6 +2,7 @@
 #include "unimplemented.hpp"
 #include "direction.hpp"
 #include <algorithm>
+#include <functional>
 #include <stdexcept>
 #include <string>
 #include <sstream>
@@ -47,29 +48,34 @@ bool is_position_occupied(GameState& state, Position position) {
 
 set<Move> available_moves_for_general(GameState& state, Position position, Player owner) {
   auto ret = set<Move>();
-  ret.insert(mkMove(position, move_direction(position, NORTH)));
-  ret.insert(mkMove(position, move_direction(position, SOUTH)));
-  ret.insert(mkMove(position, move_direction(position, WEST )));
-  ret.insert(mkMove(position, move_direction(position, EAST )));
+  with_90_degree_rotations(NORTH, [&] (Direction direction) {
+      ret.insert(mkMove(position, move_direction(position, direction)));
+  });
   return ret;
 }
 
 set<Move> available_moves_for_advisor(GameState& state, Position position, Player owner) {
   auto ret = set<Move>();
-  ret.insert(mkMove(position, move_direction(position, NORTHEAST)));
-  ret.insert(mkMove(position, move_direction(position, SOUTHEAST)));
-  ret.insert(mkMove(position, move_direction(position, NORTHWEST)));
-  ret.insert(mkMove(position, move_direction(position, SOUTHWEST)));
-  return ret;
-}
-
-set<Move> available_moves_for_elephant(GameState& state, Position position, Player owner) {
-  auto ret = set<Move>();
-  
+  with_90_degree_rotations(NORTHEAST, [&] (Direction direction) {
+      ret.insert(mkMove(position, move_direction(position, direction)));
+  });
   return ret;
 }
 
 set<Move> available_moves_for_horse(GameState& state, Position position, Player owner) {
+  auto ret = set<Move>();
+  with_90_degree_rotations(NORTH, [&] (Direction direction) {
+      Position one_step = move_direction(position, direction);
+      if (is_position_occupied(state, one_step))
+        return;
+      
+      ret.insert(mkMove(position, move_direction(one_step, rotate_left (direction))));
+      ret.insert(mkMove(position, move_direction(one_step, rotate_right(direction))));
+  });
+  return ret;
+}
+
+set<Move> available_moves_for_elephant(GameState& state, Position position, Player owner) {
   auto ret = set<Move>();
   return ret;
 }

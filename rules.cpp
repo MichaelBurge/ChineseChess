@@ -388,13 +388,35 @@ char character_for_piece(Piece piece) {
     throw logic_error("????");
 }
 
+void for_range(int n, function<void(int)> action) {
+    for (int i = 0; i != n; i++)
+        action(i);
+}
+
+void repeat(int n, function<void()> action) {
+    for_range(n, [&] (int x) { action(); });
+}
+
 void print_board(const GameState& state) {
     multi_array<Piece, 2> board = state_to_board(state);
-    for (int i = 0; i != 10; i++) {
-        for (int j = 0; j != 9; j++)
-            cout << character_for_piece(board[i][j]) << ' ';
+
+    auto draw_river = [] () {
+        repeat(8, [] () { cout << "~~"; });
+        cout << "~" << endl;
+    };
+
+    auto draw_rank = [&] (int rank) {
+        for_range(9, [&] (int j) {
+            cout << character_for_piece(board[rank][j]) << ' ';
+        });
         cout << endl;
-    }
+    };
+
+    for_range(10, [&] (int i) {
+        if (i == 5)
+            draw_river();
+        draw_rank(i);
+    });
 }
 
 Move mkMove(const Position& from, const Position& to) {

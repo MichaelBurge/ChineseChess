@@ -24,7 +24,7 @@ Position  move_direction(const Position& position, Direction direction, Player p
 Move      mkMove(const Position& from, const Position& to);
 Position  mkPosition(int rank, int file);
 Piece     mkPiece(PieceType type, Player owner);
-string    to_string(int n);
+//string    to_string(int n);
 
 // Implementation
 

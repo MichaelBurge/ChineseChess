@@ -11,19 +11,10 @@ void assert(bool condition, string message) {
   throw logic_error("Assertion failure");
 }
 
-bool test_general() {
-  auto state = GameState();
-  state.current_turn = RED;
-  state.pieces = map<Position, Piece>();
-  state.pieces.insert(pair<Position, Piece>(mkPosition(2, 5), mkPiece(GENERAL, RED)));
-  auto moves = available_moves(state, RED);
-  assert(moves.size() == 5, "Incorrect number of moves");
+template<typename T, typename U> void assert_eq(const T& a, const U& b, string message) {
+  assert(a == b, message + "- values: (" + to_string(a) + "," + to_string(b) + ")");
 }
 
-int main() {
-  try {
-    test_general();
-  } catch (logic_error& error) {
-    cerr << "Aborted test: " << error.what();
-  }
-}
+template void assert_eq(const uint32_t&, const uint32_t&, string);
+template void assert_eq(const uint32_t&, const int32_t&, string);
+template void assert_eq(const uint64_t&, const int32_t&, string);

@@ -34,6 +34,7 @@ struct GameState {
 
 extern GameState new_game();
 extern set<Move> available_moves(GameState &, Player);
+extern set<Move> available_moves_for_piece(GameState &, Position, Piece);
 extern void      apply_move(GameState &, Move);
 extern void      state_to_board(GameState &, Piece*& board_ref);
 extern Move      mkMove(const Position& from, const Position& to);

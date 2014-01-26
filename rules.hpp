@@ -3,6 +3,7 @@
 #include <map>
 #include <vector>
 #include "position.hpp"
+#include "direction.hpp"
 using namespace std;
 
 enum PieceType { EMPTY, GENERAL, ADVISOR, ELEPHANT, HORSE, CHARIOT, CANNON, SOLDIER };
@@ -30,6 +31,7 @@ extern void         apply_move(GameState &, const Move&);
 extern void         state_to_board(GameState &, Piece*& board_ref);
 extern GameState    mkState(Player current_turn);
 extern Move         mkMove(const Position& from, const Position& to);
+extern Move         mkMove(const Position& from, Direction direction);
 extern Piece        mkPiece(PieceType type, Player owner);
 extern void         insert_piece(GameState &, const Position&, const Piece&);
 extern bool         is_capture(const GameState&, const Move&);

@@ -37,13 +37,13 @@ bool is_position_occupied(const GameState& state, Position position) {
 
 void insert_available_moves_for_general(const GameState& state, Position position, Player owner, vector<Move>& all_moves) {
   with_90_degree_rotations(NORTH, [&] (Direction direction) {
-      all_moves.push_back(mkMove(position, move_direction(position, direction)));
+      all_moves.push_back(mkMove(position, direction));
   });
 }
 
 void insert_available_moves_for_advisor(const GameState& state, Position position, Player owner, vector<Move>& all_moves) {
   with_90_degree_rotations(NORTHEAST, [&] (Direction direction) {
-      all_moves.push_back(mkMove(position, move_direction(position, direction)));
+      all_moves.push_back(mkMove(position, direction));
   });
 }
 
@@ -53,8 +53,18 @@ void insert_available_moves_for_horse(const GameState& state, Position position,
       if (is_position_occupied(state, one_step))
         return;
       
-      all_moves.push_back(mkMove(position, move_direction(one_step, rotate_left (direction))));
-      all_moves.push_back(mkMove(position, move_direction(one_step, rotate_right(direction))));
+      all_moves.push_back(
+          mkMove(
+              position,
+              move_direction(
+                  one_step,
+                  rotate_left (direction))));
+      all_moves.push_back(
+          mkMove(
+              position,
+              move_direction(
+                  one_step,
+                  rotate_right(direction))));
   });
 }
 
@@ -104,8 +114,21 @@ void insert_available_moves_for_cannon(const GameState& state, Position position
   });
 }
 
+bool has_crossed_river(const Position& position, Player player) {
+    return player == RED
+        ? (6 <= position.rank && position.rank <= 10)
+        : (1 <= position.rank && position.rank <= 5);
+}
+
 void insert_available_moves_for_soldier(const GameState& state, Position position, Player owner, vector<Move>& all_moves) {
-  throw unimplemented("Write the soldier!");
+    auto northlike_direction = NORTH;
+    if (should_flip_direction(owner))
+        northlike_direction = SOUTH;
+    all_moves.push_back(mkMove(position, northlike_direction));
+    if (has_crossed_river(position, owner)) {
+        all_moves.push_back(mkMove(position, EAST));
+        all_moves.push_back(mkMove(position, WEST));
+    }
 }
 
 void insert_available_moves_for_piece(const GameState& state, Position position, Piece piece, vector<Move>& all_moves) {
@@ -220,6 +243,10 @@ Move mkMove(const Position& from, const Position& to) {
   ret.from = from;
   ret.to = to;
   return ret;
+}
+
+Move mkMove(const Position& from, Direction direction) {
+    return mkMove(from, move_direction(from, direction));
 }
 
 Piece mkPiece(PieceType pieceType, Player owner) {

@@ -90,6 +90,22 @@ void test_cannon() {
   assert_eq(num_available_moves(state), 1+4+4+4, "Incorrect number of chariot moves(one capture)");
 }
 
+void test_soldier() {
+    auto position = center_of_board();
+    auto state = mkState(RED);
+    insert_piece(state, position, mkPiece(SOLDIER, RED));
+
+    assert_eq(num_available_moves(state), 1, "Incorrect number of pre-river soldier moves");
+
+    state = mkState(RED);
+    insert_piece(
+        state,
+        move_direction(position, NORTH),
+        mkPiece(SOLDIER, RED));
+
+    assert_eq(num_available_moves(state), 3, "Incorrect number of post-river soldier moves");
+}
+
 void test_piece_capture() {
     auto position = center_of_board();
     auto piece = mkPiece(CHARIOT, RED);
@@ -121,6 +137,7 @@ int main() {
     test_elephant();
     test_chariot();
     test_cannon();
+    test_soldier();
     test_piece_capture();
   } catch (logic_error& error) {
     cerr << "Aborted test: " << error.what() << endl;

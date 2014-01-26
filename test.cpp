@@ -1,4 +1,5 @@
 #include "rules.hpp"
+#include <cstdint>
 #include <iostream>
 #include <map>
 #include <stdexcept>

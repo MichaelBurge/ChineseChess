@@ -12,7 +12,10 @@ void assert(bool condition, string message) {
 }
 
 template<typename T, typename U> void assert_eq(const T& a, const U& b, string message) {
-  assert(a == b, message + "- values: (" + to_string(a) + "," + to_string(b) + ")");
+  assert(
+      a == static_cast<T>(b),
+      message + "- values: (" + to_string(a) + "," + to_string(b) + ")"
+  );
 }
 
 template void assert_eq(const uint32_t&, const uint32_t&, string);

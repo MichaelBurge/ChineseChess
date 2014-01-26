@@ -4,7 +4,7 @@
 #include <stdexcept>
 using namespace std;
 
-bool test_general() {
+void test_general() {
   auto generalPosition = mkPosition(2, 5);
   auto generalPiece = mkPiece(GENERAL, RED);
 
@@ -13,11 +13,16 @@ bool test_general() {
   state.pieces = map<Position, Piece>();
   state.pieces.insert(pair<Position, Piece>(generalPosition, generalPiece));
 
-  auto moves = available_moves_for_piece(state, generalPosition, generalPiece);
-  assert_eq(moves.size(), 4, "Incorrect number of moves 1");
+  auto moves1 = available_moves_for_general(state, generalPosition, RED);
+  cerr << moves1.size() << " size " << endl;
+  assert_eq(moves1.size(), 4, "Incorrect number of moves 1");
 
-  auto all_moves = available_moves(state, RED);
-  assert_eq(moves.size(), 5, "Incorrect number of moves 2");
+  auto moves2 = available_moves_for_piece(state, generalPosition, generalPiece);
+  cerr << moves2.size() << " size " << endl;
+  assert_eq(moves2.size(), 4, "Incorrect number of moves 2");
+
+  auto moves3 = available_moves(state, RED);
+  assert_eq(moves3.size(), 4, "Incorrect number of moves 3");
 }
 int main() {
   try {

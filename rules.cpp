@@ -1,4 +1,5 @@
 #include "rules.hpp"
+#include "unimplemented.hpp"
 #include <algorithm>
 #include <stdexcept>
 #include <string>
@@ -82,6 +83,8 @@ Position move_direction(const Position& position, Direction direction, Player pl
     return mkPosition(position.rank, position.file + 1);
   case EAST:
     return mkPosition(position.rank, position.file - 1);
+  default:
+    throw logic_error("Unknown direction");
   }
 }
 
@@ -127,25 +130,25 @@ set<Move> available_moves_for_soldier(GameState& state, Position position, Playe
 set<Move> available_moves_for_piece(GameState& state, Position position, Piece piece) {
   switch (piece.pieceType) {
   case GENERAL:
-    available_moves_for_general(state, position, piece.owner);
+    return available_moves_for_general(state, position, piece.owner);
     break;
   case ADVISOR:
-    available_moves_for_advisor(state, position, piece.owner);
+    return available_moves_for_advisor(state, position, piece.owner);
     break;
   case ELEPHANT:
-    available_moves_for_elephant(state, position, piece.owner);
+    return available_moves_for_elephant(state, position, piece.owner);
     break;
   case HORSE:
-    available_moves_for_horse(state, position, piece.owner);
+    return available_moves_for_horse(state, position, piece.owner);
     break;
   case CHARIOT:
-    available_moves_for_chariot(state, position, piece.owner);
+    return available_moves_for_chariot(state, position, piece.owner);
     break;
   case CANON:
-    available_moves_for_canon(state, position, piece.owner);
+    return available_moves_for_canon(state, position, piece.owner);
     break;
   case SOLDIER:
-    available_moves_for_soldier(state, position, piece.owner);
+    return available_moves_for_soldier(state, position, piece.owner);
     break;
   default:
     throw logic_error("Unknown piece" + to_string(piece.pieceType));
@@ -163,7 +166,7 @@ set<Move> available_moves(GameState & state, Player player) {
 }
 
 GameState new_game() {
-  
+  throw unimplemented("new_game()");
 }
 
 void apply_move(GameState & state, Move move) {

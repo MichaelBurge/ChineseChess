@@ -2,12 +2,16 @@
 #include "unimplemented.hpp"
 #include "direction.hpp"
 #include <algorithm>
+#include <boost/multi_array.hpp>
 #include <functional>
 #include <list>
+#include <boost/optional/optional.hpp>
 #include <stdexcept>
 #include <string>
 #include <sstream>
+
 using namespace std;
+using namespace boost;
 
 template<typename T> bool between(const T& x, const T& a, const T& b) {
   return a < x && x < b;
@@ -132,7 +136,7 @@ void insert_available_moves_for_soldier(const GameState& state, Position positio
 }
 
 void insert_available_moves_for_piece(const GameState& state, Position position, Piece piece, vector<Move>& all_moves) {
-  switch (piece.pieceType) {
+  switch (piece.piece_type) {
   case GENERAL:
     insert_available_moves_for_general(state, position, piece.owner, all_moves);
     break;
@@ -155,8 +159,57 @@ void insert_available_moves_for_piece(const GameState& state, Position position,
     insert_available_moves_for_soldier(state, position, piece.owner, all_moves);
     break;
   default:
-    throw logic_error("Unknown piece" + to_string(piece.pieceType));
+    throw logic_error("Unknown piece" + to_string(piece.piece_type));
   }
+}
+
+vector<Position> filter_pieces(const GameState& state, function<bool(Position, Piece)> pred) {
+    auto matches = vector<Position>();
+    for_each(state.pieces.begin(), state.pieces.end(), [&] (const pair<Position, Piece> pair) {
+        if (pred(pair.first, pair.second))
+            matches.push_back(pair.first);
+    });
+    return matches;
+}
+
+vector<Position> filter_pieces_by_type(const GameState& state, PieceType type) {
+    return filter_pieces(state, [&] (const Position& position, const Piece& piece) {
+        return piece.piece_type == type;
+    });
+}
+
+optional<Position> shoot_ray_in_direction_until_collision(const GameState& state, const Position& center, Direction direction) {
+    optional<Position> ret;
+    shoot_ray_in_direction_until_should_stop(center, direction, [&] (const Position& candidate) {
+        if (!is_position_valid(candidate))
+            return true;
+        if (is_position_occupied(state, candidate)) {
+            ret = candidate;
+            return true;
+        }
+        return false;
+    });
+    return ret;
+}
+
+bool is_invalid_state(const GameState& state) {
+    auto violates_flying_kings_rule = [&] () -> bool {
+        auto kings = filter_pieces_by_type(state, GENERAL);
+        if (kings.size() < 2)
+            return false;
+        auto start = kings[0];
+        auto is_king_in_direction = [&] (Direction direction) -> bool {
+            auto end = shoot_ray_in_direction_until_collision(state, start, direction);
+            return 
+                end &&
+                is_position_occupied(state, *end) && 
+                (*(state.pieces.find(*end))).second.piece_type == GENERAL;
+            ;
+        };
+        return is_king_in_direction(NORTH)
+            || is_king_in_direction(SOUTH);
+    };
+    return violates_flying_kings_rule();
 }
 
 void filter_invalid_moves(const GameState& state, vector<Move>& moves) {
@@ -174,11 +227,15 @@ void filter_invalid_moves(const GameState& state, vector<Move>& moves) {
     auto captured_piece = (*captured_piece_iter).second;
     return from_piece.owner != captured_piece.owner;
   };
+  auto results_in_valid_state = [&] (const Move& move) -> bool {
+      return !peek_move<bool>(state, move, is_invalid_state);
+  };
   remove_if(moves.begin(), moves.end(), [&] (const Move& move) -> bool {
       return !(
         is_position_valid(move.from) &&
         is_position_valid(move.to) &&
-        is_enemy_piece(move)
+        is_enemy_piece(move) &&
+        results_in_valid_state(move)
           );
   });
 }
@@ -197,10 +254,51 @@ vector<Move> available_moves(const GameState & state) {
 }
 
 GameState new_game() {
-  throw unimplemented("new_game()");
+    auto state = mkState(RED);
+    auto fill_home_rank = [&] (int rank, Player player) {
+        insert_piece(state, mkPosition(rank, 0), mkPiece(CHARIOT, player));
+        insert_piece(state, mkPosition(rank, 1), mkPiece(HORSE,   player));
+        insert_piece(state, mkPosition(rank, 2), mkPiece(ELEPHANT,player));
+        insert_piece(state, mkPosition(rank, 3), mkPiece(ADVISOR, player));
+        insert_piece(state, mkPosition(rank, 4), mkPiece(GENERAL, player));
+        insert_piece(state, mkPosition(rank, 5), mkPiece(ADVISOR, player));
+        insert_piece(state, mkPosition(rank, 6), mkPiece(ELEPHANT,player));
+        insert_piece(state, mkPosition(rank, 7), mkPiece(HORSE,   player));
+        insert_piece(state, mkPosition(rank, 8), mkPiece(CHARIOT, player));
+    };
+    auto fill_cannons = [&] (int rank, Player player) {
+        insert_piece(state, mkPosition(rank, 1), mkPiece(CANNON, player));
+        insert_piece(state, mkPosition(rank, 7), mkPiece(CANNON, player));
+    };
+    auto fill_soldiers = [&] (int rank, Player player) {
+        insert_piece(state, mkPosition(rank, 0), mkPiece(SOLDIER, player));
+        insert_piece(state, mkPosition(rank, 2), mkPiece(SOLDIER, player));
+        insert_piece(state, mkPosition(rank, 4), mkPiece(SOLDIER, player));
+        insert_piece(state, mkPosition(rank, 6), mkPiece(SOLDIER, player));
+        insert_piece(state, mkPosition(rank, 8), mkPiece(SOLDIER, player));
+    };
+    fill_home_rank(0, RED);
+    fill_cannons  (2, RED);
+    fill_soldiers (3, RED);
+    fill_soldiers (6, BLACK);
+    fill_cannons  (7, BLACK);
+    fill_home_rank(9, BLACK);
+    return state;
 }
 
-void apply_move(GameState & state, Move move) {
+template<typename T> T peek_move(const GameState& state, Move move, const function<T(const GameState &)>& action) {
+    auto scratch = state;
+    apply_move(scratch, move);
+    return action(scratch);
+}
+
+void apply_move(GameState & state, const Move& move) {
+    auto i = state.pieces.find(move.from);
+    if (i == state.pieces.end())
+        throw logic_error("No piece in the 'from' coordinate of this move");
+
+    state.pieces[move.to] = state.pieces[move.from];
+    state.pieces.erase(i);
 }
 
 int num_available_moves(const GameState& state) {
@@ -238,6 +336,67 @@ void insert_piece(GameState& state, const Position& position, const Piece& piece
             position, piece));
 }
 
+void for_each_piece(const GameState& state, function<void(Position, Piece)> action) {
+    for_each(state.pieces.begin(), state.pieces.end(), [&] (const pair<Position, Piece> pair) {
+        action(pair.first, pair.second);
+    });
+}
+
+multi_array<Piece, 2> state_to_board(const GameState& state) {
+    multi_array<Piece, 2> ret(extents[10][9]);
+    for_each_piece(state, [&] (const Position& position, Piece piece) {
+        ret[position.rank][position.file] = piece;
+    });
+    return ret;
+}
+
+char character_for_piece(Piece piece) {
+    switch (piece.piece_type) {
+    case EMPTY:
+        return '.';
+    case GENERAL:
+        return piece.owner == RED
+            ? 'G'
+            : 'g';
+    case ADVISOR:
+        return piece.owner == RED
+            ? 'A'
+            : 'a';
+    case ELEPHANT:
+        return piece.owner == RED
+            ? 'E'
+            : 'e';
+    case HORSE:
+        return piece.owner == RED
+            ? 'H'
+            : 'h';
+    case CHARIOT:
+        return piece.owner == RED
+            ? 'R'
+            : 'r';
+    case CANNON:
+        return piece.owner == RED
+            ? 'N'
+            : 'n';
+    case SOLDIER:
+        return piece.owner == RED
+            ? 'S'
+            : 's';
+    default:
+        throw logic_error("Unknown piece");
+    }
+    throw logic_error("????");
+}
+
+void print_board(const GameState& state) {
+    multi_array<Piece, 2> board = state_to_board(state);
+    for (int i = 0; i != 10; i++) {
+        for (int j = 0; j != 9; j++)
+            cout << character_for_piece(board[i][j]) << ' ';
+        cout << endl;
+    }
+}
+
 Move mkMove(const Position& from, const Position& to) {
   auto ret = Move();
   ret.from = from;
@@ -249,9 +408,9 @@ Move mkMove(const Position& from, Direction direction) {
     return mkMove(from, move_direction(from, direction));
 }
 
-Piece mkPiece(PieceType pieceType, Player owner) {
+Piece mkPiece(PieceType piece_type, Player owner) {
   auto ret = Piece();
-  ret.pieceType = pieceType;
+  ret.piece_type = piece_type;
   ret.owner = owner;
   return ret;
 }

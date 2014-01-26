@@ -129,6 +129,23 @@ void test_piece_capture() {
     assert_eq(num_available_captures(state), 1, "Capture move is not recorded properly");
 }
 
+void test_flying_kings_rule() {
+    auto state = mkState(RED);
+    insert_piece(state, mkPosition(2, 5), mkPiece(GENERAL, RED));
+    assert_eq(num_available_moves(state), 4, "Incorrect # of king moves");
+
+    insert_piece(state, mkPosition(8, 6), mkPiece(GENERAL, BLACK));
+    assert_eq(num_available_moves(state), 3, "Enemy king doesn't block a move");
+
+    insert_piece(state, mkPosition(5, 6), mkPiece(SOLDIER, BLACK));
+    assert_eq(num_available_moves(state), 3, "Soldier doesn't block flying kings");
+}
+
+void test_example_board() {
+    auto state = new_game();
+    print_board(state);
+}
+
 int main() {
   try {
     test_general();
@@ -139,6 +156,9 @@ int main() {
     test_cannon();
     test_soldier();
     test_piece_capture();
+    test_example_board();
+    test_flying_kings_rule();
+
   } catch (logic_error& error) {
     cerr << "Aborted test: " << error.what() << endl;
   }

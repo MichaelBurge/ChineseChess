@@ -22,3 +22,5 @@ template<typename T, typename U> void assert_eq(const T& actual, const U& expect
 template void assert_eq(const uint32_t&, const uint32_t&, string);
 template void assert_eq(const uint32_t&, const int32_t&, string);
 template void assert_eq(const uint64_t&, const int32_t&, string);
+template void assert_eq(const uint64_t&, const uint64_t&, string);
+template void assert_eq(const int32_t&,  const int32_t&, string);

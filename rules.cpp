@@ -149,18 +149,19 @@ void filter_invalid_moves(const GameState& state, vector<Move>& moves) {
 
     auto from_piece = (*from_piece_iter).second;
     auto captured_piece = (*captured_piece_iter).second;
-    return from_piece.owner == captured_piece.owner;
+    return from_piece.owner != captured_piece.owner;
   };
   remove_if(moves.begin(), moves.end(), [&] (const Move& move) -> bool {
-      return
+      return !(
         is_position_valid(move.from) &&
         is_position_valid(move.to) &&
         is_enemy_piece(move)
-        ;
+          );
   });
 }
 
-vector<Move> available_moves(const GameState & state, Player player) {
+vector<Move> available_moves(const GameState & state) {
+  auto player = state.current_turn;
   auto all_moves = vector<Move>();
   auto& pieces = state.pieces;
   for_each(pieces.begin(), pieces.end(), [&] (pair<Position, Piece> piece) {
@@ -179,11 +180,39 @@ GameState new_game() {
 void apply_move(GameState & state, Move move) {
 }
 
-GameState empty_state() {
+int num_available_moves(const GameState& state) {
+    return available_moves(state).size();
+}
+
+vector<Move> available_captures(const GameState& state) {
+    auto moves = available_moves(state);
+    auto captures = vector<Move>();
+    for_each(moves.begin(), moves.end(), [&] (const Move& move) {
+        if (is_capture(state, move))
+            captures.push_back(move);
+    });
+    return captures;
+}
+
+bool is_capture(const GameState& state, const Move& move) {
+    return !(state.pieces.find(move.to) == state.pieces.end());
+}
+
+int num_available_captures(const GameState& state) {
+    return available_captures(state).size();
+}
+
+GameState mkState(Player current_turn) {
   auto ret = GameState();
   ret.pieces = map<Position, Piece>();
-  ret.current_turn = RED;
+  ret.current_turn = current_turn;
   return ret;
+}
+
+void insert_piece(GameState& state, const Position& position, const Piece& piece) {
+    state.pieces.insert(
+        pair<Position, Piece>(
+            position, piece));
 }
 
 Move mkMove(const Position& from, const Position& to) {

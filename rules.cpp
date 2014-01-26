@@ -82,7 +82,7 @@ void insert_available_moves_for_chariot(const GameState& state, Position positio
   });
 }
 
-void insert_available_moves_for_canon(const GameState& state, Position position, Player owner, vector<Move>& all_moves) {
+void insert_available_moves_for_cannon(const GameState& state, Position position, Player owner, vector<Move>& all_moves) {
   with_90_degree_rotations(NORTH, [&] (Direction direction) {
       bool has_collided = false;
       shoot_ray_in_direction_until_should_stop(position, direction, [&] (const Position& candidate) {
@@ -125,8 +125,8 @@ void insert_available_moves_for_piece(const GameState& state, Position position,
   case CHARIOT:
     insert_available_moves_for_chariot(state, position, piece.owner, all_moves);
     break;
-  case CANON:
-    insert_available_moves_for_canon(state, position, piece.owner, all_moves);
+  case CANNON:
+    insert_available_moves_for_cannon(state, position, piece.owner, all_moves);
     break;
   case SOLDIER:
     insert_available_moves_for_soldier(state, position, piece.owner, all_moves);

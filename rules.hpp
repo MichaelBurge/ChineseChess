@@ -5,7 +5,7 @@
 #include "position.hpp"
 using namespace std;
 
-enum PieceType { EMPTY, GENERAL, ADVISOR, ELEPHANT, HORSE, CHARIOT, CANON, SOLDIER };
+enum PieceType { EMPTY, GENERAL, ADVISOR, ELEPHANT, HORSE, CHARIOT, CANNON, SOLDIER };
 enum Player { RED, BLACK };
 
 struct Piece {

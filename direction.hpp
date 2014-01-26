@@ -11,3 +11,4 @@ Direction rotate_right(Direction direction);
 Direction opposite_direction(Direction direction);
 Position  move_direction(const Position& position, Direction direction);
 void with_90_degree_rotations(Direction direction, function<void(Direction)> action);
+void shoot_ray_in_direction_until_should_stop(const Position& center, Direction direction, function<bool(Position)> should_stop);

@@ -12,10 +12,10 @@ void assert(bool condition, string message) {
   throw logic_error("Assertion failure");
 }
 
-template<typename T, typename U> void assert_eq(const T& a, const U& b, string message) {
+template<typename T, typename U> void assert_eq(const T& actual, const U& expected, string message) {
   assert(
-      a == static_cast<T>(b),
-      message + "- values: (" + to_string(a) + "," + to_string(b) + ")"
+      actual == static_cast<T>(expected),
+      message + "- values: (Actual: " + to_string(actual) + "; Expected: " + to_string(expected) + ")"
   );
 }
 

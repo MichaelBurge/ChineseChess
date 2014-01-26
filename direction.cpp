@@ -86,3 +86,9 @@ void with_90_degree_rotations(Direction direction, function<void(Direction)> act
   action(direction = rotate_90_left(direction));
 }
 
+void shoot_ray_in_direction_until_should_stop(const Position& center, Direction direction, function<bool(Position)> should_stop) {
+  Position candidate = center;
+  do {
+    candidate = move_direction(candidate, direction);
+  } while (!should_stop(candidate));
+}

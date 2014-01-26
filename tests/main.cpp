@@ -23,14 +23,7 @@ void test_general() {
 
   auto state = state_with_one_piece(generalPosition, generalPiece);
 
-  auto moves1 = available_moves_for_general(state, generalPosition, RED);
-  assert_eq(moves1.size(), 4, "Incorrect number of general moves 1");
-
-  auto moves2 = available_moves_for_piece(state, generalPosition, generalPiece);
-  assert_eq(moves2.size(), 4, "Incorrect number of general moves 2");
-
-  auto moves3 = available_moves(state, RED);
-  assert_eq(moves3.size(), 4, "Incorrect number of general moves 3");
+  assert_eq(available_moves(state, RED).size(), 4, "Incorrect number of general moves 3");
 }
 
 void test_advisor() {
@@ -58,12 +51,46 @@ void test_horse() {
   assert_eq(available_moves(state, RED).size(), 6, "Horse's leg can't be tripped");
 }
 
+void test_elephant() {
+  auto elephantPosition = center_of_board();
+  auto elephantPiece = mkPiece(ELEPHANT, RED);
+
+  auto state = state_with_one_piece(elephantPosition, elephantPiece);
+
+  assert_eq(available_moves(state, RED).size(), 4, "Incorrect number of elephant moves");
+  state.pieces.insert(pair<Position, Piece>(
+      move_direction(elephantPosition, NORTHEAST),
+      mkPiece(SOLDIER, BLACK)));
+  assert_eq(available_moves(state, RED).size(), 3, "Can't block the elephant's eye");
+}
+
+void test_chariot() {
+  auto chariotPosition = center_of_board();
+  auto chariotPiece = mkPiece(CHARIOT, RED);
+
+  auto state = state_with_one_piece(chariotPosition, chariotPiece);
+
+  assert_eq(available_moves(state, RED).size(), 5+4+4+4, "Incorrect number of chariot moves 1");
+
+  state.pieces.insert(pair<Position, Piece>(
+      move_direction(chariotPosition, NORTH),
+      mkPiece(SOLDIER, BLACK)));
+  assert_eq(available_moves(state, RED).size(), 1+4+4+4, "Incorrect number of chariot moves 2");
+
+  state.pieces.insert(pair<Position, Piece>(
+      move_direction(chariotPosition, WEST),
+      mkPiece(SOLDIER, BLACK)));
+  assert_eq(available_moves(state, RED).size(), 1+1+4+4, "Incorrect number of chariot moves 3");
+}
+
 int main() {
   try {
     test_general();
     test_advisor();
     test_horse();
+    test_elephant();
+    test_chariot();
   } catch (logic_error& error) {
-    cerr << "Aborted test: " << error.what();
+    cerr << "Aborted test: " << error.what() << endl;
   }
 }

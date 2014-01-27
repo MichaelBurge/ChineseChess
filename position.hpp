@@ -10,5 +10,6 @@ struct Position {
   bool operator==(const Position& a) const;
 };
 ostream& operator<<(ostream& os, const Position&);
+string position_repr(const Position&);
 
 extern Position mkPosition(int rank, int file);

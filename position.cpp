@@ -20,6 +20,10 @@ char file_display(int file) {
     return 'A' + file - 1;
 }
 
+string position_repr(const Position& position) {
+    return file_display(position.file) + to_string(position.rank);
+}
+
 ostream& operator<<(ostream& os, const Position& position) {
-    return os << file_display(position.file) << position.rank;
+    return os << position_repr(position);
 }

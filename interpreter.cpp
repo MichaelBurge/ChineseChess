@@ -2,10 +2,11 @@
 #include "interpreter.hpp"
 #include "utility.hpp"
 #include "parsing.hpp"
+#include "exceptions.hpp"
 
 Interpreter::Interpreter() {
     this->running = true;
-    this->state = new_game();
+    this->_state = new_game();
 }
 
 void Interpreter::prompt() {
@@ -53,7 +54,7 @@ void Interpreter::cmd_empty() {
 }
 
 void Interpreter::cmd_new() {
-    this->state = new_game();
+    this->_state = new_game();
 }
 
 void Interpreter::cmd_exit() {
@@ -65,14 +66,26 @@ void Interpreter::cmd_unknown() {
 }
 
 void Interpreter::cmd_show() {
-    print_board(this->state);
+    print_board(this->state());
+}
+
+void Interpreter::run_move(const Move& move) {
+    try {
+        apply_move(this->_state, move);
+    } catch(const illegal_move& e) {
+        cout << e.what() << endl;
+    }
 }
 
 void Interpreter::cmd_move(const string& remaining_text) {
     auto parsed_move = parse_move(remaining_text);
     if (!parsed_move) {
-        cout << "Invalid move: `" << remaining_text << "`" << endl;
+        cout << "Unable to parse move: `" << remaining_text << "`" << endl;
         return;
     }
-    apply_move(this->state, (*parsed_move).first);
+    this->run_move((*parsed_move).first);
+}
+
+const GameState& Interpreter::state() {
+    return this->_state;
 }

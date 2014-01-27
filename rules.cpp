@@ -1,5 +1,5 @@
 #include "rules.hpp"
-#include "unimplemented.hpp"
+#include "exceptions.hpp"
 #include "direction.hpp"
 #include <algorithm>
 #include <boost/multi_array.hpp>
@@ -258,7 +258,7 @@ bool is_invalid_state(const GameState& state) {
 
 void filter_invalid_moves(const GameState& state, vector<Move>& moves) {
   auto results_in_invalid_state = [&] (const Move& move) -> bool {
-      return peek_move<bool>(state, move, is_invalid_state);
+      return peek_move<bool>(state, move, false, is_invalid_state);
   };
   auto new_end = remove_if(moves.begin(), moves.end(), [&] (const Move& move) -> bool {
       if (!is_position_valid(move.from))
@@ -319,10 +319,9 @@ GameState new_game() {
     fill_home_rank(10, BLACK);
     return state;
 }
-
-template<typename T> T peek_move(const GameState& state, Move move, const function<T(const GameState &)>& action) {
+template<typename T> T peek_move(const GameState& state, Move move, bool check_legality, const function<T(const GameState &)>& action) {
     auto scratch = state;
-    apply_move(scratch, move);
+    apply_move(scratch, move, check_legality);
     return action(scratch);
 }
 
@@ -332,7 +331,14 @@ Player next_player(Player player) {
         : RED;
 }
 
-void apply_move(GameState & state, const Move& move) {
+bool is_legal_move(const GameState& state, const Move& move) {
+    vector<Move> moves = available_moves(state);
+    return !(std::find(moves.begin(), moves.end(), move) == moves.end());
+}
+
+void apply_move(GameState & state, const Move& move, bool check_legality) {
+    if (check_legality && !is_legal_move(state, move))
+        throw illegal_move(move);    
     auto i = state.pieces.find(move.from);
     if (i == state.pieces.end())
         throw logic_error("No piece in the 'from' coordinate of this move");
@@ -457,7 +463,7 @@ void print_board(const GameState& state) {
     cout << "Current Turn: " << player_repr(state.current_turn) << endl;
     for_range(10, [&] (int i) {
         i = 9 - i; // Flip the board
-        if (i == 5)
+        if (i == 4)
             draw_river();
         draw_rank(i);
     });
@@ -475,9 +481,4 @@ Piece mkPiece(PieceType piece_type, Player owner) {
   ret.piece_type = piece_type;
   ret.owner = owner;
   return ret;
-}
-
-bool Move::operator<(const Move& b) const {
-  return (from < b.from) ||
-          (from == b.from && to < b.to);
 }

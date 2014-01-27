@@ -40,7 +40,7 @@ optional<pair<int, string> > parse_file(const string& text) {
     if (!c)
         return fail_parse<int>();
     auto _pair = *c;
-    auto value = _pair.first;
+    auto value = toupper(_pair.first);
     if ('A' <= value && value <= 'I')
         return pair<int, string>(static_cast<int>(value - 'A' + 1), _pair.second);
     return fail_parse<int>();

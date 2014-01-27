@@ -184,7 +184,7 @@ void test_parsing() {
     _assert(p1, "E8 doesn't parse as a position");
     assert_eq((*p1).first, e8_position, "E8 parsed incorrectly");
 
-    auto m1 = parse_move("E8E7");
+    auto m1 = parse_move("e8E7");
     _assert(m1, "E8E7 doesn't parse as a move");
     assert_eq((*m1).first, mkMove(e8_position, mkPosition(7, 5)), "E8E7 parsed incorrectly");
 

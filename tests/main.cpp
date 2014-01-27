@@ -192,6 +192,11 @@ void test_parsing() {
     _assert(tk1, "Herp|Derp doesn't split correctly");
     assert_eq((*tk1).first, string("Herp"), "Herp not parsed correctly");
     assert_eq((*tk1).second, string("Derp"), "Incorrect remaining text");
+
+    auto tk2 = parse_token("move E1E8", ' ');
+    _assert(tk2, "move E1E8 doesn't split correctly");
+    assert_eq((*tk2).first, string("move"), "move not parsed correctly");
+    assert_eq((*tk2).second, string("E1E8"), "E1E8 not parsed correctly");
 }
 
 int main() {

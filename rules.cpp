@@ -326,6 +326,12 @@ template<typename T> T peek_move(const GameState& state, Move move, const functi
     return action(scratch);
 }
 
+Player next_player(Player player) {
+    return player == RED
+        ? BLACK
+        : RED;
+}
+
 void apply_move(GameState & state, const Move& move) {
     auto i = state.pieces.find(move.from);
     if (i == state.pieces.end())
@@ -333,6 +339,7 @@ void apply_move(GameState & state, const Move& move) {
 
     state.pieces[move.to] = state.pieces[move.from];
     state.pieces.erase(i);
+    state.current_turn = next_player(state.current_turn);
 }
 
 int num_available_moves(const GameState& state) {
@@ -425,6 +432,13 @@ void repeat(int n, function<void()> action) {
     for_range(n, [&] (int x) { action(); });
 }
 
+string player_repr(Player player) {
+    if (player == RED)
+        return "Red";
+    else
+        return "Black";
+}
+
 void print_board(const GameState& state) {
     multi_array<Piece, 2> board = state_to_board(state);
 
@@ -440,7 +454,9 @@ void print_board(const GameState& state) {
         cout << endl;
     };
 
+    cout << "Current Turn: " << player_repr(state.current_turn) << endl;
     for_range(10, [&] (int i) {
+        i = 9 - i; // Flip the board
         if (i == 5)
             draw_river();
         draw_rank(i);

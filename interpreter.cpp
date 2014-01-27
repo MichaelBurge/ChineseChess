@@ -9,7 +9,8 @@
 Interpreter::Interpreter() {
     this->running = true;
     this->_state = new_game();
-    this->difficulty = 1;
+    this->difficulty = 2;
+    this->max_nodes = 1000;
 }
 
 void Interpreter::prompt() {
@@ -49,6 +50,12 @@ void Interpreter::dispatch_command(const string& command) {
         break;
     case str2int("computer"):
         this->cmd_run_computer();
+        break;
+    case str2int("difficulty"):
+        this->cmd_set_difficulty(remaining_text);
+        break;
+    case str2int("max_nodes"):
+        this->cmd_set_max_nodes(remaining_text);
         break;
     default:
         this->cmd_unknown();
@@ -107,11 +114,29 @@ void Interpreter::cmd_show_moves(const string& remaining_text) {
 }
 
 void Interpreter::cmd_run_computer() {
-    auto move = best_move(this->state(), this->difficulty, piece_score);
+    auto move = best_move(this->state(), this->difficulty, this->max_nodes, piece_score);
     cout << "The computer chooses " << move << endl;
     this->run_move(move);
+}
+
+void handle_integer(int& target, const string& name, const string& remaining_text) {
+    auto parsed = parse_value<int>(remaining_text);
+    if (!parsed) {
+        cout << name << ": " << target << endl;
+        return;
+    }
+    target = (*parsed).first;
+}
+
+void Interpreter::cmd_set_max_nodes(const string& remaining_text) {
+    handle_integer(this->max_nodes, "Max Nodes", remaining_text);
+}
+
+void Interpreter::cmd_set_difficulty(const string& remaining_text) {
+    handle_integer(this->difficulty, "Difficulty", remaining_text);
 }
 
 const GameState& Interpreter::state() {
     return this->_state;
 }
+

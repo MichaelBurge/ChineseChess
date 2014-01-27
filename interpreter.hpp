@@ -3,6 +3,7 @@
 struct Interpreter {
     bool running;
     int difficulty;
+    int max_nodes;
     Interpreter();
     void prompt();
     void run_move(const Move& move);
@@ -18,4 +19,6 @@ private:
     void cmd_show();
     void cmd_unknown();
     void cmd_run_computer();
+    void cmd_set_max_nodes(const string& remaining_text);
+    void cmd_set_difficulty(const string& remaining_text);
 };

@@ -241,10 +241,10 @@ void test_basic_ai() {
     insert_piece(state, chariot_position, mkPiece(CHARIOT, RED));
     insert_piece(state, ally_king_position, mkPiece(GENERAL, RED));
 
-    auto ai_move = best_move(state, 1, piece_score);
+    auto ai_move = best_move(state, 1, 1000, piece_score);
     print_board(state);
     cout << "Piece score: " << piece_score(state) << endl;
-    print_move_scores(move_scores(state, 1, piece_score));
+    print_move_scores(move_scores(state, 1, 1000, piece_score));
     cout << "Move: " << ai_move << endl;
     assert_eq(ai_move, mkMove(chariot_position, enemy_king_position), "AI chose a terrible move");
 }

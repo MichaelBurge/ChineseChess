@@ -14,19 +14,13 @@ template<typename T> optional<pair<T, string> > fail_parse() {
 }
 
 template<> optional<pair<int, string> > parse_value(const string& text) {
-    auto numerical_text = string();
-    auto remaining_text = text;
-    auto at_least_once = false;
-    while (auto o_pair = parse_value<char>(remaining_text)) {
-        at_least_once = true;
-        auto _pair = *o_pair;
-        if (_pair.first < '0'  || '9' < _pair.first)
-            break;
-        numerical_text += _pair.first;
-        remaining_text = _pair.second;
-    }
-    if (!at_least_once)
+    auto parsed = parse_until(text, [] (char c) {
+        return c < '0' || '9' < c;
+    });
+    if (!parsed)
         return fail_parse<int>();
+    auto numerical_text = (*parsed).first;
+    auto remaining_text = (*parsed).second;
     return pair<int, string>(stol(numerical_text), remaining_text);
 }
 
@@ -70,4 +64,22 @@ optional<pair<Move, string> > parse_move(const string& text) {
     if (!p2)
         return fail_parse<Move>();
     return pair<Move, string>(mkMove((*p1).first, (*p2).first), (*p2).second);
+}
+
+optional<pair<string, string> > parse_until(const string& text, function<bool(char)> pred) {
+    auto matching_text = string();
+    auto remaining_text = text;
+    auto at_least_once = false;
+    while (auto o_pair = parse_value<char>(remaining_text)) {
+        at_least_once = true;
+        auto _pair = *o_pair;
+        if (pred(_pair.first))
+            break;
+        matching_text += _pair.first;
+        remaining_text = _pair.second;
+    }
+    if (!at_least_once)
+        return fail_parse<string>();
+    return pair<string, string>(matching_text, remaining_text);
+   
 }

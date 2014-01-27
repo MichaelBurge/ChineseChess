@@ -199,6 +199,25 @@ void test_parsing() {
     assert_eq((*tk2).second, string("E1E8"), "E1E8 not parsed correctly");
 }
 
+void test_winning() {
+    auto state = mkState(RED);
+    deny(winner(state), "Winner when no kings");
+
+    insert_piece(state, mkPosition(2, 5), mkPiece(GENERAL, RED));
+    _assert(winner(state), "Should be winner if one king");
+
+    insert_piece(state, mkPosition(8, 6), mkPiece(GENERAL, BLACK));
+    deny(winner(state), "Winner when two kings");
+}
+
+void test_check() {
+    auto state = mkState(RED);
+    insert_piece(state, mkPosition(2, 5), mkPiece(GENERAL, RED));
+    assert_eq(num_available_moves(state), 4, "Incorrect number of general moves");
+    insert_piece(state, mkPosition(6, 5), mkPiece(CHARIOT, BLACK));
+    _assert(is_king_in_check(state, RED), "King not scared of chariot");
+}
+
 int main() {
   try {
     test_general();
@@ -211,6 +230,8 @@ int main() {
     test_piece_capture();
     test_flying_kings_rule();
     test_parsing();
+    test_winning();
+    test_check();
     if (ENABLE_VISUAL_TESTS)
         test_example_board();
   } catch (logic_error& error) {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/multi_array.hpp>
+#include <boost/optional/optional.hpp>
 #include <map>
 #include <vector>
 #include "position.hpp"
@@ -35,6 +36,9 @@ extern void         apply_move(GameState &, const Move&, bool check_legality = t
 extern void         insert_piece(GameState &, const Position&, const Piece&);
 extern bool         is_capture(const GameState&, const Move&);
 extern bool         is_legal_move(const GameState &, const Move&);
+extern optional<Player> winner(const GameState&);
+extern bool         is_king_in_check(const GameState& state, Player);
+extern Player       next_player(Player);
 
 // Debugging aids
 extern bool violates_flying_kings_rule(const GameState&);
@@ -48,6 +52,8 @@ template<typename T> T peek_move(const GameState& state, Move move, bool check_l
 extern vector<Position> filter_pieces(const GameState& state, function<bool(Position, Piece)> pred);
 extern vector<Position> filter_pieces_by_type(const GameState& state, PieceType type);
 extern vector<Move> filter_available_moves(const GameState& state, function<bool(const Move&)> pred);
+extern vector<Move> filter_available_captures(const GameState& state, function<bool(const Move&)> pred);
+extern vector<Move> captures_for_position(const GameState& state, const Position& position);
 extern vector<Move> available_moves_from(const GameState& state, const Position& position);
 extern int          num_available_moves(const GameState&);
 extern int          num_available_captures(const GameState&);

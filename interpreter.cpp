@@ -20,7 +20,6 @@ void Interpreter::prompt() {
 }
 
 void Interpreter::dispatch_command(const string& command) {
-    cout << "Command length:" << command.length() << endl;
     auto primary = parse_token(command, ' ');
     if (!primary) {
         this->cmd_empty();
@@ -43,7 +42,7 @@ void Interpreter::dispatch_command(const string& command) {
         this->cmd_move(remaining_text);
         break;
     case str2int("moves"):
-        this->cmd_moves(remaining_text);
+        this->cmd_show_moves(remaining_text);
         break;
     default:
         this->cmd_unknown();
@@ -89,7 +88,7 @@ void Interpreter::cmd_move(const string& remaining_text) {
     this->run_move((*parsed_move).first);
 }
 
-void Interpreter::cmd_moves(const string& remaining_text) {
+void Interpreter::cmd_show_moves(const string& remaining_text) {
     auto moves = vector<Move>();
     auto parsed_position = parse_position(remaining_text);
     if (!parsed_position) {

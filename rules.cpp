@@ -250,6 +250,35 @@ bool violates_can_only_capture_enemy_pieces_rule(const GameState& state, const M
     return from_piece.owner == captured_piece.owner;
 }
 
+vector<Move> filter_available_captures(const GameState& state, function<bool(const Move&)> pred) {
+    return filter_available_moves(state, [&] (const Move& move) {
+        return is_capture(state, move) && pred(move);
+    });
+}
+
+vector<Move> captures_for_position(const GameState& state, const Position& position) {
+    return filter_available_captures(state, [&] (const Move& move) {
+        return move.to == position;
+    });
+}
+
+bool is_king_in_check(const GameState& state, Player player) {
+    GameState switchedTurnState = state;
+    switchedTurnState.current_turn = next_player(player);
+    auto kings = filter_pieces_by_type(switchedTurnState, GENERAL);
+    bool in_check = false;
+    for_each(kings.begin(), kings.end(), [&] (const Position& position) {
+        auto _pair = *(state.pieces.find(position));
+        auto owner = _pair.second.owner;
+        if (owner != player)
+            return;
+        auto captures = captures_for_position(switchedTurnState, position);
+        if (!captures.empty())
+            in_check = true;
+    });
+    return in_check;
+}
+
 bool is_invalid_state(const GameState& state) {
     return
         violates_flying_kings_rule(state) ||
@@ -479,6 +508,13 @@ void print_board(const GameState& state) {
             draw_river();
         draw_rank(i);
     });
+}
+
+optional<Player> winner(const GameState& state) {
+    auto kings = filter_pieces_by_type(state, GENERAL);
+    if (kings.size() == 2 || kings.size() == 0)
+        return optional<Player>();
+    return (*(state.pieces.find(kings[0]))).second.owner;
 }
 
 void print_available_moves(const GameState& state) {

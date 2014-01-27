@@ -93,6 +93,14 @@ void test_cannon() {
       move_direction(move_direction(cannonPosition, NORTH), NORTH),
       mkPiece(ELEPHANT, BLACK));
   assert_eq(num_available_moves(state), 1+4+4+4, "Incorrect number of chariot moves(one capture)");
+
+  //
+  state = mkState(RED);
+  insert_piece(state, mkPosition(10, 8), mkPiece(CANNON, RED));
+  insert_piece(state, mkPosition(9, 8), mkPiece(ELEPHANT, BLACK));
+  insert_piece(state, mkPosition(8, 8), mkPiece(ADVISOR, BLACK));
+  insert_piece(state, mkPosition(7, 8), mkPiece(GENERAL, BLACK));
+  deny(is_legal_move(state, mkMove(mkPosition(10, 8), mkPosition(7, 8))), "Double-hopping bug");
 }
 
 void test_soldier() {

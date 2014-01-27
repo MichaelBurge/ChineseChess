@@ -120,6 +120,7 @@ void insert_available_moves_for_cannon(const GameState& state, Position position
             if (!is_position_occupied(state, candidate))
               return false;
             all_moves.push_back(mkMove(position, candidate));
+            return true;
           }
           return false;
       });

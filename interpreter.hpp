@@ -2,6 +2,7 @@
 
 struct Interpreter {
     bool running;
+    int difficulty;
     Interpreter();
     void prompt();
     void run_move(const Move& move);
@@ -16,4 +17,5 @@ private:
     void cmd_exit();
     void cmd_show();
     void cmd_unknown();
+    void cmd_run_computer();
 };

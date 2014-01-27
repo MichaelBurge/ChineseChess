@@ -3,10 +3,13 @@
 #include "utility.hpp"
 #include "parsing.hpp"
 #include "exceptions.hpp"
+#include "scoring.hpp"
+#include "minimax.hpp"
 
 Interpreter::Interpreter() {
     this->running = true;
     this->_state = new_game();
+    this->difficulty = 1;
 }
 
 void Interpreter::prompt() {
@@ -43,6 +46,9 @@ void Interpreter::dispatch_command(const string& command) {
         break;
     case str2int("moves"):
         this->cmd_show_moves(remaining_text);
+        break;
+    case str2int("computer"):
+        this->cmd_run_computer();
         break;
     default:
         this->cmd_unknown();
@@ -98,6 +104,12 @@ void Interpreter::cmd_show_moves(const string& remaining_text) {
         moves = available_moves_from(this->state(), position);
     }
     print_moves(moves);
+}
+
+void Interpreter::cmd_run_computer() {
+    auto move = best_move(this->state(), this->difficulty, piece_score);
+    cout << "The computer chooses " << move << endl;
+    this->run_move(move);
 }
 
 const GameState& Interpreter::state() {

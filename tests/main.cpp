@@ -5,6 +5,7 @@
 #include "../test.hpp"
 #include "../scoring.hpp"
 #include "../minimax.hpp"
+#include "../interpreter.hpp"
 #include <iostream>
 #include <stdexcept>
 using namespace std;
@@ -249,6 +250,13 @@ void test_basic_ai() {
     assert_eq(ai_move, mkMove(chariot_position, enemy_king_position), "AI chose a terrible move");
 }
 
+void test_performance() {
+    auto interpreter = Interpreter();
+    interpreter.max_nodes = 100000;
+    interpreter.difficulty = 2;
+    interpreter.cmd_run_computer();
+}
+
 int main() {
   try {
     test_general();
@@ -266,6 +274,7 @@ int main() {
     test_basic_ai();
     if (ENABLE_VISUAL_TESTS)
         test_example_board();
+    test_performance();
   } catch (logic_error& error) {
     cerr << "Aborted test: " << error.what() << endl;
   }

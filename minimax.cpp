@@ -6,6 +6,7 @@ const int highest = numeric_limits<int>::max();
  // http://en.wikipedia.org/wiki/Negamax#NegaMax_with_Alpha_Beta_Pruning
 int negamax(const GameState& state, int depth, int& node_count, int alpha, int beta, int color, function<int(const GameState&)> valuation) {
     auto node_value = color * valuation(state);
+    node_count--;
     auto hit_maximum_nodes = [&] () { return node_count <= 0; };
     if (hit_maximum_nodes())
         return node_value;
@@ -17,11 +18,9 @@ int negamax(const GameState& state, int depth, int& node_count, int alpha, int b
     int best_value = lowest;
     for (auto i = moves.begin(); i != moves.end(); i++) {
         if (hit_maximum_nodes())
-            break;
+            return best_value;
         auto move = *i;
         peek_move<void>(state, move, false, [&] (const GameState& newState) -> void {
-            if (hit_maximum_nodes())
-                return;
             auto val = -negamax(newState, depth - 1, node_count, -beta, -alpha, -color, valuation);
             best_value = max(best_value, val);
             alpha = max(alpha, val);

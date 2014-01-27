@@ -3,6 +3,8 @@
 #include "../position.hpp"
 #include "../rules.hpp"
 #include "../test.hpp"
+#include "../scoring.hpp"
+#include "../minimax.hpp"
 #include <iostream>
 #include <stdexcept>
 using namespace std;
@@ -216,6 +218,27 @@ void test_check() {
     assert_eq(num_available_moves(state), 4, "Incorrect number of general moves");
     insert_piece(state, mkPosition(6, 5), mkPiece(CHARIOT, BLACK));
     _assert(is_king_in_check(state, RED), "King not scared of chariot");
+
+    insert_piece(state, mkPosition(4, 5), mkPiece(CHARIOT, RED));
+    deny(is_king_in_check(state, RED), "King scared of own chariot");
+}
+
+void test_basic_ai() {
+    auto state = mkState(RED);
+    auto ally_king_position = mkPosition(2, 5);
+    auto chariot_position = mkPosition(5, 5);
+    auto enemy_king_position = mkPosition(8, 5);
+
+    insert_piece(state, enemy_king_position, mkPiece(GENERAL, BLACK));
+    insert_piece(state, chariot_position, mkPiece(CHARIOT, RED));
+    insert_piece(state, ally_king_position, mkPiece(GENERAL, RED));
+
+    auto ai_move = best_move(state, 1, piece_score);
+    print_board(state);
+    cout << "Piece score: " << piece_score(state) << endl;
+    print_move_scores(move_scores(state, 1, piece_score));
+    cout << "Move: " << ai_move << endl;
+    assert_eq(ai_move, mkMove(chariot_position, enemy_king_position), "AI chose a terrible move");
 }
 
 int main() {
@@ -232,6 +255,7 @@ int main() {
     test_parsing();
     test_winning();
     test_check();
+    test_basic_ai();
     if (ENABLE_VISUAL_TESTS)
         test_example_board();
   } catch (logic_error& error) {

@@ -353,6 +353,11 @@ template<typename T> T peek_move(const GameState& state, Move move, bool check_l
     apply_move(scratch, move, check_legality);
     return action(scratch);
 }
+template<> void peek_move(const GameState& state, Move move, bool check_legality, const function<void(const GameState &)>& action) {
+    auto scratch = state;
+    apply_move(scratch, move, check_legality);
+    action(scratch);
+}
 
 Player next_player(Player player) {
     return player == RED

@@ -55,6 +55,7 @@ extern vector<Move> filter_available_moves(const GameState& state, function<bool
 extern vector<Move> filter_available_captures(const GameState& state, function<bool(const Move&)> pred);
 extern vector<Move> captures_for_position(const GameState& state, const Position& position);
 extern vector<Move> available_moves_from(const GameState& state, const Position& position);
+extern void for_each_piece(const GameState& state, function<void(Position, Piece)> action);
 extern int          num_available_moves(const GameState&);
 extern int          num_available_captures(const GameState&);
 

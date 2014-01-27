@@ -5,6 +5,7 @@
 #include <vector>
 #include "position.hpp"
 #include "direction.hpp"
+#include "move.hpp"
 
 using namespace std;
 using namespace boost;
@@ -16,13 +17,6 @@ struct Piece {
   PieceType piece_type;
   Player owner;
 };
-
-struct Move {
-  Position from;
-  Position to;
-  bool operator<(const Move& a) const;
-};
-ostream& operator<<(ostream& os, const Move& move);
 
 struct GameState {
   map<Position, Piece> pieces;

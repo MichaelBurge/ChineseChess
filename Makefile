@@ -1,4 +1,4 @@
-primary_files = rules.cpp direction.cpp position.cpp
+primary_files = rules.cpp parsing.cpp direction.cpp position.cpp move.cpp
 
 main.exe: main.cpp $(primary_files)
 	g++ -Wall -std=c++11 $^ -o $@

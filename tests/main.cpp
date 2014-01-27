@@ -1,4 +1,5 @@
 #include "../direction.hpp"
+#include "../parsing.hpp"
 #include "../position.hpp"
 #include "../rules.hpp"
 #include "../test.hpp"
@@ -149,6 +150,45 @@ void test_example_board() {
     print_board(state);
 }
 
+void test_parsing() {
+    auto c1 = parse_value<char>("103");
+    _assert(c1, "103 doesn't parse");
+    assert_eq((*c1).first, '1', "1 doesn't parse correctly");
+    assert_eq((*c1).second, string("03"), "03 isn't the remaining text");
+
+    auto i1 = parse_value<int>("0");
+    assert_eq((*i1).first, 0, "0 doesn't parse correctly");
+
+    auto i2 = parse_value<int>("103");
+    _assert(i2, "103 doesn't parse");
+    assert_eq((*i2).first, 103, "103 doesn't parse correctly");
+
+    auto r1 = parse_rank("5");
+    _assert(r1, "5 doesn't parse as a rank");
+
+    auto r2 = parse_rank("10");
+    _assert(r2, "10 doesn't parse as a rank");
+
+    auto r3 = parse_rank("0");
+    deny(r3, "0 shouldn't parse as a rank");
+
+    auto f1 = parse_file("A");
+    _assert(f1, "A doesn't parse as a file");
+
+    auto f2 = parse_file("J");
+    deny(f2, "J shouldn't parse as a file");
+
+    auto e8_position = mkPosition(8, 5);
+
+    auto p1 = parse_position("E8");
+    _assert(p1, "E8 doesn't parse as a position");
+    assert_eq((*p1).first, e8_position, "E8 parsed incorrectly");
+
+    auto m1 = parse_move("E8E7");
+    _assert(m1, "E8E7 doesn't parse as a move");
+    assert_eq((*m1).first, mkMove(e8_position, mkPosition(7, 5)), "E8E7 parsed incorrectly");
+}
+
 int main() {
   try {
     test_general();
@@ -160,6 +200,7 @@ int main() {
     test_soldier();
     test_piece_capture();
     test_flying_kings_rule();
+    test_parsing();
     if (ENABLE_VISUAL_TESTS)
         test_example_board();
   } catch (logic_error& error) {

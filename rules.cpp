@@ -447,26 +447,11 @@ void print_board(const GameState& state) {
     });
 }
 
-ostream& operator<<(ostream& os, const Move& move) {
-    return os << move.from << move.to;
-}
-
 void print_available_moves(const GameState& state) {
     auto moves = available_moves(state);
     for_each(moves.begin(), moves.end(), [] (const Move& move) {
         cout << move << endl;
     });
-}
-
-Move mkMove(const Position& from, const Position& to) {
-  auto ret = Move();
-  ret.from = from;
-  ret.to = to;
-  return ret;
-}
-
-Move mkMove(const Position& from, Direction direction) {
-    return mkMove(from, move_direction(from, direction));
 }
 
 Piece mkPiece(PieceType piece_type, Player owner) {

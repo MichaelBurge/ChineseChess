@@ -187,6 +187,11 @@ void test_parsing() {
     auto m1 = parse_move("E8E7");
     _assert(m1, "E8E7 doesn't parse as a move");
     assert_eq((*m1).first, mkMove(e8_position, mkPosition(7, 5)), "E8E7 parsed incorrectly");
+
+    auto tk1 = parse_token("Herp|Derp", '|');
+    _assert(tk1, "Herp|Derp doesn't split correctly");
+    assert_eq((*tk1).first, string("Herp"), "Herp not parsed correctly");
+    assert_eq((*tk1).second, string("Derp"), "Incorrect remaining text");
 }
 
 int main() {

@@ -83,3 +83,16 @@ optional<pair<string, string> > parse_until(const string& text, function<bool(ch
     return pair<string, string>(matching_text, remaining_text);
    
 }
+
+optional<pair<string, string> > parse_token(const string& text, char delimiter) {
+    auto parsed = parse_until(text, [&] (char c) {
+        return c == delimiter;
+    });
+    if (!parsed)
+        return fail_parse<string>();
+    auto result = (*parsed).first;
+    auto maybe_eat_delimiter = parse_value<char>((*parsed).second);
+    if (!maybe_eat_delimiter)
+        return parsed;
+    return pair<string, string>(result, (*maybe_eat_delimiter).second);
+}

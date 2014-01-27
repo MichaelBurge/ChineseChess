@@ -6,6 +6,8 @@
 #include <stdexcept>
 using namespace std;
 
+bool ENABLE_VISUAL_TESTS = false;
+
 Position center_of_castle() { return mkPosition(2, 5); }
 Position center_of_board() { return mkPosition(5, 5); }
 
@@ -137,8 +139,9 @@ void test_flying_kings_rule() {
     insert_piece(state, mkPosition(8, 6), mkPiece(GENERAL, BLACK));
     assert_eq(num_available_moves(state), 3, "Enemy king doesn't block a move");
 
+
     insert_piece(state, mkPosition(5, 6), mkPiece(SOLDIER, BLACK));
-    assert_eq(num_available_moves(state), 3, "Soldier doesn't block flying kings");
+    assert_eq(num_available_moves(state), 4, "Soldier doesn't block flying kings");
 }
 
 void test_example_board() {
@@ -156,9 +159,9 @@ int main() {
     test_cannon();
     test_soldier();
     test_piece_capture();
-    test_example_board();
     test_flying_kings_rule();
-
+    if (ENABLE_VISUAL_TESTS)
+        test_example_board();
   } catch (logic_error& error) {
     cerr << "Aborted test: " << error.what() << endl;
   }

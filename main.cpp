@@ -1,6 +1,7 @@
 #include "rules.hpp"
+#include "interpreter.hpp"
 
 int main() {
-  GameState state = new_game();
-  return 0;
+    auto interpreter = Interpreter();
+    interpreter.prompt();
 }

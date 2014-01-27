@@ -10,6 +10,8 @@ private:
     GameState _state;
     void dispatch_command(const string& command);
     void cmd_move(const string&);
+    void cmd_moves(const string&);
+    void cmd_moves_from(const string&);
     void cmd_new();
     void cmd_empty();
     void cmd_exit();

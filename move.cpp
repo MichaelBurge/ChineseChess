@@ -1,4 +1,7 @@
 #include "move.hpp"
+#include <algorithm>
+#include <iostream>
+using namespace std;
 
 string move_repr(const Move& move) {
     return position_repr(move.from) + position_repr(move.to);
@@ -28,4 +31,13 @@ bool Move::operator<(const Move& b) const {
 
 bool Move::operator==(const Move& b) const {
     return this->from == b.from && this->to == b.to;
+}
+
+void print_moves(const vector<Move>& moves) {
+    if (moves.empty())
+        cout << "No moves available!" << endl;
+    else
+        for_each(moves.begin(), moves.end(), [] (const Move& move) {
+            cout << move << endl;
+        });
 }

@@ -352,14 +352,26 @@ int num_available_moves(const GameState& state) {
     return available_moves(state).size();
 }
 
-vector<Move> available_captures(const GameState& state) {
+vector<Move> filter_available_moves(const GameState& state, function<bool(const Move&)> pred) {
     auto moves = available_moves(state);
-    auto captures = vector<Move>();
+    auto matches = vector<Move>();
     for_each(moves.begin(), moves.end(), [&] (const Move& move) {
-        if (is_capture(state, move))
-            captures.push_back(move);
+        if (pred(move))
+            matches.push_back(move);
     });
-    return captures;
+    return matches;
+}    
+
+vector<Move> available_moves_from(const GameState& state, const Position& position) {
+    return filter_available_moves(state, [&] (const Move& move) {
+        return move.from == position;
+    });
+}
+
+vector<Move> available_captures(const GameState& state) {
+    return filter_available_moves(state, [&] (const Move& move) {
+        return is_capture(state, move);
+    });
 }
 
 bool is_capture(const GameState& state, const Move& move) {
@@ -470,10 +482,7 @@ void print_board(const GameState& state) {
 }
 
 void print_available_moves(const GameState& state) {
-    auto moves = available_moves(state);
-    for_each(moves.begin(), moves.end(), [] (const Move& move) {
-        cout << move << endl;
-    });
+    print_moves(available_moves(state));
 }
 
 Piece mkPiece(PieceType piece_type, Player owner) {

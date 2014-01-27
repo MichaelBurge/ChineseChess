@@ -42,6 +42,9 @@ void Interpreter::dispatch_command(const string& command) {
     case str2int("move"):
         this->cmd_move(remaining_text);
         break;
+    case str2int("moves"):
+        this->cmd_moves(remaining_text);
+        break;
     default:
         this->cmd_unknown();
         break;
@@ -84,6 +87,18 @@ void Interpreter::cmd_move(const string& remaining_text) {
         return;
     }
     this->run_move((*parsed_move).first);
+}
+
+void Interpreter::cmd_moves(const string& remaining_text) {
+    auto moves = vector<Move>();
+    auto parsed_position = parse_position(remaining_text);
+    if (!parsed_position) {
+        moves = available_moves(this->state());
+    } else {
+        auto position = (*parsed_position).first;
+        moves = available_moves_from(this->state(), position);
+    }
+    print_moves(moves);
 }
 
 const GameState& Interpreter::state() {

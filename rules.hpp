@@ -47,6 +47,8 @@ extern bool is_position_valid(const Position &);
 template<typename T> T peek_move(const GameState& state, Move move, bool check_legality, const function<T(const GameState &)>& action);
 extern vector<Position> filter_pieces(const GameState& state, function<bool(Position, Piece)> pred);
 extern vector<Position> filter_pieces_by_type(const GameState& state, PieceType type);
+extern vector<Move> filter_available_moves(const GameState& state, function<bool(const Move&)> pred);
+extern vector<Move> available_moves_from(const GameState& state, const Position& position);
 extern int          num_available_moves(const GameState&);
 extern int          num_available_captures(const GameState&);
 

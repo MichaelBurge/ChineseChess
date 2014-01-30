@@ -252,7 +252,7 @@ void test_basic_ai() {
 
 void test_performance() {
     auto interpreter = Interpreter();
-    interpreter.max_nodes = 100000;
+    interpreter.max_nodes = 1000000;
     interpreter.difficulty = 2;
     interpreter.cmd_run_computer();
 }

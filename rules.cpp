@@ -354,6 +354,7 @@ template<typename T> T peek_move(const GameState& state, Move move, bool check_l
     apply_move(scratch, move, check_legality);
     return action(scratch);
 }
+
 template<> void peek_move(const GameState& state, Move move, bool check_legality, const function<void(const GameState &)>& action) {
     auto scratch = state;
     apply_move(scratch, move, check_legality);
@@ -439,41 +440,30 @@ multi_array<Piece, 2> state_to_board(const GameState& state) {
 }
 
 char character_for_piece(Piece piece) {
+    auto c = '\a';
     switch (piece.piece_type) {
     case EMPTY:
-        return '.';
+        c = '.'; break;
     case GENERAL:
-        return piece.owner == RED
-            ? 'G'
-            : 'g';
+        c = 'g'; break;
     case ADVISOR:
-        return piece.owner == RED
-            ? 'A'
-            : 'a';
+        c = 'a'; break;
     case ELEPHANT:
-        return piece.owner == RED
-            ? 'E'
-            : 'e';
+        c = 'e'; break;
     case HORSE:
-        return piece.owner == RED
-            ? 'H'
-            : 'h';
+        c = 'h'; break;
     case CHARIOT:
-        return piece.owner == RED
-            ? 'R'
-            : 'r';
+        c = 'r'; break;
     case CANNON:
-        return piece.owner == RED
-            ? 'N'
-            : 'n';
+        c = 'n'; break;
     case SOLDIER:
-        return piece.owner == RED
-            ? 'S'
-            : 's';
+        c = 's'; break;
     default:
         throw logic_error("Unknown piece");
     }
-    throw logic_error("????");
+    if (piece.owner == RED)
+        c = toupper(c);
+    return c;
 }
 
 void for_range(int n, function<void(int)> action) {

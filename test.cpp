@@ -3,6 +3,7 @@
 #include <iostream>
 #include <map>
 #include <stdexcept>
+#include <boost/lexical_cast.hpp>
 using namespace std;
 
 void _assert(bool condition, string message) {
@@ -19,7 +20,7 @@ void deny(bool condition, string message) {
 template<typename T, typename U> void assert_eq(const T& actual, const U& expected, string message) {
   _assert(
       actual == static_cast<T>(expected),
-      message + "- values: (Actual: " + to_string(actual) + "; Expected: " + to_string(expected) + ")"
+      message + "- values: (Actual: " + lexical_cast<string>(actual) + "; Expected: " + lexical_cast<string>(expected) + ")"
   );
 }
 

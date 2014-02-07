@@ -24,6 +24,11 @@ void Interpreter::prompt() {
 }
 
 void Interpreter::dispatch_command(const string& command) {
+    auto move = parse_move(command);
+    if (!!move) {
+	this->run_move((*move).first);
+	return;
+    }
     auto primary = parse_token(command, ' ');
     if (!primary) {
         this->cmd_empty();

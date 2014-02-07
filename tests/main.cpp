@@ -180,6 +180,16 @@ void test_parsing() {
     _assert(i2, "103 doesn't parse");
     assert_eq((*i2).first, 103, "103 doesn't parse correctly");
 
+    auto u1 = parse_until("1234", [] (char c) {
+	    return c != '1' && c != '2';
+	});
+    _assert(u1, "1234 doesn't parse at all");
+    assert_eq((*u1).first, string("12"), "12 not parsed");
+    assert_eq((*u1).second, string("34"), "34 not parsed");
+
+    auto u2 = parse_until("derp", [] (char c) { return true; });
+    deny(u2, "u2 parsed");
+
     auto r1 = parse_rank("5");
     _assert(r1, "5 doesn't parse as a rank");
 
@@ -201,9 +211,15 @@ void test_parsing() {
     _assert(p1, "E8 doesn't parse as a position");
     assert_eq((*p1).first, e8_position, "E8 parsed incorrectly");
 
+    auto p2 = parse_position("derp");
+    deny(p2, "'derp' parsed as a position");
+
     auto m1 = parse_move("e8E7");
     _assert(m1, "E8E7 doesn't parse as a move");
     assert_eq((*m1).first, mkMove(e8_position, mkPosition(7, 5)), "E8E7 parsed incorrectly");
+
+    auto m2 = parse_move("derp");
+    deny(m2, "'derp' parsed as a move");
 
     auto tk1 = parse_token("Herp|Derp", '|');
     _assert(tk1, "Herp|Derp doesn't split correctly");

@@ -23,6 +23,7 @@ template<> optional<pair<int, string> > parse_value(const string& text) {
         return fail_parse<int>();
     auto numerical_text = (*parsed).first;
     auto remaining_text = (*parsed).second;
+
     return pair<int, string>(lexical_cast<int>(numerical_text), remaining_text);
 }
 
@@ -73,10 +74,10 @@ optional<pair<string, string> > parse_until(const string& text, function<bool(ch
     auto remaining_text = text;
     auto at_least_once = false;
     while (auto o_pair = parse_value<char>(remaining_text)) {
-        at_least_once = true;
         auto _pair = *o_pair;
         if (pred(_pair.first))
             break;
+        at_least_once = true;
         matching_text += _pair.first;
         remaining_text = _pair.second;
     }

@@ -5,6 +5,7 @@
 #include <boost/multi_array.hpp>
 #include <functional>
 #include <list>
+#include <boost/lexical_cast.hpp>
 #include <boost/optional/optional.hpp>
 #include <stdexcept>
 #include <string>
@@ -168,7 +169,7 @@ void insert_available_moves_for_piece(const GameState& state, Position position,
     insert_available_moves_for_soldier(state, position, piece.owner, all_moves);
     break;
   default:
-    throw logic_error("Unknown piece" + to_string(piece.piece_type));
+    throw logic_error("Unknown piece " + lexical_cast<string>(piece.piece_type));
   }
 }
 

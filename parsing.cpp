@@ -1,5 +1,7 @@
 #include "parsing.hpp"
 #include "position.hpp"
+#include <boost/lexical_cast.hpp>
+using namespace std;
 
 template<> optional<pair<char, string> > parse_value(const string& text) {
     if (text.length() == 0)
@@ -21,7 +23,7 @@ template<> optional<pair<int, string> > parse_value(const string& text) {
         return fail_parse<int>();
     auto numerical_text = (*parsed).first;
     auto remaining_text = (*parsed).second;
-    return pair<int, string>(stol(numerical_text), remaining_text);
+    return pair<int, string>(lexical_cast<int>(numerical_text), remaining_text);
 }
 
 optional<pair<int, string> > parse_rank(const string& text) {

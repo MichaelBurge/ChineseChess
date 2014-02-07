@@ -1,4 +1,6 @@
 #include "position.hpp"
+#include <boost/lexical_cast.hpp>
+using namespace boost;
 
 Position mkPosition(int rank, int file) {
   auto position = Position();
@@ -21,7 +23,7 @@ char file_display(int file) {
 }
 
 string position_repr(const Position& position) {
-    return file_display(position.file) + to_string(position.rank);
+    return file_display(position.file) + lexical_cast<string>(position.rank);
 }
 
 ostream& operator<<(ostream& os, const Position& position) {

@@ -57,6 +57,9 @@ void Interpreter::dispatch_command(const string& command) {
     case str2int("max_nodes"):
         this->cmd_set_max_nodes(remaining_text);
         break;
+    case str2int("move_scores"):
+	this->cmd_show_move_scores();
+	break;
     default:
         this->cmd_unknown();
         break;
@@ -134,6 +137,10 @@ void Interpreter::cmd_set_max_nodes(const string& remaining_text) {
 
 void Interpreter::cmd_set_difficulty(const string& remaining_text) {
     handle_integer(this->difficulty, "Difficulty", remaining_text);
+}
+
+void Interpreter::cmd_show_move_scores() {
+    print_move_scores(move_scores(this->state(), standard_score_function));
 }
 
 const GameState& Interpreter::state() {

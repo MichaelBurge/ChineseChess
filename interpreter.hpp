@@ -20,4 +20,5 @@ struct Interpreter {
     void cmd_run_computer();
     void cmd_set_max_nodes(const string& remaining_text);
     void cmd_set_difficulty(const string& remaining_text);
+    void cmd_show_move_scores();
 };

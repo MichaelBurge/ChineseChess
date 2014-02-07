@@ -232,22 +232,49 @@ void test_check() {
     deny(is_king_in_check(state, RED), "King scared of own chariot");
 }
 
-void test_basic_ai() {
+void test_scoring() {
     auto state = mkState(RED);
     auto ally_king_position = mkPosition(2, 5);
     auto chariot_position = mkPosition(5, 5);
     auto enemy_king_position = mkPosition(8, 5);
-
     insert_piece(state, enemy_king_position, mkPiece(GENERAL, BLACK));
     insert_piece(state, chariot_position, mkPiece(CHARIOT, RED));
     insert_piece(state, ally_king_position, mkPiece(GENERAL, RED));
+    assert_eq(piece_score(state), piece_value(CHARIOT), "Generals don't cancel out");
+    apply_move(state, mkMove(chariot_position, enemy_king_position));
+    assert_eq(piece_score(state), -(piece_value(CHARIOT) + piece_value(GENERAL)), "Generals don't cancel out");
+}
 
-    auto ai_move = best_move(state, 1, 1000, piece_score);
-    print_board(state);
-    cout << "Piece score: " << piece_score(state) << endl;
-    print_move_scores(move_scores(state, 1, 1000, piece_score));
-    cout << "Move: " << ai_move << endl;
-    assert_eq(ai_move, mkMove(chariot_position, enemy_king_position), "AI chose a terrible move");
+void test_basic_ai() {
+    auto test_captures_lone_general = [] (Player player, bool debug = false) {
+        auto other_player = next_player(player);
+	auto state = mkState(player);
+	auto ally_king_position = mkPosition(2, 5);
+	auto enemy_derp_position = mkPosition(3, 3);
+	auto chariot_position = mkPosition(5, 5);
+	auto enemy_king_position = mkPosition(8, 5);
+      
+	insert_piece(state, enemy_king_position, mkPiece(GENERAL, other_player));
+	insert_piece(state, enemy_derp_position, mkPiece(CHARIOT, other_player));
+	insert_piece(state, chariot_position, mkPiece(CHARIOT, player));
+	insert_piece(state, ally_king_position, mkPiece(GENERAL, player));
+	
+	auto ai_move = best_move(state, 3, 1000, piece_score);
+	if (debug) {
+	    print_board(state);
+	    cout << "Piece score: " << piece_score(state) << endl;
+	    print_move_scores(move_scores(state, piece_score));
+	    cout << "Move: " << ai_move << endl;
+	}
+	assert_eq(
+          ai_move,
+	  mkMove(chariot_position, enemy_king_position),
+	  "AI chose a terrible move"
+	);
+    };
+
+    test_captures_lone_general(RED, true);
+    test_captures_lone_general(BLACK, true);
 }
 
 void test_performance() {
@@ -271,6 +298,7 @@ int main() {
     test_parsing();
     test_winning();
     test_check();
+    test_scoring();
     test_basic_ai();
     if (ENABLE_VISUAL_TESTS)
         test_example_board();

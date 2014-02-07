@@ -27,6 +27,12 @@ void test_advisor() {
   insert_piece(state, center_of_castle(), mkPiece(ADVISOR, RED));
 
   assert_eq(num_available_moves(state), 4, "Incorrect number of advisor moves");
+
+  with_90_degree_rotations(SOUTHEAST, [] (Direction direction) {
+      auto state = mkState(RED);
+      insert_piece(state, move_direction(center_of_castle(), direction), mkPiece(ADVISOR, RED));
+      assert_eq(num_available_moves(state), 1, "Advisor not stuck on edge");
+  });
 }
 
 void test_horse() {

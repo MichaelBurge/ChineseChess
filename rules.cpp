@@ -225,16 +225,16 @@ bool violates_flying_kings_rule(const GameState& state) {
         || is_king_in_direction(SOUTH);
 };
 
-bool violates_kings_in_castle_rule(const GameState& state) {
-    bool any_kings_escaping = false;
+bool violates_pieces_stuck_in_castle_rule(const GameState& state) {
+    bool any_pieces_escaping = false;
     for_each_piece(state, [&] (const Position& position, const Piece& piece) {
-        if (piece.piece_type != GENERAL)
+        if (!( piece.piece_type == GENERAL || piece.piece_type == ADVISOR ))
             return;
         if (is_position_in_castle(position))
             return;
-        any_kings_escaping = true;
+        any_pieces_escaping = true;
     });
-    return any_kings_escaping;
+    return any_pieces_escaping;
 };
 
 bool violates_can_only_capture_enemy_pieces_rule(const GameState& state, const Move& move) {
@@ -284,7 +284,7 @@ bool is_king_in_check(const GameState& state, Player player) {
 bool is_invalid_state(const GameState& state) {
     return
         violates_flying_kings_rule(state) ||
-        violates_kings_in_castle_rule(state);
+        violates_pieces_stuck_in_castle_rule(state);
 }
 
 void filter_invalid_moves(const GameState& state, vector<Move>& moves) {

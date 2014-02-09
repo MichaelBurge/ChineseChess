@@ -306,6 +306,26 @@ void test_performance() {
     interpreter.cmd_run_computer();
 }
 
+int perft(const GameState& initial, int n) {
+    int count = 0;
+    for (const Move& move : available_moves(initial)) {
+	count +=
+	  n == 0
+	    ? 1
+	    : peek_move<int>(initial, move, false, [&] (const GameState& new_state) {
+	        return perft(new_state, n - 1);
+            });
+    }
+    return count;
+}
+
+void test_perft() {
+    auto state = new_game();
+    assert_eq(perft(state, 0), 44, "Failed perft(0)");
+    assert_eq(perft(state, 1), 1920, "Failed perft(1)");
+    //    assert_eq(perft(state, 2), 79666, "Failed perft(2)");
+}
+
 int main() {
   try {
     test_general();
@@ -317,6 +337,7 @@ int main() {
     test_soldier();
     test_piece_capture();
     test_flying_kings_rule();
+    test_perft();
     test_parsing();
     test_winning();
     test_check();

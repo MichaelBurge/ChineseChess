@@ -13,6 +13,7 @@
 #include <vector>
 
 using namespace std;
+using namespace std::placeholders;
 using namespace boost;
 
 template<typename T> bool between(const T& x, const T& a, const T& b) {
@@ -305,7 +306,7 @@ void filter_invalid_moves(const GameState& state, vector<Move>& moves) {
   moves.erase(new_end, moves.end());
 }
 
-vector<Move> available_moves(const GameState & state) {
+vector<Move> available_moves_without_check(const GameState & state) {
   auto player = state.current_turn;
   auto all_moves = vector<Move>();
   auto& pieces = state.pieces;
@@ -316,6 +317,20 @@ vector<Move> available_moves(const GameState & state) {
   });
   filter_invalid_moves(state, all_moves);
   return all_moves;
+}
+
+vector<Move> available_moves(const GameState & state) {
+    auto results_in_check = [&] ( const Move& move) -> bool {
+	return peek_move<bool>(state, move, false, bind(&is_king_in_check, _1, state.current_turn));
+    };
+    vector<Move> moves = available_moves_without_check(state);
+    auto new_end = remove_if(moves.begin(), moves.end(), [&] (const Move& move) -> bool {
+	    if (results_in_check(move))
+	    return true;
+         return false;
+    });
+    moves.erase(new_end, moves.end());
+    return moves;
 }
 
 GameState new_game() {
@@ -356,6 +371,8 @@ template<typename T> T peek_move(const GameState& state, Move move, bool check_l
     return action(scratch);
 }
 
+template int peek_move<int>(const GameState&, Move, bool, const function<int(const GameState &)>&);
+
 template<> void peek_move(const GameState& state, Move move, bool check_legality, const function<void(const GameState &)>& action) {
     auto scratch = state;
     apply_move(scratch, move, check_legality);
@@ -369,7 +386,7 @@ Player next_player(Player player) {
 }
 
 bool is_legal_move(const GameState& state, const Move& move) {
-    vector<Move> moves = available_moves(state);
+    vector<Move> moves = available_moves_without_check(state);
     return !(std::find(moves.begin(), moves.end(), move) == moves.end());
 }
 
@@ -390,7 +407,7 @@ int num_available_moves(const GameState& state) {
 }
 
 vector<Move> filter_available_moves(const GameState& state, function<bool(const Move&)> pred) {
-    auto moves = available_moves(state);
+    auto moves = available_moves_without_check(state);
     auto matches = vector<Move>();
     for_each(moves.begin(), moves.end(), [&] (const Move& move) {
         if (pred(move))

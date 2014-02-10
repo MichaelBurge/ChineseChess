@@ -16,20 +16,20 @@ Position center_of_castle() { return mkPosition(2, 5); }
 Position center_of_board() { return mkPosition(5, 5); }
 
 void test_general() {
-  auto state = mkState(RED);
+  auto state = GameState(RED);
   insert_piece(state, center_of_castle(), mkPiece(GENERAL, RED));
 
   assert_eq(num_available_moves(state), 4, "Incorrect number of general moves 3");
 }
 
 void test_advisor() {
-  auto state = mkState(RED);
+  auto state = GameState(RED);
   insert_piece(state, center_of_castle(), mkPiece(ADVISOR, RED));
 
   assert_eq(num_available_moves(state), 4, "Incorrect number of advisor moves");
 
   with_90_degree_rotations(SOUTHEAST, [] (Direction direction) {
-      auto state = mkState(RED);
+      auto state = GameState(RED);
       insert_piece(state, move_direction(center_of_castle(), direction), mkPiece(ADVISOR, RED));
       assert_eq(num_available_moves(state), 1, "Advisor not stuck on edge");
   });
@@ -37,7 +37,7 @@ void test_advisor() {
 
 void test_horse() {
   auto horsePosition = center_of_board();
-  auto state = mkState(RED);
+  auto state = GameState(RED);
   insert_piece(state, horsePosition, mkPiece(HORSE, RED));
 
   assert_eq(num_available_moves(state), 8, "Incorrect number of horse moves 1");
@@ -51,7 +51,7 @@ void test_horse() {
 
 void test_elephant() {
   auto elephantPosition = center_of_board();
-  auto state = mkState(RED);
+  auto state = GameState(RED);
   insert_piece(state, elephantPosition, mkPiece(ELEPHANT, RED));
 
   assert_eq(num_available_moves(state), 4, "Incorrect number of elephant moves");
@@ -64,7 +64,7 @@ void test_elephant() {
 
 void test_chariot() {
   auto chariotPosition = center_of_board();
-  auto state = mkState(RED);
+  auto state = GameState(RED);
   insert_piece(state, chariotPosition, mkPiece(CHARIOT, RED));
 
   assert_eq(num_available_moves(state), 5+4+4+4, "Incorrect number of chariot moves 1");
@@ -84,7 +84,7 @@ void test_chariot() {
 
 void test_cannon() {
   auto cannonPosition = center_of_board();
-  auto state = mkState(RED);
+  auto state = GameState(RED);
   insert_piece(state, cannonPosition, mkPiece(CANNON, RED));
 
   assert_eq(num_available_moves(state), 5+4+4+4, "Incorrect number of chariot moves(no obstructions)");
@@ -102,7 +102,7 @@ void test_cannon() {
   assert_eq(num_available_moves(state), 1+4+4+4, "Incorrect number of chariot moves(one capture)");
 
   //
-  state = mkState(RED);
+  state = GameState(RED);
   insert_piece(state, mkPosition(10, 8), mkPiece(CANNON, RED));
   insert_piece(state, mkPosition(9, 8), mkPiece(ELEPHANT, BLACK));
   insert_piece(state, mkPosition(8, 8), mkPiece(ADVISOR, BLACK));
@@ -112,12 +112,12 @@ void test_cannon() {
 
 void test_soldier() {
     auto position = center_of_board();
-    auto state = mkState(RED);
+    auto state = GameState(RED);
     insert_piece(state, position, mkPiece(SOLDIER, RED));
 
     assert_eq(num_available_moves(state), 1, "Incorrect number of pre-river soldier moves");
 
-    state = mkState(RED);
+    state = GameState(RED);
     insert_piece(
         state,
         move_direction(position, NORTH),
@@ -132,7 +132,7 @@ void test_piece_capture() {
     auto ally  = mkPiece(CHARIOT, RED);
     auto enemy = mkPiece(CHARIOT, BLACK);
 
-    auto state = mkState(RED);
+    auto state = GameState(RED);
     insert_piece(state, position, piece);
     assert_eq(num_available_captures(state), 0, "Captures incorrectly found 1");
 
@@ -150,7 +150,7 @@ void test_piece_capture() {
 }
 
 void test_flying_kings_rule() {
-    auto state = mkState(RED);
+    auto state = GameState(RED);
     insert_piece(state, mkPosition(2, 5), mkPiece(GENERAL, RED));
     assert_eq(num_available_moves(state), 4, "Incorrect # of king moves");
 
@@ -233,7 +233,7 @@ void test_parsing() {
 }
 
 void test_winning() {
-    auto state = mkState(RED);
+    auto state = GameState(RED);
     deny(winner(state), "Winner when no kings");
 
     insert_piece(state, mkPosition(2, 5), mkPiece(GENERAL, RED));
@@ -244,7 +244,7 @@ void test_winning() {
 }
 
 void test_check() {
-    auto state = mkState(RED);
+    auto state = GameState(RED);
     insert_piece(state, mkPosition(2, 5), mkPiece(GENERAL, RED));
     assert_eq(num_available_moves(state), 4, "Incorrect number of general moves");
 
@@ -254,10 +254,22 @@ void test_check() {
 
     insert_piece(state, mkPosition(4, 5), mkPiece(CHARIOT, RED));
     deny(is_king_in_check(state, RED), "King scared of own chariot");
+
+    state = GameState(BLACK);
+    insert_piece(state, mkPosition(1, 5), mkPiece(GENERAL, RED));
+    insert_piece(state, mkPosition(1, 6), mkPiece(ADVISOR, RED));
+    insert_piece(state, mkPosition(10, 5), mkPiece(GENERAL, BLACK));
+    insert_piece(state, mkPosition(10, 6), mkPiece(CHARIOT, BLACK));
+    insert_piece(state, mkPosition(10, 7), mkPiece(CHARIOT, RED));
+    insert_piece(state, mkPosition(2, 5), mkPiece(SOLDIER, RED));
+    insert_piece(state, mkPosition(2, 1), mkPiece(CHARIOT, BLACK));
+    insert_piece(state, mkPosition(2, 7), mkPiece(HORSE, BLACK));
+    auto bad_move = mkMove(mkPosition(10,6), mkPosition(1,6));
+    deny(is_legal_move(state, bad_move), "Code suffers from the 'you can't take my general who's in check because you're in check' problem");
 }
 
 void test_scoring() {
-    auto state = mkState(RED);
+    auto state = GameState(RED);
     auto ally_king_position = mkPosition(2, 5);
     auto chariot_position = mkPosition(5, 5);
     auto enemy_king_position = mkPosition(8, 5);
@@ -272,7 +284,7 @@ void test_scoring() {
 void test_basic_ai() {
     auto test_captures_lone_general = [] (Player player, bool debug = false) {
         auto other_player = next_player(player);
-	auto state = mkState(player);
+	auto state = GameState(player);
 	auto ally_king_position = mkPosition(2, 5);
 	auto enemy_derp_position = mkPosition(3, 3);
 	auto chariot_position = mkPosition(5, 5);
@@ -303,14 +315,16 @@ void test_performance() {
 }
 
 int perft(const GameState& initial, int n) {
+    throw logic_error("derp");
     int count = 0;
     for (const Move& move : available_moves(initial)) {
-	count +=
-	  n == 0
-	    ? 1
-	    : peek_move<int>(initial, move, false, [&] (const GameState& new_state) {
+	if (n == 0) {
+	    count += 1;
+	} else {
+	    peek_move<int>(initial, move, false, [&] (const GameState& new_state) {
 	        return perft(new_state, n - 1);
             });
+	}
     }
     return count;
 }
@@ -318,7 +332,7 @@ int perft(const GameState& initial, int n) {
 void test_perft() {
     auto state = new_game();
     assert_eq(perft(state, 0), 44, "Failed perft(0)");
-    assert_eq(perft(state, 1), 1920, "Failed perft(1)");
+    //p    assert_eq(perft(state, 1), 1920, "Failed perft(1)");
     //assert_eq(perft(state, 2), 79666, "Failed perft(2)");
 }
 
@@ -333,7 +347,6 @@ int main() {
     test_soldier();
     test_piece_capture();
     test_flying_kings_rule();
-    test_perft();
     test_parsing();
     test_winning();
     test_check();
@@ -342,6 +355,7 @@ int main() {
     if (ENABLE_VISUAL_TESTS)
         test_example_board();
     test_performance();
+    test_perft();
   } catch (logic_error& error) {
     cerr << "Aborted test: " << error.what() << endl;
   }

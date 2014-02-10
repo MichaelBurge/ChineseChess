@@ -16,9 +16,11 @@ using namespace std;
 using namespace std::placeholders;
 using namespace boost;
 
-template<typename T> bool between(const T& x, const T& a, const T& b) {
-  return a < x && x < b;
-}
+GameState::GameState(Player _current_turn) {
+  this->pieces = map<Position, Piece>();
+  this->current_turn = _current_turn;
+  this->undo_stack = stack<UndoNode, list<UndoNode> >();
+}    
 
 bool is_position_valid(const Position& position) {
   const auto& rank = position.rank, file = position.file;
@@ -334,7 +336,7 @@ vector<Move> available_moves(const GameState & state) {
 }
 
 GameState new_game() {
-    auto state = mkState(RED);
+    auto state = GameState(RED);
     auto fill_home_rank = [&] (int rank, Player player) {
         insert_piece(state, mkPosition(rank, 1), mkPiece(CHARIOT, player));
         insert_piece(state, mkPosition(rank, 2), mkPiece(HORSE,   player));
@@ -385,13 +387,16 @@ Player next_player(Player player) {
         : RED;
 }
 
-bool is_legal_move(const GameState& state, const Move& move) {
-    vector<Move> moves = available_moves_without_check(state);
+bool is_legal_move(const GameState& state, const Move& move, bool allow_check) {
+    vector<Move> moves =
+	allow_check
+	  ? available_moves_without_check(state)
+          : available_moves(state);
     return !(std::find(moves.begin(), moves.end(), move) == moves.end());
 }
 
 void apply_move(GameState & state, const Move& move, bool check_legality) {
-    if (check_legality && !is_legal_move(state, move))
+    if (check_legality && !is_legal_move(state, move, true))
         throw illegal_move(move);    
     auto i = state.pieces.find(move.from);
     if (i == state.pieces.end())
@@ -434,13 +439,6 @@ bool is_capture(const GameState& state, const Move& move) {
 
 int num_available_captures(const GameState& state) {
     return available_captures(state).size();
-}
-
-GameState mkState(Player current_turn) {
-  auto ret = GameState();
-  ret.pieces = map<Position, Piece>();
-  ret.current_turn = current_turn;
-  return ret;
 }
 
 void insert_piece(GameState& state, const Position& position, const Piece& piece) {

@@ -2,7 +2,9 @@
 
 #include <boost/multi_array.hpp>
 #include <boost/optional/optional.hpp>
+#include <list>
 #include <map>
+#include <stack>
 #include <vector>
 #include "position.hpp"
 #include "direction.hpp"
@@ -15,16 +17,24 @@ enum PieceType { EMPTY, GENERAL, ADVISOR, ELEPHANT, HORSE, CHARIOT, CANNON, SOLD
 enum Player { RED, BLACK };
 
 struct Piece {
-  PieceType piece_type;
-  Player owner;
+    PieceType piece_type;
+    Player owner;
+};
+
+struct UndoNode {
+    Position from, to;
+    optional<Piece> former_occupant;
 };
 
 struct GameState {
-  map<Position, Piece> pieces;
-  Player current_turn;
+    map<Position, Piece> pieces;
+    Player current_turn;
+    GameState(Player _current_turn);
+    
+private:
+    mutable stack<UndoNode, list<UndoNode> > undo_stack;
 };
 
-extern GameState    mkState(Player current_turn);
 extern Move         mkMove(const Position& from, const Position& to);
 extern Move         mkMove(const Position& from, Direction direction);
 extern Piece        mkPiece(PieceType type, Player owner);
@@ -35,7 +45,7 @@ extern vector<Move> available_moves(const GameState &);
 extern void         apply_move(GameState &, const Move&, bool check_legality = true);
 extern void         insert_piece(GameState &, const Position&, const Piece&);
 extern bool         is_capture(const GameState&, const Move&);
-extern bool         is_legal_move(const GameState &, const Move&);
+extern bool         is_legal_move(const GameState &, const Move&, bool allow_check = false);
 extern optional<Player> winner(const GameState&);
 extern bool         is_king_in_check(const GameState& state, Player);
 extern Player       next_player(Player);

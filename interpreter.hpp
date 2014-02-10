@@ -1,6 +1,7 @@
 #pragma once
 
 struct Interpreter {
+    GameState _state;
     bool running;
     int difficulty;
     int max_nodes;
@@ -8,7 +9,6 @@ struct Interpreter {
     void prompt();
     void run_move(const Move& move);
     const GameState& state();
-    GameState _state;
     void dispatch_command(const string& command);
     void cmd_move(const string&);
     void cmd_show_moves(const string&);

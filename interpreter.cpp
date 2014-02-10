@@ -6,12 +6,7 @@
 #include "scoring.hpp"
 #include "minimax.hpp"
 
-Interpreter::Interpreter() {
-    this->running = true;
-    this->_state = new_game();
-    this->difficulty = 2;
-    this->max_nodes = 1000;
-}
+Interpreter::Interpreter() : _state(new_game()), running(true), difficulty(2), max_nodes(1000) { }
 
 void Interpreter::prompt() {
     cout << "Welcome to Super Happy Xiangqi funtime!" << endl;

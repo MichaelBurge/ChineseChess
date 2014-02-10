@@ -11,3 +11,5 @@ test_suite.exe: tests/main.o test.o $(primary_files)
 test: test_suite.exe
 	./test_suite.exe
 
+clean:
+	rm $(primary_files) main.exe test_suite.exe

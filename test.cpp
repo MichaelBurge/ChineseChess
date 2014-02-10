@@ -30,6 +30,22 @@ template void assert_eq(const uint32_t&, const int32_t&, string);
 template void assert_eq(const uint64_t&, const int32_t&, string);
 template void assert_eq(const uint64_t&, const uint64_t&, string);
 template void assert_eq(const int32_t&,  const int32_t&, string);
+template<> void assert_eq(const string& actual, const string& expected, string message) {
+    _assert(
+        actual == expected,
+        message + " - values: (Actual: " + actual + "; Expected: " + expected + ")");
+}
+
+template<> void assert_eq(const Player& actual, const Player& expected, string message) {
+    auto repr = [] (const Player& player) -> string {
+	if (player == RED)
+	    return string("RED");
+	else
+	    return string("BLACK");
+    };
+    assert_eq(repr(actual), repr(expected), message);
+}
+
 template<> void assert_eq(const Position& actual, const Position& expected, string message) {
     assert_eq(actual.rank, expected.rank, message + " - Rank differs");
     assert_eq(actual.file, expected.file, message + " - File differs");
@@ -38,10 +54,4 @@ template<> void assert_eq(const Position& actual, const Position& expected, stri
 template<> void assert_eq(const Move& actual, const Move& expected, string message) {
     assert_eq(actual.from, expected.from, message + " - From differs");
     assert_eq(actual.to, expected.to, message + " - To differs");
-}
-
-template<> void assert_eq(const string& actual, const string& expected, string message) {
-    _assert(
-        actual == expected,
-        message + " - values: (Actual: " + actual + "; Expected: " + expected + ")");
 }

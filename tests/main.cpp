@@ -62,7 +62,6 @@ void test_chariot() {
   auto chariotPosition = center_of_board();
   auto state = GameState(RED);
   state.insert_piece(chariotPosition, Piece(CHARIOT, RED));
-
   assert_eq(num_available_moves(state), 5+4+4+4, "Incorrect number of chariot moves 1");
 
   state.insert_piece(
@@ -230,25 +229,35 @@ void test_data_structures() {
     auto old_position = mkPosition(2, 5);
     auto new_position = move_direction(old_position, WEST);
     state.insert_piece(old_position, Piece(GENERAL, RED));
+    state.insert_piece(move_direction(old_position, NORTH), Piece(CHARIOT, RED));
     state.insert_piece(mkPosition(9, 1), Piece(CHARIOT, BLACK));
-    assert_eq(num_available_moves(state), 4, "Incorrect number of general moves");
-    bool ran = false;
     state.peek_move<void>(Move(old_position, new_position), [&] (const GameState newState) {
-        ran = true;
+	newState.peek_move<void>(Move(mkPosition(9, 1), mkPosition(9, 2)), [&] (const GameState& newState) {
+	    newState.peek_move<void>(Move(new_position, old_position), [] (const GameState&) {
+	    });
+	});
     });
-    state.apply_move(Move(mkPosition(9, 1), mkPosition(9, 2)));
-    _assert(ran, "Didn't run peek");
-    state.print_board();
-    assert_eq(num_available_moves(state), 4, "Gunk left on board");
+    assert_eq(state.current_turn(), RED, "current_turn not preserved 1");
+    best_move(state, 3, 1000, piece_score);
+    assert_eq(state.current_turn(), RED, "current_turn not preserved 2");
+    assert_eq(state.filter_pieces_by_type(GENERAL).size(), 1, "General gunk");
+    assert_eq(state.filter_pieces_by_type(CHARIOT).size(), 2, "Chariot gunk");
 }
+
+extern int debug;
 
 void test_check() {
     auto state = GameState(RED);
-    state.insert_piece(mkPosition(2, 5), Piece(GENERAL, RED));
+    auto position = center_of_castle();
+    state.insert_piece(position, Piece(GENERAL, RED));
     assert_eq(num_available_moves(state), 4, "Incorrect number of general moves");
 
     state.insert_piece(mkPosition(6, 5), Piece(CHARIOT, BLACK));
     _assert(is_king_in_check(state, RED), "King not scared of chariot");
+    _assert(results_in_check(state, Move(position, move_direction(position, NORTH))), "NORTH check");
+    _assert(results_in_check(state, Move(position, move_direction(position, SOUTH))), "SOUTH check");
+    deny(results_in_check(state, Move(position, move_direction(position, WEST))), "WEST check");
+    deny(results_in_check(state, Move(position, move_direction(position, EAST))), "EAST check");
     assert_eq(num_available_moves(state), 2, "King can't run to only two places");
 
     state.insert_piece(mkPosition(4, 5), Piece(CHARIOT, RED));
@@ -280,7 +289,7 @@ void test_scoring() {
     assert_eq(piece_score(state), -(piece_value(CHARIOT) + piece_value(GENERAL)), "Generals don't cancel out");
 }
 
-void test_basic_ai() {
+void test_basic_minimax() {
     auto test_captures_lone_general = [] (Player player, bool debug = false) {
         auto other_player = next_player(player);
 	auto state = GameState(player);
@@ -316,13 +325,12 @@ void test_performance() {
 }
 
 int perft(const GameState& initial, int n) {
-    throw logic_error("derp");
     int count = 0;
     for (const Move& move : available_moves(initial)) {
 	if (n == 0) {
 	    count += 1;
 	} else {
-	    initial.peek_move<int>(move, [&] (const GameState& new_state) {
+	    count += initial.peek_move<int>(move, [&] (const GameState& new_state) {
 	        return perft(new_state, n - 1);
             });
 	}
@@ -333,8 +341,8 @@ int perft(const GameState& initial, int n) {
 void test_perft() {
     auto state = new_game();
     assert_eq(perft(state, 0), 44, "Failed perft(0)");
-    //p    assert_eq(perft(state, 1), 1920, "Failed perft(1)");
-    //assert_eq(perft(state, 2), 79666, "Failed perft(2)");
+    assert_eq(perft(state, 1), 1920, "Failed perft(1)");
+    assert_eq(perft(state, 2), 79666, "Failed perft(2)");
 }
 
 int main() {
@@ -353,7 +361,7 @@ int main() {
       test_winning();
       test_check();
       test_scoring();
-      test_basic_ai();
+      test_basic_minimax();
       test_performance();
       test_perft();
   } catch (logic_error& error) {

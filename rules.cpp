@@ -237,15 +237,16 @@ vector<Move> captures_for_position(const GameState& state, const Position& posit
     });
 }
 
-bool is_king_in_check(const GameState& state, Player player) {
-    GameState switchedTurnState = state;
-    switchedTurnState.current_turn = next_player(player);
+bool is_king_in_check(const GameState& original_state, Player player) {
+    auto state = original_state;
+    state.current_turn(next_player(player));
     bool in_check = false;
-    for (const Position& position : switchedTurnState.filter_pieces_by_type(GENERAL)) {
+    for (const Position& position : state.filter_pieces_by_type(GENERAL)) {
         auto piece = state.get_piece(position);
 	if ((*piece).owner != player)
             continue;
-        auto captures = captures_for_position(switchedTurnState, position);
+        auto captures = captures_for_position(state, position);
+
         if (!captures.empty())
             in_check = true;
     };
@@ -277,24 +278,25 @@ void filter_invalid_moves(const GameState& state, vector<Move>& moves) {
 }
 
 vector<Move> available_moves_without_check(const GameState & state) {
-  auto player = state.current_turn;
-  auto all_moves = vector<Move>();
-  state.for_each_piece([&] (Position position, Piece piece) {
-      if (piece.owner != player)
-        return;
-      insert_available_moves_for_piece(state, position, piece, all_moves);
-  });
-  filter_invalid_moves(state, all_moves);
-  return all_moves;
+    auto player = state.current_turn();
+    auto all_moves = vector<Move>();
+    state.for_each_piece([&] (Position position, Piece piece) {
+	if (piece.owner != player)
+	    return;
+	insert_available_moves_for_piece(state, position, piece, all_moves);
+    });
+    filter_invalid_moves(state, all_moves);
+    return all_moves;
 }
 
+bool results_in_check(const GameState& state, const Move& move) {
+    return state.peek_move<bool>(move, bind(&is_king_in_check, _1, state.current_turn()));
+};
+
 vector<Move> available_moves(const GameState & state) {
-    auto results_in_check = [&] ( const Move& move) -> bool {
-	return state.peek_move<bool>(move, bind(&is_king_in_check, _1, state.current_turn));
-    };
     vector<Move> moves = available_moves_without_check(state);
     auto new_end = remove_if(moves.begin(), moves.end(), [&] (const Move& move) -> bool {
-	    if (results_in_check(move))
+	    if (results_in_check(state, move))
 	    return true;
          return false;
     });

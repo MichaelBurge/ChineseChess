@@ -29,17 +29,19 @@ struct UndoNode {
 ostream& operator<<(ostream& os, const UndoNode&);
 
 struct GameState {
-    Player current_turn;
     GameState(Player _current_turn);
     // Mutating methods
     void insert_piece(const Position&, const Piece&);
     void remove_piece(const Position&);
     void apply_move(const Move&);
+    void switch_turn();
 
     // Const methods
     template<typename T> T peek_move(Move, const function<T(const GameState &)>& action) const;
 
     optional<Piece> get_piece(const Position&) const;
+    Player current_turn() const;
+    void current_turn(Player);
     void for_each_piece(function<void(Position, Piece)> action) const;
     vector<Position> filter_pieces(function<bool(Position, Piece)> pred) const;
     vector<Position> filter_pieces_by_type(PieceType type) const;
@@ -51,6 +53,7 @@ private:
     void commit();
     void rollback();
     char character_for_piece(Piece);
+    mutable Player turn;
     mutable map<Position, Piece> pieces;
     mutable list<UndoNode> undo_stack;
 };

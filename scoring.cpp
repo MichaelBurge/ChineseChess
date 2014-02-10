@@ -27,7 +27,7 @@ int piece_score(const GameState& state) {
     int accum = 0;
     state.for_each_piece([&] (const Position& position, const Piece& piece) {
         int value = piece_value(piece.piece_type);
-        if (piece.owner != state.current_turn)
+        if (piece.owner != state.current_turn())
             value *= -1;
         accum += value;
     });

@@ -9,7 +9,7 @@ extern Player next_player(Player);
 
 GameState::GameState(Player _current_turn) {
   this->pieces = map<Position, Piece>();
-  this->current_turn = _current_turn;
+  this->turn = _current_turn;
   this->undo_stack = list<UndoNode>();
 }    
 
@@ -25,26 +25,30 @@ optional<Piece> GameState::get_piece(const Position& position) const {
 }
 
 void GameState::insert_piece(const Position& position, const Piece& piece) {
-    this->pieces.insert(
-        pair<Position, Piece>(
-            position, piece));
+    this->pieces[position] = piece;
 }
 
 template<typename T> T GameState::peek_move(Move move, const function<T(const GameState &)>& action) const {
-    auto scratch = GameState(*this);
+    auto& scratch = const_cast<GameState&>(*this);
+    scratch.undo_stack.push_back(UndoNode(scratch, move));
     scratch.apply_move(move);
-    return action(scratch);
+    auto ret = action(scratch);
+    scratch.rollback();
+    return ret;
 }
 
 template int GameState::peek_move<int>(Move, const function<int(const GameState &)>&) const;
 template bool GameState::peek_move<bool>(Move, const function<bool(const GameState &)>&) const;
 
 template<> void GameState::peek_move(Move move, const function<void(const GameState &)>& action) const {
-    auto& scratch = const_cast<GameState&>(*this);
-    scratch.undo_stack.push_back(UndoNode(scratch, move));
-    scratch.apply_move(move);
-    action(scratch);
-    scratch.rollback();
+    peek_move<bool>(move, [&] (const GameState& state) {
+	action(state);
+	return true;
+    });
+}
+
+void GameState::switch_turn() {
+    this->current_turn(next_player(this->current_turn()));    
 }
 
 void GameState::apply_move(const Move& move) {
@@ -54,7 +58,7 @@ void GameState::apply_move(const Move& move) {
     auto piece =  (*i).second;
     this->pieces.erase(i);
     this->pieces[move.to] = piece;
-    this->current_turn = next_player(this->current_turn);
+    this->switch_turn();
 }
 
 void GameState::for_each_piece(function<void(Position, Piece)> action) const {
@@ -84,7 +88,6 @@ multi_array<Piece, 2> GameState::to_board() const {
     multi_array<Piece, 2> ret(extents[10][9]);
     fill(ret.data(), ret.data() + ret.num_elements(), Piece(EMPTY, RED));
     this->for_each_piece([&] (const Position& position, Piece piece) {
-        cout << position << " " << character_for_piece(piece) << endl;
         ret[position.rank-1][position.file-1] = piece;
     });
     return ret;
@@ -141,7 +144,7 @@ void GameState::print_board() const {
         cout << endl;
     };
 
-    cout << "Current Turn: " << player_repr(this->current_turn) << endl;
+    cout << "Current Turn: " << player_repr(this->current_turn()) << endl;
     for (int i = 9; i --> 0;) {
         if (i == 4)
             draw_river();
@@ -187,4 +190,13 @@ void GameState::rollback() {
 	this->insert_piece(move.to, *node.former_occupant);
     else
 	this->remove_piece(move.to);
+    this->switch_turn();
+}
+
+Player GameState::current_turn() const {
+    return this->turn;
+}
+
+void GameState::current_turn(Player player) {
+    this->turn = player;
 }

@@ -247,8 +247,10 @@ void test_check() {
     auto state = mkState(RED);
     insert_piece(state, mkPosition(2, 5), mkPiece(GENERAL, RED));
     assert_eq(num_available_moves(state), 4, "Incorrect number of general moves");
+
     insert_piece(state, mkPosition(6, 5), mkPiece(CHARIOT, BLACK));
     _assert(is_king_in_check(state, RED), "King not scared of chariot");
+    assert_eq(num_available_moves(state), 2, "King can't run to only two places");
 
     insert_piece(state, mkPosition(4, 5), mkPiece(CHARIOT, RED));
     deny(is_king_in_check(state, RED), "King scared of own chariot");
@@ -274,7 +276,7 @@ void test_basic_ai() {
 	auto ally_king_position = mkPosition(2, 5);
 	auto enemy_derp_position = mkPosition(3, 3);
 	auto chariot_position = mkPosition(5, 5);
-	auto enemy_king_position = mkPosition(8, 5);
+	auto enemy_king_position = mkPosition(8, 4);
       
 	insert_piece(state, enemy_king_position, mkPiece(GENERAL, other_player));
 	insert_piece(state, enemy_derp_position, mkPiece(CHARIOT, other_player));
@@ -282,15 +284,9 @@ void test_basic_ai() {
 	insert_piece(state, ally_king_position, mkPiece(GENERAL, player));
 	
 	auto ai_move = best_move(state, 3, 1000, piece_score);
-	if (debug) {
-	    print_board(state);
-	    cout << "Piece score: " << piece_score(state) << endl;
-	    print_move_scores(move_scores(state, piece_score));
-	    cout << "Move: " << ai_move << endl;
-	}
 	assert_eq(
           ai_move,
-	  mkMove(chariot_position, enemy_king_position),
+	  mkMove(chariot_position, mkPosition(5,4)),
 	  "AI chose a terrible move"
 	);
     };
@@ -323,7 +319,7 @@ void test_perft() {
     auto state = new_game();
     assert_eq(perft(state, 0), 44, "Failed perft(0)");
     assert_eq(perft(state, 1), 1920, "Failed perft(1)");
-    //    assert_eq(perft(state, 2), 79666, "Failed perft(2)");
+    //assert_eq(perft(state, 2), 79666, "Failed perft(2)");
 }
 
 int main() {

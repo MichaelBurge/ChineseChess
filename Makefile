@@ -1,9 +1,12 @@
-primary_files = rules.cpp parsing.cpp direction.cpp position.cpp move.cpp minimax.cpp scoring.cpp interpreter.cpp
+primary_files = rules.o parsing.o direction.o position.o move.o minimax.o scoring.o interpreter.o
 options = -Wall -std=c++11 -g -pg
 
-main.exe: main.cpp $(primary_files)
+%.o: %.cpp
+	g++ $(options) -o $@ -c $<
+
+main.exe: main.o $(primary_files)
 	g++ $(options) $^ -o $@
-test_suite.exe: tests/main.cpp test.cpp $(primary_files)
+test_suite.exe: tests/main.o test.o $(primary_files)
 	g++ $(options) $^ -o $@
 test: test_suite.exe
 	./test_suite.exe

@@ -10,27 +10,25 @@
 #include <stdexcept>
 using namespace std;
 
-bool ENABLE_VISUAL_TESTS = false;
-
 Position center_of_castle() { return mkPosition(2, 5); }
 Position center_of_board() { return mkPosition(5, 5); }
 
 void test_general() {
   auto state = GameState(RED);
-  insert_piece(state, center_of_castle(), mkPiece(GENERAL, RED));
+  state.insert_piece(center_of_castle(), Piece(GENERAL, RED));
 
   assert_eq(num_available_moves(state), 4, "Incorrect number of general moves 3");
 }
 
 void test_advisor() {
   auto state = GameState(RED);
-  insert_piece(state, center_of_castle(), mkPiece(ADVISOR, RED));
+  state.insert_piece(center_of_castle(), Piece(ADVISOR, RED));
 
   assert_eq(num_available_moves(state), 4, "Incorrect number of advisor moves");
 
   with_90_degree_rotations(SOUTHEAST, [] (Direction direction) {
       auto state = GameState(RED);
-      insert_piece(state, move_direction(center_of_castle(), direction), mkPiece(ADVISOR, RED));
+      state.insert_piece(move_direction(center_of_castle(), direction), Piece(ADVISOR, RED));
       assert_eq(num_available_moves(state), 1, "Advisor not stuck on edge");
   });
 }
@@ -38,112 +36,102 @@ void test_advisor() {
 void test_horse() {
   auto horsePosition = center_of_board();
   auto state = GameState(RED);
-  insert_piece(state, horsePosition, mkPiece(HORSE, RED));
+  state.insert_piece(horsePosition, Piece(HORSE, RED));
 
   assert_eq(num_available_moves(state), 8, "Incorrect number of horse moves 1");
 
-  insert_piece(
-      state,
+  state.insert_piece(
       move_direction(horsePosition, NORTH),
-      mkPiece(SOLDIER, BLACK));
+      Piece(SOLDIER, BLACK));
   assert_eq(num_available_moves(state), 6, "Horse's leg can't be tripped");
 }
 
 void test_elephant() {
   auto elephantPosition = center_of_board();
   auto state = GameState(RED);
-  insert_piece(state, elephantPosition, mkPiece(ELEPHANT, RED));
+  state.insert_piece(elephantPosition, Piece(ELEPHANT, RED));
 
   assert_eq(num_available_moves(state), 4, "Incorrect number of elephant moves");
-  insert_piece(
-      state,
+  state.insert_piece(
       move_direction(elephantPosition, NORTHEAST),
-      mkPiece(SOLDIER, BLACK));
+      Piece(SOLDIER, BLACK));
   assert_eq(num_available_moves(state), 3, "Can't block the elephant's eye");
 }
 
 void test_chariot() {
   auto chariotPosition = center_of_board();
   auto state = GameState(RED);
-  insert_piece(state, chariotPosition, mkPiece(CHARIOT, RED));
+  state.insert_piece(chariotPosition, Piece(CHARIOT, RED));
 
   assert_eq(num_available_moves(state), 5+4+4+4, "Incorrect number of chariot moves 1");
 
-  insert_piece(
-      state,
+  state.insert_piece(
       move_direction(chariotPosition, NORTH),
-      mkPiece(SOLDIER, BLACK));
+      Piece(SOLDIER, BLACK));
   assert_eq(num_available_moves(state), 1+4+4+4, "Incorrect number of chariot moves 2");
 
-  insert_piece(
-      state,
+  state.insert_piece(
       move_direction(chariotPosition, WEST),
-      mkPiece(SOLDIER, BLACK));
+      Piece(SOLDIER, BLACK));
   assert_eq(num_available_moves(state), 1+1+4+4, "Incorrect number of chariot moves 3");
 }
 
 void test_cannon() {
   auto cannonPosition = center_of_board();
   auto state = GameState(RED);
-  insert_piece(state, cannonPosition, mkPiece(CANNON, RED));
+  state.insert_piece(cannonPosition, Piece(CANNON, RED));
 
   assert_eq(num_available_moves(state), 5+4+4+4, "Incorrect number of chariot moves(no obstructions)");
 
-  insert_piece(
-      state,
+  state.insert_piece(
       move_direction(cannonPosition, NORTH),
-      mkPiece(SOLDIER, BLACK));
+      Piece(SOLDIER, BLACK));
   assert_eq(num_available_moves(state), 0+4+4+4, "Incorrect number of chariot moves(one obstruction)");
 
-  insert_piece(
-      state,
+  state.insert_piece(
       move_direction(move_direction(cannonPosition, NORTH), NORTH),
-      mkPiece(ELEPHANT, BLACK));
+      Piece(ELEPHANT, BLACK));
   assert_eq(num_available_moves(state), 1+4+4+4, "Incorrect number of chariot moves(one capture)");
 
-  //
   state = GameState(RED);
-  insert_piece(state, mkPosition(10, 8), mkPiece(CANNON, RED));
-  insert_piece(state, mkPosition(9, 8), mkPiece(ELEPHANT, BLACK));
-  insert_piece(state, mkPosition(8, 8), mkPiece(ADVISOR, BLACK));
-  insert_piece(state, mkPosition(7, 8), mkPiece(GENERAL, BLACK));
-  deny(is_legal_move(state, mkMove(mkPosition(10, 8), mkPosition(7, 8))), "Double-hopping bug");
+  state.insert_piece(mkPosition(10, 8), Piece(CANNON, RED));
+  state.insert_piece(mkPosition(9, 8), Piece(ELEPHANT, BLACK));
+  state.insert_piece(mkPosition(8, 8), Piece(ADVISOR, BLACK));
+  state.insert_piece(mkPosition(7, 8), Piece(GENERAL, BLACK));
+  deny(is_legal_move(state, Move(mkPosition(10, 8), mkPosition(7, 8))), "Double-hopping bug");
 }
 
 void test_soldier() {
     auto position = center_of_board();
     auto state = GameState(RED);
-    insert_piece(state, position, mkPiece(SOLDIER, RED));
+    state.insert_piece(position, Piece(SOLDIER, RED));
 
     assert_eq(num_available_moves(state), 1, "Incorrect number of pre-river soldier moves");
 
     state = GameState(RED);
-    insert_piece(
-        state,
+    state.insert_piece(
         move_direction(position, NORTH),
-        mkPiece(SOLDIER, RED));
+        Piece(SOLDIER, RED));
 
     assert_eq(num_available_moves(state), 3, "Incorrect number of post-river soldier moves");
 }
 
 void test_piece_capture() {
     auto position = center_of_board();
-    auto piece = mkPiece(CHARIOT, RED);
-    auto ally  = mkPiece(CHARIOT, RED);
-    auto enemy = mkPiece(CHARIOT, BLACK);
+    auto piece = Piece(CHARIOT, RED);
+    auto ally  = Piece(CHARIOT, RED);
+    auto enemy = Piece(CHARIOT, BLACK);
 
     auto state = GameState(RED);
-    insert_piece(state, position, piece);
+    state.insert_piece(position, piece);
     assert_eq(num_available_captures(state), 0, "Captures incorrectly found 1");
 
-    insert_piece(
-        state,
+    state.insert_piece(
         move_direction(position, NORTH),
         ally);
     assert_eq(num_available_captures(state), 0, "Allies can be captured");
 
-    insert_piece(
-        state,
+    state.insert_piece(
         move_direction(position, WEST),
         enemy);
     assert_eq(num_available_captures(state), 1, "Capture move is not recorded properly");
@@ -151,20 +139,14 @@ void test_piece_capture() {
 
 void test_flying_kings_rule() {
     auto state = GameState(RED);
-    insert_piece(state, mkPosition(2, 5), mkPiece(GENERAL, RED));
+    state.insert_piece(mkPosition(2, 5), Piece(GENERAL, RED));
     assert_eq(num_available_moves(state), 4, "Incorrect # of king moves");
 
-    insert_piece(state, mkPosition(8, 6), mkPiece(GENERAL, BLACK));
+    state.insert_piece(mkPosition(8, 6), Piece(GENERAL, BLACK));
     assert_eq(num_available_moves(state), 3, "Enemy king doesn't block a move");
 
-
-    insert_piece(state, mkPosition(5, 6), mkPiece(SOLDIER, BLACK));
+    state.insert_piece(mkPosition(5, 6), Piece(SOLDIER, BLACK));
     assert_eq(num_available_moves(state), 4, "Soldier doesn't block flying kings");
-}
-
-void test_example_board() {
-    auto state = new_game();
-    print_board(state);
 }
 
 void test_parsing() {
@@ -216,7 +198,7 @@ void test_parsing() {
 
     auto m1 = parse_move("e8E7");
     _assert(m1, "E8E7 doesn't parse as a move");
-    assert_eq((*m1).first, mkMove(e8_position, mkPosition(7, 5)), "E8E7 parsed incorrectly");
+    assert_eq((*m1).first, Move(e8_position, mkPosition(7, 5)), "E8E7 parsed incorrectly");
 
     auto m2 = parse_move("derp");
     deny(m2, "'derp' parsed as a move");
@@ -236,35 +218,35 @@ void test_winning() {
     auto state = GameState(RED);
     deny(winner(state), "Winner when no kings");
 
-    insert_piece(state, mkPosition(2, 5), mkPiece(GENERAL, RED));
+    state.insert_piece(mkPosition(2, 5), Piece(GENERAL, RED));
     _assert(winner(state), "Should be winner if one king");
 
-    insert_piece(state, mkPosition(8, 6), mkPiece(GENERAL, BLACK));
+    state.insert_piece(mkPosition(8, 6), Piece(GENERAL, BLACK));
     deny(winner(state), "Winner when two kings");
 }
 
 void test_check() {
     auto state = GameState(RED);
-    insert_piece(state, mkPosition(2, 5), mkPiece(GENERAL, RED));
+    state.insert_piece(mkPosition(2, 5), Piece(GENERAL, RED));
     assert_eq(num_available_moves(state), 4, "Incorrect number of general moves");
 
-    insert_piece(state, mkPosition(6, 5), mkPiece(CHARIOT, BLACK));
+    state.insert_piece(mkPosition(6, 5), Piece(CHARIOT, BLACK));
     _assert(is_king_in_check(state, RED), "King not scared of chariot");
     assert_eq(num_available_moves(state), 2, "King can't run to only two places");
 
-    insert_piece(state, mkPosition(4, 5), mkPiece(CHARIOT, RED));
+    state.insert_piece(mkPosition(4, 5), Piece(CHARIOT, RED));
     deny(is_king_in_check(state, RED), "King scared of own chariot");
 
     state = GameState(BLACK);
-    insert_piece(state, mkPosition(1, 5), mkPiece(GENERAL, RED));
-    insert_piece(state, mkPosition(1, 6), mkPiece(ADVISOR, RED));
-    insert_piece(state, mkPosition(10, 5), mkPiece(GENERAL, BLACK));
-    insert_piece(state, mkPosition(10, 6), mkPiece(CHARIOT, BLACK));
-    insert_piece(state, mkPosition(10, 7), mkPiece(CHARIOT, RED));
-    insert_piece(state, mkPosition(2, 5), mkPiece(SOLDIER, RED));
-    insert_piece(state, mkPosition(2, 1), mkPiece(CHARIOT, BLACK));
-    insert_piece(state, mkPosition(2, 7), mkPiece(HORSE, BLACK));
-    auto bad_move = mkMove(mkPosition(10,6), mkPosition(1,6));
+    state.insert_piece(mkPosition(1, 5), Piece(GENERAL, RED));
+    state.insert_piece(mkPosition(1, 6), Piece(ADVISOR, RED));
+    state.insert_piece(mkPosition(10, 5), Piece(GENERAL, BLACK));
+    state.insert_piece(mkPosition(10, 6), Piece(CHARIOT, BLACK));
+    state.insert_piece(mkPosition(10, 7), Piece(CHARIOT, RED));
+    state.insert_piece(mkPosition(2, 5), Piece(SOLDIER, RED));
+    state.insert_piece(mkPosition(2, 1), Piece(CHARIOT, BLACK));
+    state.insert_piece(mkPosition(2, 7), Piece(HORSE, BLACK));
+    auto bad_move = Move(mkPosition(10,6), mkPosition(1,6));
     deny(is_legal_move(state, bad_move), "Code suffers from the 'you can't take my general who's in check because you're in check' problem");
 }
 
@@ -273,11 +255,11 @@ void test_scoring() {
     auto ally_king_position = mkPosition(2, 5);
     auto chariot_position = mkPosition(5, 5);
     auto enemy_king_position = mkPosition(8, 5);
-    insert_piece(state, enemy_king_position, mkPiece(GENERAL, BLACK));
-    insert_piece(state, chariot_position, mkPiece(CHARIOT, RED));
-    insert_piece(state, ally_king_position, mkPiece(GENERAL, RED));
+    state.insert_piece(enemy_king_position, Piece(GENERAL, BLACK));
+    state.insert_piece(chariot_position, Piece(CHARIOT, RED));
+    state.insert_piece(ally_king_position, Piece(GENERAL, RED));
     assert_eq(piece_score(state), piece_value(CHARIOT), "Generals don't cancel out");
-    apply_move(state, mkMove(chariot_position, enemy_king_position));
+    state.apply_move(Move(chariot_position, enemy_king_position));
     assert_eq(piece_score(state), -(piece_value(CHARIOT) + piece_value(GENERAL)), "Generals don't cancel out");
 }
 
@@ -290,15 +272,15 @@ void test_basic_ai() {
 	auto chariot_position = mkPosition(5, 5);
 	auto enemy_king_position = mkPosition(8, 4);
       
-	insert_piece(state, enemy_king_position, mkPiece(GENERAL, other_player));
-	insert_piece(state, enemy_derp_position, mkPiece(CHARIOT, other_player));
-	insert_piece(state, chariot_position, mkPiece(CHARIOT, player));
-	insert_piece(state, ally_king_position, mkPiece(GENERAL, player));
+	state.insert_piece(enemy_king_position, Piece(GENERAL, other_player));
+	state.insert_piece(enemy_derp_position, Piece(CHARIOT, other_player));
+	state.insert_piece(chariot_position, Piece(CHARIOT, player));
+	state.insert_piece(ally_king_position, Piece(GENERAL, player));
 	
 	auto ai_move = best_move(state, 3, 1000, piece_score);
 	assert_eq(
           ai_move,
-	  mkMove(chariot_position, mkPosition(5,4)),
+	  Move(chariot_position, mkPosition(5,4)),
 	  "AI chose a terrible move"
 	);
     };
@@ -321,7 +303,7 @@ int perft(const GameState& initial, int n) {
 	if (n == 0) {
 	    count += 1;
 	} else {
-	    peek_move<int>(initial, move, false, [&] (const GameState& new_state) {
+	    initial.peek_move<int>(move, [&] (const GameState& new_state) {
 	        return perft(new_state, n - 1);
             });
 	}
@@ -352,8 +334,6 @@ int main() {
     test_check();
     test_scoring();
     test_basic_ai();
-    if (ENABLE_VISUAL_TESTS)
-        test_example_board();
     test_performance();
     test_perft();
   } catch (logic_error& error) {

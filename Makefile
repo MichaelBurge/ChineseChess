@@ -1,4 +1,4 @@
-primary_files = rules.o parsing.o direction.o position.o move.o minimax.o scoring.o interpreter.o
+primary_files = rules.o parsing.o direction.o position.o move.o minimax.o scoring.o interpreter.o gamestate.o
 options = -Wall -std=c++11 -g -pg
 
 %.o: %.cpp

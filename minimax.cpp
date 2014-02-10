@@ -8,7 +8,7 @@ int negamax_basic(const GameState& state, int depth, function<int(const GameStat
 	return valuation(state);
     int best_value = lowest;
     for (const Move& move : available_moves(state)) {
-	state.peek_move<void>(move, false, [&] (const GameState& newState) -> void {
+	state.peek_move<void>(move, [&] (const GameState& newState) -> void {
 	    auto val = -negamax_basic(newState, depth - 1, valuation);
 	    best_value = max(best_value, val);
         });
@@ -27,7 +27,7 @@ void map_negamax(const GameState& state, int depth, int node_count, function<int
     if (moves.empty())
         throw logic_error("No move exists");
     for (const Move& move : moves) {
-        state.peek_move<void>(move, false, [&] (const GameState& newState) {
+        state.peek_move<void>(move, [&] (const GameState& newState) {
             auto value = -negamax(newState, depth, node_count, valuation);
             action(move, value);
         });
@@ -36,7 +36,7 @@ void map_negamax(const GameState& state, int depth, int node_count, function<int
 
 Move best_move(const GameState& state, int depth, int max_nodes, function<int(const GameState&)> valuation) {
      auto best_value = lowest;
-     Move best_move;
+     Move best_move = Move(mkPosition(-1, -1), mkPosition(-1, -1));
      auto found = false;
      map_negamax(state, depth, max_nodes, valuation, [&] (const Move& move, int value) {
          found = true;
@@ -55,7 +55,7 @@ vector<pair<Move, int> > move_scores(const GameState& state, function<int(const 
     auto moves = available_moves(state);
     auto ret = vector<pair<Move, int> >();
     for (const Move& move : moves) {
-	state.peek_move<void>(move, false, [&] (const GameState& newState) -> void {
+	state.peek_move<void>(move, [&] (const GameState& newState) -> void {
 	    auto value = -valuation(newState);
 	    ret.push_back(pair<Move, int>(move, value));
 	});
@@ -91,7 +91,7 @@ vector<Move> best_move_sequence(const GameState& state, int depth, function<int(
     for (;depth; depth--) {
 	auto best = best_move(state_accum, depth, 1000000, valuation);
 	cout << "Best move: " << best << endl;
-	apply_move(state_accum, best);
+	state_accum.apply_move(best);
 	ret.push_back(best);
     }
     return ret;

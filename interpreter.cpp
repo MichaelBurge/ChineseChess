@@ -84,14 +84,14 @@ void Interpreter::cmd_unknown() {
 }
 
 void Interpreter::cmd_show() {
-    print_board(this->state());
+    this->_state.print_board();
 }
 
 void Interpreter::run_move(const Move& move) {
-    try {
-        apply_move(this->_state, move);
-    } catch(const illegal_move& e) {
-        cout << e.what() << endl;
+    if (is_legal_move(this->_state, move)) {
+        this->_state.apply_move(move);
+    } else {
+	cout << "Illegal move: " << move << endl;
     }
 }
 

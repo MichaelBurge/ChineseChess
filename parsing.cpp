@@ -66,7 +66,7 @@ optional<pair<Move, string> > parse_move(const string& text) {
     auto p2 = parse_position((*p1).second);
     if (!p2)
         return fail_parse<Move>();
-    return pair<Move, string>(mkMove((*p1).first, (*p2).first), (*p2).second);
+    return pair<Move, string>(Move((*p1).first, (*p2).first), (*p2).second);
 }
 
 optional<pair<string, string> > parse_until(const string& text, function<bool(char)> pred) {

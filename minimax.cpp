@@ -8,7 +8,7 @@ int negamax_basic(const GameState& state, int depth, function<int(const GameStat
 	return valuation(state);
     int best_value = lowest;
     for (const Move& move : available_moves(state)) {
-	peek_move<void>(state, move, false, [&] (const GameState& newState) -> void {
+	state.peek_move<void>(move, false, [&] (const GameState& newState) -> void {
 	    auto val = -negamax_basic(newState, depth - 1, valuation);
 	    best_value = max(best_value, val);
         });
@@ -27,7 +27,7 @@ void map_negamax(const GameState& state, int depth, int node_count, function<int
     if (moves.empty())
         throw logic_error("No move exists");
     for (const Move& move : moves) {
-        peek_move<void>(state, move, false, [&] (const GameState& newState) {
+        state.peek_move<void>(move, false, [&] (const GameState& newState) {
             auto value = -negamax(newState, depth, node_count, valuation);
             action(move, value);
         });
@@ -55,7 +55,7 @@ vector<pair<Move, int> > move_scores(const GameState& state, function<int(const 
     auto moves = available_moves(state);
     auto ret = vector<pair<Move, int> >();
     for (const Move& move : moves) {
-	peek_move<void>(state, move, false, [&] (const GameState& newState) -> void {
+	state.peek_move<void>(move, false, [&] (const GameState& newState) -> void {
 	    auto value = -valuation(newState);
 	    ret.push_back(pair<Move, int>(move, value));
 	});

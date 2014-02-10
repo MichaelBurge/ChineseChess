@@ -292,7 +292,7 @@ bool is_invalid_state(const GameState& state) {
 
 void filter_invalid_moves(const GameState& state, vector<Move>& moves) {
   auto results_in_invalid_state = [&] (const Move& move) -> bool {
-      return peek_move<bool>(state, move, false, is_invalid_state);
+      return state.peek_move<bool>(move, false, is_invalid_state);
   };
   auto new_end = remove_if(moves.begin(), moves.end(), [&] (const Move& move) -> bool {
       if (!is_position_valid(move.from))
@@ -323,7 +323,7 @@ vector<Move> available_moves_without_check(const GameState & state) {
 
 vector<Move> available_moves(const GameState & state) {
     auto results_in_check = [&] ( const Move& move) -> bool {
-	return peek_move<bool>(state, move, false, bind(&is_king_in_check, _1, state.current_turn));
+	return state.peek_move<bool>(move, false, bind(&is_king_in_check, _1, state.current_turn));
     };
     vector<Move> moves = available_moves_without_check(state);
     auto new_end = remove_if(moves.begin(), moves.end(), [&] (const Move& move) -> bool {
@@ -367,16 +367,16 @@ GameState new_game() {
     fill_home_rank(10, BLACK);
     return state;
 }
-template<typename T> T peek_move(const GameState& state, Move move, bool check_legality, const function<T(const GameState &)>& action) {
-    auto scratch = state;
+template<typename T> T GameState::peek_move(Move move, bool check_legality, const function<T(const GameState &)>& action) const {
+    auto scratch = GameState(*this);
     apply_move(scratch, move, check_legality);
     return action(scratch);
 }
 
-template int peek_move<int>(const GameState&, Move, bool, const function<int(const GameState &)>&);
+template int GameState::peek_move<int>(Move, bool, const function<int(const GameState &)>&) const;
 
-template<> void peek_move(const GameState& state, Move move, bool check_legality, const function<void(const GameState &)>& action) {
-    auto scratch = state;
+template<> void GameState::peek_move(Move move, bool check_legality, const function<void(const GameState &)>& action) const {
+    auto scratch = GameState(*this);
     apply_move(scratch, move, check_legality);
     action(scratch);
 }

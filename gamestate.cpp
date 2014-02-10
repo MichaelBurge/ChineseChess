@@ -10,7 +10,7 @@ extern Player next_player(Player);
 GameState::GameState(Player _current_turn) {
   this->pieces = map<Position, Piece>();
   this->current_turn = _current_turn;
-  this->undo_stack = stack<UndoNode, list<UndoNode> >();
+  this->undo_stack = list<UndoNode>();
 }    
 
 UndoNode::UndoNode(const GameState& state, const Move& move) : move(move) {
@@ -40,24 +40,26 @@ template int GameState::peek_move<int>(Move, const function<int(const GameState 
 template bool GameState::peek_move<bool>(Move, const function<bool(const GameState &)>&) const;
 
 template<> void GameState::peek_move(Move move, const function<void(const GameState &)>& action) const {
-    auto scratch = GameState(*this);
+    auto& scratch = const_cast<GameState&>(*this);
+    scratch.undo_stack.push_back(UndoNode(scratch, move));
     scratch.apply_move(move);
     action(scratch);
+    scratch.rollback();
 }
 
 void GameState::apply_move(const Move& move) {
     auto i = this->pieces.find(move.from);
     if (i == this->pieces.end())
         throw logic_error("No piece in the 'from' coordinate of this move");
-
-    this->pieces[move.to] = (*i).second;
+    auto piece =  (*i).second;
     this->pieces.erase(i);
+    this->pieces[move.to] = piece;
     this->current_turn = next_player(this->current_turn);
 }
 
 void GameState::for_each_piece(function<void(Position, Piece)> action) const {
     for_each(this->pieces.begin(), this->pieces.end(), [&] (const pair<Position, Piece> pair) {
-	    action(pair.first, pair.second);
+	action(pair.first, pair.second);
     });
 }
 
@@ -145,4 +147,44 @@ void GameState::print_board() const {
             draw_river();
         draw_rank(i);
     };
+}
+
+void GameState::print_debug_board() const {
+    this->print_board();
+    cout << "Debug info: " << endl;
+    this->print_undo_stack();
+}
+
+void GameState::print_undo_stack() const {
+    cout << "Undo stack:" << endl;
+    for (const UndoNode& undo : this->undo_stack) {
+	cout << undo << endl;
+    }
+}
+
+ostream& operator<<(ostream& os, const UndoNode& undo) {
+    return os << "Undo(" << undo.move << "," << undo.former_occupant << ")";
+}
+
+void GameState::remove_piece(const Position& position) {
+    auto piece_iter = this->pieces.find(position);
+    if (piece_iter == this->pieces.end())
+	throw logic_error("Tried to remove a nonexistent piece");
+    this->pieces.erase(piece_iter);
+}
+
+void GameState::rollback() {
+    if (this->undo_stack.empty())
+	throw logic_error("Tried to rollback with an empty undo stack");
+    auto node = this->undo_stack.back();
+    this->undo_stack.pop_back();
+    auto move = node.move;
+    auto piece = this->get_piece(move.to);
+    if (!piece)
+	throw logic_error("No piece at to location for move " + move_repr(move));
+    this->insert_piece(move.from, *piece);
+    if (!!node.former_occupant)
+	this->insert_piece(move.to, *node.former_occupant);
+    else
+	this->remove_piece(move.to);
 }

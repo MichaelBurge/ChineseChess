@@ -225,6 +225,23 @@ void test_winning() {
     deny(winner(state), "Winner when two kings");
 }
 
+void test_data_structures() {
+    auto state = GameState(RED);
+    auto old_position = mkPosition(2, 5);
+    auto new_position = move_direction(old_position, WEST);
+    state.insert_piece(old_position, Piece(GENERAL, RED));
+    state.insert_piece(mkPosition(9, 1), Piece(CHARIOT, BLACK));
+    assert_eq(num_available_moves(state), 4, "Incorrect number of general moves");
+    bool ran = false;
+    state.peek_move<void>(Move(old_position, new_position), [&] (const GameState newState) {
+        ran = true;
+    });
+    state.apply_move(Move(mkPosition(9, 1), mkPosition(9, 2)));
+    _assert(ran, "Didn't run peek");
+    state.print_board();
+    assert_eq(num_available_moves(state), 4, "Gunk left on board");
+}
+
 void test_check() {
     auto state = GameState(RED);
     state.insert_piece(mkPosition(2, 5), Piece(GENERAL, RED));
@@ -278,6 +295,8 @@ void test_basic_ai() {
 	state.insert_piece(ally_king_position, Piece(GENERAL, player));
 	
 	auto ai_move = best_move(state, 3, 1000, piece_score);
+	state.print_board();
+	cout << "Move: " << ai_move << endl;
 	assert_eq(
           ai_move,
 	  Move(chariot_position, mkPosition(5,4)),
@@ -320,22 +339,23 @@ void test_perft() {
 
 int main() {
   try {
-    test_general();
-    test_advisor();
-    test_horse();
-    test_elephant();
-    test_chariot();
-    test_cannon();
-    test_soldier();
-    test_piece_capture();
-    test_flying_kings_rule();
-    test_parsing();
-    test_winning();
-    test_check();
-    test_scoring();
-    test_basic_ai();
-    test_performance();
-    test_perft();
+      test_data_structures();
+      test_general();
+      test_advisor();
+      test_horse();
+      test_elephant();
+      test_chariot();
+      test_cannon();
+      test_soldier();
+      test_piece_capture();
+      test_flying_kings_rule();
+      test_parsing();
+      test_winning();
+      test_check();
+      test_scoring();
+      test_basic_ai();
+      test_performance();
+      test_perft();
   } catch (logic_error& error) {
     cerr << "Aborted test: " << error.what() << endl;
   }

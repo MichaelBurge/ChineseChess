@@ -6,7 +6,6 @@
 #include <boost/optional/optional.hpp>
 #include <list>
 #include <map>
-#include <stack>
 using namespace std;
 using namespace boost;
 
@@ -27,12 +26,14 @@ struct UndoNode {
     optional<Piece> former_occupant;
     UndoNode(const GameState&, const Move&);
 };
+ostream& operator<<(ostream& os, const UndoNode&);
 
 struct GameState {
     Player current_turn;
     GameState(Player _current_turn);
     // Mutating methods
     void insert_piece(const Position&, const Piece&);
+    void remove_piece(const Position&);
     void apply_move(const Move&);
 
     // Const methods
@@ -44,8 +45,12 @@ struct GameState {
     vector<Position> filter_pieces_by_type(PieceType type) const;
     multi_array<Piece, 2> to_board() const;
     void print_board() const;
+    void print_debug_board() const;
+    void print_undo_stack() const;
 private:
+    void commit();
+    void rollback();
     char character_for_piece(Piece);
     mutable map<Position, Piece> pieces;
-    mutable stack<UndoNode, list<UndoNode> > undo_stack;
+    mutable list<UndoNode> undo_stack;
 };

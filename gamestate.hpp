@@ -28,24 +28,54 @@ struct UndoNode {
 };
 ostream& operator<<(ostream& os, const UndoNode&);
 
-struct GameState {
+struct GameStateStorageMethod {
+    virtual ~GameStateStorageMethod() {};
+    virtual optional<Piece> get_piece(const Position& position) const = 0;
+    virtual void insert_piece(const Position&, const Piece&) = 0;
+    virtual void remove_piece(const Position&) = 0;
+    virtual void for_each_piece(function<void(Position, Piece)> action) const = 0;
+};
+
+struct GameStateArrayStorage : GameStateStorageMethod {
+    GameStateArrayStorage();
+    virtual optional<Piece> get_piece(const Position& position) const;
+    virtual void insert_piece(const Position&, const Piece&);
+    virtual void remove_piece(const Position&);
+    virtual void for_each_piece(function<void(Position, Piece)> action) const;
+
+    Piece get_piece_direct(const Position& position) const;
+private:
+    multi_array<Piece, 2> pieces;
+};
+ostream& operator<<(ostream& os, const GameStateArrayStorage&);
+
+struct GameStateDictionaryStorage : GameStateStorageMethod {
+    GameStateDictionaryStorage();
+    virtual optional<Piece> get_piece(const Position& position) const;
+    virtual void insert_piece(const Position&, const Piece&);
+    virtual void remove_piece(const Position&);
+    virtual void for_each_piece(function<void(Position, Piece)> action) const;
+private:
+    map<Position, Piece> pieces;
+};
+ostream& operator<<(ostream& os, const GameStateDictionaryStorage&);
+
+struct GameState : GameStateStorageMethod {
     GameState(Player _current_turn);
-    // Mutating methods
-    void insert_piece(const Position&, const Piece&);
-    void remove_piece(const Position&);
-    void apply_move(const Move&);
+
+    virtual optional<Piece> get_piece(const Position&) const;
+    virtual void insert_piece(const Position&, const Piece&);
+    virtual void remove_piece(const Position&);
+    virtual void for_each_piece(function<void(Position, Piece)> action) const;
+
+    virtual void apply_move(const Move&);
+    void current_turn(Player);
     void switch_turn();
 
-    // Const methods
     template<typename T> T peek_move(Move, const function<T(const GameState &)>& action) const;
-
-    optional<Piece> get_piece(const Position&) const;
     Player current_turn() const;
-    void current_turn(Player);
-    void for_each_piece(function<void(Position, Piece)> action) const;
     vector<Position> filter_pieces(function<bool(Position, Piece)> pred) const;
     vector<Position> filter_pieces_by_type(PieceType type) const;
-    multi_array<Piece, 2> to_board() const;
     void print_board() const;
     void print_debug_board() const;
     void print_undo_stack() const;
@@ -53,7 +83,13 @@ private:
     void commit();
     void rollback();
     char character_for_piece(Piece);
+
     mutable Player turn;
-    mutable map<Position, Piece> pieces;
+    mutable GameStateArrayStorage pieces_array;
+    mutable GameStateDictionaryStorage pieces_map;
     mutable list<UndoNode> undo_stack;
+    friend ostream& operator<<(ostream& os, const GameState&);
 };
+
+extern ostream& operator<<(ostream& os, const GameState&);
+extern char character_for_piece(Piece piece);

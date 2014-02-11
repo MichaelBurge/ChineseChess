@@ -84,7 +84,7 @@ void Interpreter::cmd_unknown() {
 }
 
 void Interpreter::cmd_show() {
-    this->_state.print_board();
+    cout << this->_state;
 }
 
 void Interpreter::run_move(const Move& move) {

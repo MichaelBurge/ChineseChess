@@ -225,6 +225,13 @@ void test_winning() {
 }
 
 void test_data_structures() {
+    auto game = new_game();
+    auto num_pieces = 0;
+    game.for_each_piece([&] (Position position, Piece piec) {
+        num_pieces++;
+    });
+    assert_eq(num_pieces, 32, "for_each_piece is broken");
+
     auto state = GameState(RED);
     auto old_position = mkPosition(2, 5);
     auto new_position = move_direction(old_position, WEST);
@@ -304,8 +311,6 @@ void test_basic_minimax() {
 	state.insert_piece(ally_king_position, Piece(GENERAL, player));
 	
 	auto ai_move = best_move(state, 3, 1000, piece_score);
-	state.print_board();
-	cout << "Move: " << ai_move << endl;
 	assert_eq(
           ai_move,
 	  Move(chariot_position, mkPosition(5,4)),

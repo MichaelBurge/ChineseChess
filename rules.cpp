@@ -16,13 +16,6 @@ using namespace std;
 using namespace std::placeholders;
 using namespace boost;
 
-bool is_position_valid(const Position& position) {
-  const auto& rank = position.rank, file = position.file;
-  return
-    1 <= file && file <= 9 &&
-    1 <= rank && rank <= 10;
-}
-
 bool is_position_in_castle(const Position& position) {
     const auto& rank = position.rank, file = position.file;
     return
@@ -85,12 +78,12 @@ void insert_available_moves_for_elephant(const GameState& state, Position positi
 void insert_available_moves_for_chariot(const GameState& state, Position position, Player owner, vector<Move>& all_moves) {
   with_90_degree_rotations(NORTH, [&] (Direction direction) {
       shoot_ray_in_direction_until_should_stop(position, direction, [&] (const Position& candidate) {
-          if (!is_position_valid(candidate))
-            return true;
+          if (!candidate.is_valid())
+	      return true;
           all_moves.push_back(Move(position, candidate));
 
           if (is_position_occupied(state, candidate))
-            return true;
+	      return true;
           return false;
       });
   });
@@ -100,19 +93,19 @@ void insert_available_moves_for_cannon(const GameState& state, Position position
   with_90_degree_rotations(NORTH, [&] (Direction direction) {
       bool has_collided = false;
       shoot_ray_in_direction_until_should_stop(position, direction, [&] (const Position& candidate) {
-          if (!is_position_valid(candidate))
-            return true;
+          if (!candidate.is_valid())
+	      return true;
           if (!has_collided) {
-            if (is_position_occupied(state, candidate)) {
-              has_collided = true;
-              return false;
-            }
-            all_moves.push_back(Move(position, candidate));
+	      if (is_position_occupied(state, candidate)) {
+		  has_collided = true;
+		  return false;
+	      }
+	      all_moves.push_back(Move(position, candidate));
           } else {
-            if (!is_position_occupied(state, candidate))
-              return false;
-            all_moves.push_back(Move(position, candidate));
-            return true;
+	      if (!is_position_occupied(state, candidate))
+		  return false;
+	      all_moves.push_back(Move(position, candidate));
+	      return true;
           }
           return false;
       });
@@ -167,7 +160,7 @@ void insert_available_moves_for_piece(const GameState& state, Position position,
 optional<Position> shoot_ray_in_direction_until_collision(const GameState& state, const Position& center, Direction direction) {
     optional<Position> ret;
     shoot_ray_in_direction_until_should_stop(center, direction, [&] (const Position& candidate) {
-        if (!is_position_valid(candidate))
+	if (!candidate.is_valid())
             return true;
         if (is_position_occupied(state, candidate)) {
             ret = candidate;
@@ -264,9 +257,9 @@ void filter_invalid_moves(const GameState& state, vector<Move>& moves) {
       return state.peek_move<bool>(move, is_invalid_state);
   };
   auto new_end = remove_if(moves.begin(), moves.end(), [&] (const Move& move) -> bool {
-      if (!is_position_valid(move.from))
+      if (!move.from.is_valid())
           return true;
-      if (!is_position_valid(move.to))
+      if (!move.to.is_valid())
           return true;
       if (violates_can_only_capture_enemy_pieces_rule(state, move))
           return true;

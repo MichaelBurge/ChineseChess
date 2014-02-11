@@ -2,6 +2,12 @@
 #include <boost/lexical_cast.hpp>
 using namespace boost;
 
+bool Position::is_valid() const {
+  return
+    1 <= file && file <= 9 &&
+    1 <= rank && rank <= 10;
+}
+
 Position mkPosition(int rank, int file) {
   auto position = Position();
   position.rank = rank;

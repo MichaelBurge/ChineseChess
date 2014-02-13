@@ -22,6 +22,7 @@ int piece_value(PieceType piece_type) {
         throw logic_error("Unknown piece");
     }
 }
+extern bool debug;
 
 int piece_score(const GameState& state) {
     int accum = 0;

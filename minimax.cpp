@@ -4,9 +4,12 @@ const int lowest = numeric_limits<int>::min() + 1;
 const int highest = numeric_limits<int>::max();
 
 int negamax_basic(const GameState& state, int depth, function<int(const GameState&)> valuation) {
+    int best_value = lowest;
+    auto moves = available_moves(state);
+    if (moves.empty())
+	return best_value;
     if (depth == 0)
 	return valuation(state);
-    int best_value = lowest;
     for (const Move& move : available_moves(state)) {
 	state.peek_move<void>(move, [&] (const GameState& newState) -> void {
 	    auto val = -negamax_basic(newState, depth - 1, valuation);

@@ -227,14 +227,8 @@ bool violates_can_only_capture_enemy_pieces_rule(const GameState& state, const M
     return (*from_piece).owner == (*captured_piece).owner;
 }
 
-vector<Move> filter_available_captures(const GameState& state, function<bool(const Move&)> pred) {
-    return filter_available_moves(state, [&] (const Move& move) {
-        return is_capture(state, move) && pred(move);
-    });
-}
-
 vector<Move> captures_for_position(const GameState& state, const Position& position) {
-    return filter_available_captures(state, [&] (const Move& move) {
+    return filter_available_moves(state, [&] (const Move& move) {
         return move.to == position;
     });
 }

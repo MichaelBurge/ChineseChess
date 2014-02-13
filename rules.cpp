@@ -196,15 +196,23 @@ bool violates_flying_kings_rule(const GameState& state) {
 };
 
 bool violates_pieces_stuck_in_castle_rule(const GameState& state) {
-    bool any_pieces_escaping = false;
-    state.for_each_piece([&] (const Position& position, const Piece& piece) {
-        if (!( piece.piece_type == GENERAL || piece.piece_type == ADVISOR ))
-            return;
-        if (is_position_in_castle(position))
-            return;
-        any_pieces_escaping = true;
-    });
-    return any_pieces_escaping;
+    vector<Piece> pieces_to_check = {
+	Piece(GENERAL, RED),
+	Piece(ADVISOR, RED, 0),
+	Piece(ADVISOR, RED, 1),
+	Piece(GENERAL, BLACK),
+	Piece(ADVISOR, BLACK, 0),
+	Piece(ADVISOR, BLACK, 1)
+    };
+    for (const Piece& piece : pieces_to_check) {
+	auto position = state.get_position(piece);
+	if (!position)
+	    continue;
+	if (is_position_in_castle(*position))
+	    continue;
+	return true;
+    }
+    return false;
 };
 
 bool violates_can_only_capture_enemy_pieces_rule(const GameState& state, const Move& move) {

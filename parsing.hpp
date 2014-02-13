@@ -1,5 +1,6 @@
 #include <boost/optional/optional.hpp>
-#include "rules.hpp"
+#include "position.hpp"
+#include "move.hpp"
 using namespace boost;
 
 template<typename T> optional<pair<T, string> > parse_value(const string&);

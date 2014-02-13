@@ -1,12 +1,18 @@
-#include "rules.hpp"
 #include "interpreter.hpp"
 #include "utility.hpp"
 #include "parsing.hpp"
 #include "exceptions.hpp"
 #include "scoring.hpp"
 #include "minimax.hpp"
+#include "rules-engines/reference.hpp"
 
-Interpreter::Interpreter() : _state(new_game()), running(true), difficulty(2), max_nodes(1000) { }
+Interpreter::Interpreter() : 
+    rules(&THE_REFERENCE_RULES),
+    _state(rules->new_game()),
+    running(true),
+    difficulty(2),
+    max_nodes(1000)
+    { }
 
 void Interpreter::prompt() {
     cout << "Welcome to Super Happy Xiangqi funtime!" << endl;
@@ -72,7 +78,7 @@ void Interpreter::cmd_empty() {
 }
 
 void Interpreter::cmd_new() {
-    this->_state = new_game();
+    this->_state = rules->new_game();
 }
 
 void Interpreter::cmd_exit() {
@@ -88,7 +94,7 @@ void Interpreter::cmd_show() {
 }
 
 void Interpreter::run_move(const Move& move) {
-    if (is_legal_move(this->_state, move)) {
+    if (rules->is_legal_move(this->_state, move)) {
         this->_state.apply_move(move);
     } else {
 	cout << "Illegal move: " << move << endl;
@@ -108,10 +114,10 @@ void Interpreter::cmd_show_moves(const string& remaining_text) {
     auto moves = vector<Move>();
     auto parsed_position = parse_position(remaining_text);
     if (!parsed_position) {
-        moves = available_moves(this->state());
+        moves = rules->available_moves(this->state());
     } else {
         auto position = (*parsed_position).first;
-        moves = available_moves_from(this->state(), position);
+        moves = rules->available_moves_from(this->state(), position);
     }
     print_moves(moves);
 }

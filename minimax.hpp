@@ -1,6 +1,10 @@
 #pragma once
 
-#include "rules.hpp"
+#include "gamestate.hpp"
+#include "move.hpp"
+#include "rules-engine.hpp"
+
+extern RulesEngine *rules;
 
 extern Move best_move(const GameState& state, int depth, int max_nodes, function<int(const GameState&)> valuation);
 extern int negamax(const GameState& state, int depth, int& node_count, function<int(const GameState&)> valuation);

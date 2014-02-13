@@ -1,6 +1,6 @@
 #pragma once
 
-#include "rules.hpp"
+#include "gamestate.hpp"
 
 extern int standard_score_function(const GameState& state);
 extern int piece_value(PieceType piece_type);

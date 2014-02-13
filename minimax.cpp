@@ -1,16 +1,17 @@
 #include "minimax.hpp"
+#include "rules-engines/reference.hpp"
 
 const int lowest = numeric_limits<int>::min() + 1;
 const int highest = numeric_limits<int>::max();
 
 int negamax_basic(const GameState& state, int depth, function<int(const GameState&)> valuation) {
     int best_value = lowest;
-    auto moves = available_moves(state);
+    auto moves = rules->available_moves(state);
     if (moves.empty())
 	return best_value;
     if (depth == 0)
 	return valuation(state);
-    for (const Move& move : available_moves(state)) {
+    for (const Move& move : rules->available_moves(state)) {
 	state.peek_move<void>(move, [&] (const GameState& newState) -> void {
 	    auto val = -negamax_basic(newState, depth - 1, valuation);
 	    best_value = max(best_value, val);
@@ -26,7 +27,7 @@ int negamax(const GameState& state, int depth, int& node_count, function<int(con
 }
 
 void map_negamax(const GameState& state, int depth, int node_count, function<int(const GameState&)> valuation, function<void(const Move&, int value)> action) {
-    auto moves = available_moves(state);
+    auto moves = rules->available_moves(state);
     if (moves.empty())
         throw logic_error("No move exists");
     for (const Move& move : moves) {
@@ -55,7 +56,7 @@ Move best_move(const GameState& state, int depth, int max_nodes, function<int(co
 }
 
 vector<pair<Move, int> > move_scores(const GameState& state, function<int(const GameState&)> valuation) {
-    auto moves = available_moves(state);
+    auto moves = rules->available_moves(state);
     auto ret = vector<pair<Move, int> >();
     for (const Move& move : moves) {
 	state.peek_move<void>(move, [&] (const GameState& newState) -> void {

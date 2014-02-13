@@ -14,7 +14,9 @@ using namespace boost;
 struct GameState;
 
 enum PieceType { EMPTY, GENERAL, ADVISOR, ELEPHANT, HORSE, CHARIOT, CANNON, SOLDIER };
+
 enum Player { RED, BLACK };
+extern Player next_player(Player);
 
 struct Piece {
     PieceType piece_type;

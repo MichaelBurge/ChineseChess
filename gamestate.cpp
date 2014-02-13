@@ -8,7 +8,11 @@
 using namespace boost;
 using namespace std;
 
-extern Player next_player(Player);
+Player next_player(Player player) {
+    return player == RED
+        ? BLACK
+        : RED;}
+
 
 GameState::GameState(Player _current_turn) : turn(_current_turn), pieces_array(), pieces_map() , undo_stack() { }
 

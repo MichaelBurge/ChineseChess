@@ -1,7 +1,7 @@
 #include "../direction.hpp"
 #include "../parsing.hpp"
 #include "../position.hpp"
-#include "../rules.hpp"
+#include "../rules-engines/reference.hpp"
 #include "../test.hpp"
 #include "../scoring.hpp"
 #include "../minimax.hpp"
@@ -17,19 +17,19 @@ void test_general() {
   auto state = GameState(RED);
   state.insert_piece(center_of_castle(), Piece(GENERAL, RED));
 
-  assert_eq(num_available_moves(state), 4, "Incorrect number of general moves 3");
+  assert_eq(rules->num_available_moves(state), 4, "Incorrect number of general moves 3");
 }
 
 void test_advisor() {
   auto state = GameState(RED);
   state.insert_piece(center_of_castle(), Piece(ADVISOR, RED, 0));
 
-  assert_eq(num_available_moves(state), 4, "Incorrect number of advisor moves");
+  assert_eq(rules->num_available_moves(state), 4, "Incorrect number of advisor moves");
 
   with_90_degree_rotations(SOUTHEAST, [] (Direction direction) {
       auto state = GameState(RED);
       state.insert_piece(move_direction(center_of_castle(), direction), Piece(ADVISOR, RED, 0));
-      assert_eq(num_available_moves(state), 1, "Advisor not stuck on edge");
+      assert_eq(rules->num_available_moves(state), 1, "Advisor not stuck on edge");
   });
 }
 
@@ -38,12 +38,12 @@ void test_horse() {
   auto state = GameState(RED);
   state.insert_piece(horsePosition, Piece(HORSE, RED, 0));
 
-  assert_eq(num_available_moves(state), 8, "Incorrect number of horse moves 1");
+  assert_eq(rules->num_available_moves(state), 8, "Incorrect number of horse moves 1");
 
   state.insert_piece(
       move_direction(horsePosition, NORTH),
       Piece(SOLDIER, BLACK, 0));
-  assert_eq(num_available_moves(state), 6, "Horse's leg can't be tripped");
+  assert_eq(rules->num_available_moves(state), 6, "Horse's leg can't be tripped");
 }
 
 void test_elephant() {
@@ -51,28 +51,28 @@ void test_elephant() {
   auto state = GameState(RED);
   state.insert_piece(elephantPosition, Piece(ELEPHANT, RED, 0));
 
-  assert_eq(num_available_moves(state), 4, "Incorrect number of elephant moves");
+  assert_eq(rules->num_available_moves(state), 4, "Incorrect number of elephant moves");
   state.insert_piece(
       move_direction(elephantPosition, NORTHEAST),
       Piece(SOLDIER, BLACK, 0));
-  assert_eq(num_available_moves(state), 3, "Can't block the elephant's eye");
+  assert_eq(rules->num_available_moves(state), 3, "Can't block the elephant's eye");
 }
 
 void test_chariot() {
   auto chariotPosition = center_of_board();
   auto state = GameState(RED);
   state.insert_piece(chariotPosition, Piece(CHARIOT, RED, 0));
-  assert_eq(num_available_moves(state), 5+4+4+4, "Incorrect number of chariot moves 1");
+  assert_eq(rules->num_available_moves(state), 5+4+4+4, "Incorrect number of chariot moves 1");
 
   state.insert_piece(
       move_direction(chariotPosition, NORTH),
       Piece(SOLDIER, BLACK, 0));
-  assert_eq(num_available_moves(state), 1+4+4+4, "Incorrect number of chariot moves 2");
+  assert_eq(rules->num_available_moves(state), 1+4+4+4, "Incorrect number of chariot moves 2");
 
   state.insert_piece(
       move_direction(chariotPosition, WEST),
       Piece(SOLDIER, BLACK, 1));
-  assert_eq(num_available_moves(state), 1+1+4+4, "Incorrect number of chariot moves 3");
+  assert_eq(rules->num_available_moves(state), 1+1+4+4, "Incorrect number of chariot moves 3");
 }
 
 void test_cannon() {
@@ -80,24 +80,24 @@ void test_cannon() {
   auto state = GameState(RED);
   state.insert_piece(cannonPosition, Piece(CANNON, RED, 0));
 
-  assert_eq(num_available_moves(state), 5+4+4+4, "Incorrect number of chariot moves(no obstructions)");
+  assert_eq(rules->num_available_moves(state), 5+4+4+4, "Incorrect number of chariot moves(no obstructions)");
 
   state.insert_piece(
       move_direction(cannonPosition, NORTH),
       Piece(SOLDIER, BLACK, 0));
-  assert_eq(num_available_moves(state), 0+4+4+4, "Incorrect number of chariot moves(one obstruction)");
+  assert_eq(rules->num_available_moves(state), 0+4+4+4, "Incorrect number of chariot moves(one obstruction)");
 
   state.insert_piece(
       move_direction(move_direction(cannonPosition, NORTH), NORTH),
       Piece(ELEPHANT, BLACK, 1));
-  assert_eq(num_available_moves(state), 1+4+4+4, "Incorrect number of chariot moves(one capture)");
+  assert_eq(rules->num_available_moves(state), 1+4+4+4, "Incorrect number of chariot moves(one capture)");
 
   state = GameState(RED);
   state.insert_piece(mkPosition(10, 8), Piece(CANNON, RED, 0));
   state.insert_piece(mkPosition(9, 8), Piece(ELEPHANT, BLACK, 0));
   state.insert_piece(mkPosition(8, 8), Piece(ADVISOR, BLACK, 0));
   state.insert_piece(mkPosition(7, 8), Piece(GENERAL, BLACK, 0));
-  deny(is_legal_move(state, Move(mkPosition(10, 8), mkPosition(7, 8))), "Double-hopping bug");
+  deny(rules->is_legal_move(state, Move(mkPosition(10, 8), mkPosition(7, 8))), "Double-hopping bug");
 }
 
 void test_soldier() {
@@ -105,14 +105,14 @@ void test_soldier() {
     auto state = GameState(RED);
     state.insert_piece(position, Piece(SOLDIER, RED, 0));
 
-    assert_eq(num_available_moves(state), 1, "Incorrect number of pre-river soldier moves");
+    assert_eq(rules->num_available_moves(state), 1, "Incorrect number of pre-river soldier moves");
 
     state = GameState(RED);
     state.insert_piece(
         move_direction(position, NORTH),
         Piece(SOLDIER, RED, 0));
 
-    assert_eq(num_available_moves(state), 3, "Incorrect number of post-river soldier moves");
+    assert_eq(rules->num_available_moves(state), 3, "Incorrect number of post-river soldier moves");
 }
 
 void test_piece_capture() {
@@ -123,29 +123,29 @@ void test_piece_capture() {
 
     auto state = GameState(RED);
     state.insert_piece(position, piece);
-    assert_eq(num_available_captures(state), 0, "Captures incorrectly found 1");
+    assert_eq(rules->num_available_captures(state), 0, "Captures incorrectly found 1");
 
     state.insert_piece(
         move_direction(position, NORTH),
         ally);
-    assert_eq(num_available_captures(state), 0, "Allies can be captured");
+    assert_eq(rules->num_available_captures(state), 0, "Allies can be captured");
 
     state.insert_piece(
         move_direction(position, WEST),
         enemy);
-    assert_eq(num_available_captures(state), 1, "Capture move is not recorded properly");
+    assert_eq(rules->num_available_captures(state), 1, "Capture move is not recorded properly");
 }
 
 void test_flying_kings_rule() {
     auto state = GameState(RED);
     state.insert_piece(mkPosition(2, 5), Piece(GENERAL, RED));
-    assert_eq(num_available_moves(state), 4, "Incorrect # of king moves");
+    assert_eq(rules->num_available_moves(state), 4, "Incorrect # of king moves");
 
     state.insert_piece(mkPosition(8, 6), Piece(GENERAL, BLACK));
-    assert_eq(num_available_moves(state), 3, "Enemy king doesn't block a move");
+    assert_eq(rules->num_available_moves(state), 3, "Enemy king doesn't block a move");
 
     state.insert_piece(mkPosition(5, 6), Piece(SOLDIER, BLACK, 0));
-    assert_eq(num_available_moves(state), 4, "Soldier doesn't block flying kings");
+    assert_eq(rules->num_available_moves(state), 4, "Soldier doesn't block flying kings");
 }
 
 void test_parsing() {
@@ -215,13 +215,13 @@ void test_parsing() {
 
 void test_winning() {
     auto state = GameState(RED);
-    _assert(!winner(state), "Winner when no kings");
+    _assert(!rules->winner(state), "Winner when no kings");
 
     state.insert_piece(mkPosition(2, 5), Piece(GENERAL, RED));
-    _assert(winner(state), "Should be winner if one king");
+    _assert(rules->winner(state), "Should be winner if one king");
 
     state.insert_piece(mkPosition(8, 6), Piece(GENERAL, BLACK));
-    deny(winner(state), "Winner when two kings");
+    deny(rules->winner(state), "Winner when two kings");
 }
 
 void test_game_state_dictionary_storage() {
@@ -233,7 +233,7 @@ void test_game_state_dictionary_storage() {
 }
 
 void test_data_structures() {
-    auto game = new_game();
+    auto game = rules->new_game();
     auto num_pieces = 0;
     game.for_each_piece([&] (Position position, Piece piece) {
         num_pieces++;
@@ -273,18 +273,18 @@ void test_check() {
     auto state = GameState(RED);
     auto position = center_of_castle();
     state.insert_piece(position, Piece(GENERAL, RED));
-    assert_eq(num_available_moves(state), 4, "Incorrect number of general moves");
+    assert_eq(rules->num_available_moves(state), 4, "Incorrect number of general moves");
 
     state.insert_piece(mkPosition(6, 5), Piece(CHARIOT, BLACK, 0));
-    _assert(is_king_in_check(state, RED), "King not scared of chariot");
-    _assert(results_in_check(state, Move(position, move_direction(position, NORTH))), "NORTH check");
-    _assert(results_in_check(state, Move(position, move_direction(position, SOUTH))), "SOUTH check");
-    deny(results_in_check(state, Move(position, move_direction(position, WEST))), "WEST check");
-    deny(results_in_check(state, Move(position, move_direction(position, EAST))), "EAST check");
-    assert_eq(num_available_moves(state), 2, "King can't run to only two places");
+    _assert(rules->is_king_in_check(state, RED), "King not scared of chariot");
+    _assert(rules->results_in_check(state, Move(position, move_direction(position, NORTH))), "NORTH check");
+    _assert(rules->results_in_check(state, Move(position, move_direction(position, SOUTH))), "SOUTH check");
+    deny(rules->results_in_check(state, Move(position, move_direction(position, WEST))), "WEST check");
+    deny(rules->results_in_check(state, Move(position, move_direction(position, EAST))), "EAST check");
+    assert_eq(rules->num_available_moves(state), 2, "King can't run to only two places");
 
     state.insert_piece(mkPosition(4, 5), Piece(CHARIOT, RED, 0));
-    deny(is_king_in_check(state, RED), "King scared of own chariot");
+    deny(rules->is_king_in_check(state, RED), "King scared of own chariot");
 
     state = GameState(BLACK);
     state.insert_piece(mkPosition(1, 5), Piece(GENERAL, RED, 0));
@@ -296,7 +296,7 @@ void test_check() {
     state.insert_piece(mkPosition(2, 1), Piece(CHARIOT, BLACK, 1));
     state.insert_piece(mkPosition(2, 7), Piece(HORSE, BLACK, 0));
     auto bad_move = Move(mkPosition(10,6), mkPosition(1,6));
-    deny(is_legal_move(state, bad_move), "Code suffers from the 'you can't take my general who's in check because you're in check' problem");
+    deny(rules->is_legal_move(state, bad_move), "Code suffers from the 'you can't take my general who's in check because you're in check' problem");
 }
 
 void test_scoring() {
@@ -347,7 +347,7 @@ void test_performance() {
 
 int perft(const GameState& initial, int n) {
     int count = 0;
-    for (const Move& move : available_moves(initial)) {
+    for (const Move& move : rules->available_moves(initial)) {
 	if (n == 0) {
 	    count += 1;
 	} else {
@@ -360,7 +360,7 @@ int perft(const GameState& initial, int n) {
 }
 
 void test_perft() {
-    auto state = new_game();
+    auto state = rules->new_game();
     assert_eq(perft(state, 0), 44, "Failed perft(0)");
     assert_eq(perft(state, 1), 1920, "Failed perft(1)");
     assert_eq(perft(state, 2), 79666, "Failed perft(2)");

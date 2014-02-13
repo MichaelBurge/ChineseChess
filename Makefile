@@ -1,4 +1,4 @@
-primary_files = rules.o parsing.o direction.o position.o move.o minimax.o scoring.o interpreter.o gamestate.o
+primary_files = parsing.o direction.o position.o move.o minimax.o scoring.o interpreter.o gamestate.o rules-engine.o rules-engines/reference.o
 test_files = tests/main.o test.o
 performance_files = tests/performance.o
 

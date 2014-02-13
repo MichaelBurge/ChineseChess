@@ -1,6 +1,9 @@
 #pragma once
 
+#include "rules-engine.hpp"
+
 struct Interpreter {
+    RulesEngine *rules;
     GameState _state;
     bool running;
     int difficulty;

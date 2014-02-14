@@ -65,7 +65,7 @@ void map_negamax(const GameState& state, int depth, int node_count, function<int
 
 Move best_move(const GameState& state, int depth, int max_nodes, function<int(const GameState&)> valuation) {
      auto best_value = lowest;
-     Move best_move = Move(mkPosition(-1, -1), mkPosition(-1, -1));
+     Move best_move = Move(Position(-1, -1), Position(-1, -1));
      auto found = false;
      map_negamax(state, depth, max_nodes, valuation, [&] (const Move& move, int value) {
          found = true;

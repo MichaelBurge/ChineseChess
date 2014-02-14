@@ -8,20 +8,14 @@ bool Position::is_valid() const {
     1 <= rank && rank <= 10;
 }
 
-Position mkPosition(int rank, int file) {
-  auto position = Position();
-  position.rank = rank;
-  position.file = file;
-  return position;
-}
+Position::Position(uint8_t rank, uint8_t file) : rank(rank), file(file), comparator((rank << 8) | file) { }
 
 bool Position::operator<(const Position& b) const {
-  return (rank < b.rank) ||
-          (rank == b.rank && file < b.file);
+    return comparator < b.comparator;
 }
 
 bool Position::operator==(const Position& b) const {
-  return (rank == b.rank) && (file == b.file);
+    return comparator == b.comparator;
 }
 
 char file_display(int file) {

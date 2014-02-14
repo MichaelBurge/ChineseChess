@@ -20,26 +20,26 @@ ReferenceRules THE_REFERENCE_RULES = ReferenceRules();
 GameState ReferenceRules::new_game() {
     auto state = GameState(RED);
     auto fill_home_rank = [&] (int rank, Player player) {
-        state.insert_piece(mkPosition(rank, 1), Piece(CHARIOT, player, 0));
-        state.insert_piece(mkPosition(rank, 2), Piece(HORSE,   player, 0));
-        state.insert_piece(mkPosition(rank, 3), Piece(ELEPHANT,player, 0));
-        state.insert_piece(mkPosition(rank, 4), Piece(ADVISOR, player, 0));
-        state.insert_piece(mkPosition(rank, 5), Piece(GENERAL, player));
-        state.insert_piece(mkPosition(rank, 6), Piece(ADVISOR, player, 1));
-        state.insert_piece(mkPosition(rank, 7), Piece(ELEPHANT,player, 1));
-        state.insert_piece(mkPosition(rank, 8), Piece(HORSE,   player, 1));
-        state.insert_piece(mkPosition(rank, 9), Piece(CHARIOT, player, 1));
+        state.insert_piece(Position(rank, 1), Piece(CHARIOT, player, 0));
+        state.insert_piece(Position(rank, 2), Piece(HORSE,   player, 0));
+        state.insert_piece(Position(rank, 3), Piece(ELEPHANT,player, 0));
+        state.insert_piece(Position(rank, 4), Piece(ADVISOR, player, 0));
+        state.insert_piece(Position(rank, 5), Piece(GENERAL, player));
+        state.insert_piece(Position(rank, 6), Piece(ADVISOR, player, 1));
+        state.insert_piece(Position(rank, 7), Piece(ELEPHANT,player, 1));
+        state.insert_piece(Position(rank, 8), Piece(HORSE,   player, 1));
+        state.insert_piece(Position(rank, 9), Piece(CHARIOT, player, 1));
     };
     auto fill_cannons = [&] (int rank, Player player) {
-        state.insert_piece(mkPosition(rank, 2), Piece(CANNON, player, 0));
-        state.insert_piece(mkPosition(rank, 8), Piece(CANNON, player, 1));
+        state.insert_piece(Position(rank, 2), Piece(CANNON, player, 0));
+        state.insert_piece(Position(rank, 8), Piece(CANNON, player, 1));
     };
     auto fill_soldiers = [&] (int rank, Player player) {
-        state.insert_piece(mkPosition(rank, 1), Piece(SOLDIER, player, 0));
-        state.insert_piece(mkPosition(rank, 3), Piece(SOLDIER, player, 1));
-        state.insert_piece(mkPosition(rank, 5), Piece(SOLDIER, player, 2));
-        state.insert_piece(mkPosition(rank, 7), Piece(SOLDIER, player, 3));
-        state.insert_piece(mkPosition(rank, 9), Piece(SOLDIER, player, 4));
+        state.insert_piece(Position(rank, 1), Piece(SOLDIER, player, 0));
+        state.insert_piece(Position(rank, 3), Piece(SOLDIER, player, 1));
+        state.insert_piece(Position(rank, 5), Piece(SOLDIER, player, 2));
+        state.insert_piece(Position(rank, 7), Piece(SOLDIER, player, 3));
+        state.insert_piece(Position(rank, 9), Piece(SOLDIER, player, 4));
     };
     fill_home_rank(1, RED);
     fill_cannons  (3, RED);

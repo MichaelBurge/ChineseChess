@@ -15,7 +15,7 @@ test: test_suite.exe
 	./test_suite.exe
 
 performance_test.exe: $(performance_files) $(primary_files)
-	g++ $(options) $^ -o $@
+	g++ -p -pg $(options) $^ -o $@
 
 performance: performance_test.exe
 	./performance_test.exe

@@ -1,11 +1,14 @@
 #pragma once
 
 #include <ostream>
+#include <stdint.h>
 using namespace std;
 
 struct Position {
-    int rank;
-    int file;
+    Position(uint8_t rank, uint8_t file);
+    uint8_t rank;
+    uint8_t file;
+    uint16_t comparator;
     bool operator<(const Position& a) const;
     bool operator==(const Position& a) const;
     bool is_valid() const;
@@ -13,5 +16,3 @@ struct Position {
 
 ostream& operator<<(ostream& os, const Position&);
 string position_repr(const Position&);
-
-extern Position mkPosition(int rank, int file);

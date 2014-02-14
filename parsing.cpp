@@ -56,7 +56,7 @@ optional<pair<Position, string> > parse_position(const string& text) {
     auto r1 = parse_rank((*f1).second);
     if (!r1)
         return fail_parse<Position>();
-    return pair<Position, string>(mkPosition((*r1).first, (*f1).first), (*r1).second);
+    return pair<Position, string>(Position((*r1).first, (*f1).first), (*r1).second);
 }
 
 optional<pair<Move, string> > parse_move(const string& text) {

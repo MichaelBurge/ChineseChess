@@ -122,7 +122,7 @@ void GameStateArrayStorage::insert_piece(const Position& position, const Piece& 
 void GameStateArrayStorage::for_each_piece(function<void(Position, Piece)> action) const {
     for (int rank = 1; rank <= 10; rank++) {
 	for (int file = 1; file <= 9; file++) {
-	    auto position = mkPosition(rank, file);
+	    auto position = Position(rank, file);
 	    auto piece = this->get_piece(position);
 	    if (!piece)
 		continue;
@@ -275,7 +275,7 @@ ostream& operator<<(ostream& os, const GameStateArrayStorage& board) {
 
     auto draw_rank = [&] (int rank) {
 	for (int i = 1; i != 10; i++)
-            cout << board.get_piece_direct(mkPosition(rank, i)).character() << ' ';
+            cout << board.get_piece_direct(Position(rank, i)).character() << ' ';
         cout << endl;
     };
 

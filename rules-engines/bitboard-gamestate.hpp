@@ -31,4 +31,14 @@ struct BitboardGameState {
     bitboard red_pieces;
     bitboard black_pieces;
     bitboard moves;
+
+    // Standard GameState methods
+    Piece get_piece(const Position&) const;
+    void insert_piece(const Position&, const Piece&);
+    void remove_piece(const Position&);
+    void apply_move(const Move&);
+    void current_turn(Player);
+    Player current_turn();
+    void peek_move(const Move&, const function<void(const ReferencGameState&)>& action) const;
+    void print_debug_board() const;
 };

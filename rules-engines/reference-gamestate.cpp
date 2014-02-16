@@ -31,13 +31,13 @@ ReferenceGameStateArrayStorage::ReferenceGameStateArrayStorage() : pieces(extent
 Piece ReferenceGameStateArrayStorage::get_piece(const Position& position) const {
     if (!position.is_valid())
 	throw logic_error("Invalid position" + position_repr(position));
-    return pieces[position.rank][position.file];
+    return pieces[position.rank()][position.file()];
 };
 
 void ReferenceGameStateArrayStorage::insert_piece(const Position& position, const Piece& piece) {
     if (!position.is_valid())
 	throw logic_error("Invalid position " + position_repr(position));
-    this->pieces[position.rank][position.file] = piece;
+    this->pieces[position.rank()][position.file()] = piece;
 }
 
 void ReferenceGameStateArrayStorage::for_each_piece(function<void(Position, Piece)> action) const {
@@ -56,7 +56,7 @@ void ReferenceGameStateArrayStorage::remove_piece(const Position& position) {
     auto piece = this->get_piece(position);
     if (!piece)
 	throw logic_error("Tried to remove a nonexistent piece");
-    this->pieces[position.rank][position.file] = Piece(EMPTY);
+    this->pieces[position.rank()][position.file()] = Piece(EMPTY);
 }
 
 // ReferenceGameStateDictionaryStorage

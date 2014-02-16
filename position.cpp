@@ -3,19 +3,25 @@
 using namespace boost;
 
 bool Position::is_valid() const {
-  return
-    1 <= file && file <= 9 &&
-    1 <= rank && rank <= 10;
+    return value < 90;
 }
 
-Position::Position(uint8_t rank, uint8_t file) : rank(rank), file(file), comparator((rank << 8) | file) { }
+Position::Position(uint8_t rank, uint8_t file) : value((rank-1) * 9 + (file-1)) { }
+
+uint8_t Position::rank() const {
+    return value / 9 + 1;
+}
+
+uint8_t Position::file() const {
+    return value % 9 + 1;
+}
 
 bool Position::operator<(const Position& b) const {
-    return comparator < b.comparator;
+    return value < b.value;
 }
 
 bool Position::operator==(const Position& b) const {
-    return comparator == b.comparator;
+    return value < b.value;
 }
 
 char file_display(int file) {
@@ -23,7 +29,7 @@ char file_display(int file) {
 }
 
 string position_repr(const Position& position) {
-    return file_display(position.file) + lexical_cast<string>((int)position.rank);
+    return file_display(position.file()) + lexical_cast<string>((int)position.rank());
 }
 
 ostream& operator<<(ostream& os, const Position& position) {

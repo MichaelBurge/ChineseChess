@@ -49,8 +49,8 @@ template<> void assert_eq(const Player& actual, const Player& expected, string m
 }
 
 template<> void assert_eq(const Position& actual, const Position& expected, string message) {
-    assert_eq(actual.rank, expected.rank, message + " - Rank differs");
-    assert_eq(actual.file, expected.file, message + " - File differs");
+    assert_eq(actual.rank(), expected.rank(), message + " - Rank differs");
+    assert_eq(actual.file(), expected.file(), message + " - File differs");
 }
 
 template<> void assert_eq(const Move& actual, const Move& expected, string message) {

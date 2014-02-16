@@ -74,7 +74,6 @@ struct ReferenceGameState : ReferenceGameStateStorageMethod {
 private:
     void commit();
     void rollback();
-    char character_for_piece(Piece);
 
     mutable optional<Position> red_king;
     mutable optional<Position> black_king;

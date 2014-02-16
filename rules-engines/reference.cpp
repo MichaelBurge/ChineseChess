@@ -104,8 +104,8 @@ namespace implementation {
 
     bool has_crossed_river(const Position& position, Player player) {
 	return player == RED
-	    ? (6 <= position.rank && position.rank <= 10)
-	    : (1 <= position.rank && position.rank <= 5);
+	    ? (6 <= position.rank() && position.rank() <= 10)
+	    : (1 <= position.rank() && position.rank() <= 5);
     }
 
     void insert_available_moves_for_soldier(const ReferenceGameState&, Position position, Player owner, vector<Move>& all_moves) {
@@ -210,7 +210,7 @@ namespace implementation {
 
 
     bool is_position_in_castle(const Position& position) {
-	const auto& rank = position.rank, file = position.file;
+	const auto& rank = position.rank(), file = position.file();
 	return
 	    4 <= file && file <= 6 &&
 	    ((1 <= rank && rank <= 3) ||

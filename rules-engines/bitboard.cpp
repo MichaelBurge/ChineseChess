@@ -2,17 +2,6 @@
 #include "bitboard-gamestate.hpp"
 using namespace std;
 
-enum Direction {
-    NORTH,
-    SOUTH,
-    EAST,
-    WEST,
-    NORTHEAST,
-    NORTHWEST,
-    SOUTHEAST,
-    SOUTHWEST,
-};
-
 Position first_one(bitboard board) {
 }
 

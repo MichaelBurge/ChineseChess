@@ -2,7 +2,7 @@ primary_files = parsing.o direction.o position.o move.o player.o piece.o minimax
 test_files = tests/main.o test.o
 performance_files = tests/performance.o
 
-options = -g -Wall -Wextra -std=c++11
+options = -O2 -g -Wall -Wextra -std=c++11
 
 %.o: %.cpp
 	g++ $(options) -o $@ -c $<

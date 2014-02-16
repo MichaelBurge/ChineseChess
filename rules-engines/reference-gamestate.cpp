@@ -9,7 +9,13 @@
 using namespace boost;
 using namespace std;
 
-ReferenceGameState::ReferenceGameState(Player _current_turn) : turn(_current_turn), pieces_array(), pieces_map() , undo_stack() { }
+ReferenceGameState::ReferenceGameState(Player _current_turn) :
+    red_king(optional<Position>()),
+    black_king(optional<Position>()),
+    turn(_current_turn),
+    pieces_array(),
+    pieces_map() ,
+    undo_stack() { }
 
 UndoNode::UndoNode(const ReferenceGameState& state, const Move& move) : move(move) {
     this->former_occupant = state.get_piece(move.to);
@@ -22,25 +28,11 @@ ReferenceGameStateArrayStorage::ReferenceGameStateArrayStorage() : pieces(extent
     fill(pieces.data(), pieces.data() + pieces.num_elements(), Piece(EMPTY));
 }
 
-optional<Piece> ReferenceGameStateArrayStorage::get_piece(const Position& position) const {
-    if (!position.is_valid())
-	return optional<Piece>();
-    auto piece = this->get_piece_direct(position);
-    return (piece == EMPTY)
-	? optional<Piece>()
-        : piece;  
-};
-
-optional<Position> ReferenceGameStateArrayStorage::get_position(const Piece& piece) const {
-    throw logic_error("Calling ReferenceGameStateArrayStorage::get_piece(piece) is a performance error");
-};
-
-Piece ReferenceGameStateArrayStorage::get_piece_direct(const Position& position) const {
+Piece ReferenceGameStateArrayStorage::get_piece(const Position& position) const {
     if (!position.is_valid())
 	throw logic_error("Invalid position" + position_repr(position));
     return pieces[position.rank][position.file];
-
-}
+};
 
 void ReferenceGameStateArrayStorage::insert_piece(const Position& position, const Piece& piece) {
     if (!position.is_valid())
@@ -55,7 +47,7 @@ void ReferenceGameStateArrayStorage::for_each_piece(function<void(Position, Piec
 	    auto piece = this->get_piece(position);
 	    if (!piece)
 		continue;
-	    action(position, *piece);
+	    action(position, piece);
 	}
     }
 }
@@ -71,19 +63,12 @@ void ReferenceGameStateArrayStorage::remove_piece(const Position& position) {
 
 ReferenceGameStateDictionaryStorage::ReferenceGameStateDictionaryStorage() : pieces() { }
 
-optional<Piece> ReferenceGameStateDictionaryStorage::get_piece(const Position& position) const {
+Piece ReferenceGameStateDictionaryStorage::get_piece(const Position& position) const {
     auto p = this->pieces.left.find(position);
     return (p == this->pieces.left.end())
-	? optional<Piece>()
+	? EMPTY
 	: (*p).second;
 }
-
-optional<Position> ReferenceGameStateDictionaryStorage::get_position(const Piece& piece) const {
-    auto p = this->pieces.right.find(piece);
-    return (p == this->pieces.right.end())
-	? optional<Position>()
-	: (*p).second;
-};
 
 void ReferenceGameStateDictionaryStorage::insert_piece(const Position& position, const Piece& piece) {
     if (!position.is_valid())
@@ -126,12 +111,8 @@ void ReferenceGameState::peek_move(const Move& move, const function<void(const R
     scratch.rollback();
 }
 
-optional<Piece> ReferenceGameState::get_piece(const Position& position) const {
+Piece ReferenceGameState::get_piece(const Position& position) const {
     return this->pieces_array.get_piece(position);
-}
-
-optional<Position> ReferenceGameState::get_position(const Piece& piece) const {
-    return this->pieces_map.get_position(piece);
 }
 
 void ReferenceGameState::insert_piece(const Position& position, const Piece& piece) {
@@ -162,7 +143,11 @@ void ReferenceGameState::apply_move(const Move& move) {
     this->remove_piece(move.from);
     if (!!to_piece)
 	this->remove_piece(move.to);
-    this->insert_piece(move.to, *from_piece);
+    this->insert_piece(move.to, from_piece);
+    if (move.from == this->red_king)
+	this->red_king = move.to;
+    if (move.from == this->black_king)
+	this->black_king = move.to;
     this->switch_turn();
 }
 
@@ -192,7 +177,7 @@ ostream& operator<<(ostream& os, const ReferenceGameStateArrayStorage& board) {
 
     auto draw_rank = [&] (int rank) {
 	for (int i = 1; i != 10; i++)
-            cout << character_for_piece(board.get_piece_direct(Position(rank, i))) << ' ';
+            cout << character_for_piece(board.get_piece(Position(rank, i))) << ' ';
         cout << endl;
     };
 
@@ -238,8 +223,12 @@ void ReferenceGameState::rollback() {
     auto piece = this->get_piece(move.to);
     if (!piece)
 	throw logic_error("No piece at to location for move " + move_repr(move));
+    if (piece == RED_GENERAL)
+	this->red_king = move.from;
+    if (piece == BLACK_GENERAL)
+	this->black_king = move.from;
     this->remove_piece(move.to);
-    this->insert_piece(move.from, *piece);
+    this->insert_piece(move.from, piece);
     if (!!node.former_occupant)
 	this->insert_piece(move.to, *node.former_occupant);
 
@@ -253,3 +242,10 @@ Player ReferenceGameState::current_turn() const {
 void ReferenceGameState::current_turn(Player player) {
     this->turn = player;
 }
+
+optional<Position> ReferenceGameState::get_king_position(Player player) const {
+    return (player == RED)
+	? this->red_king
+	: this->black_king;
+}
+

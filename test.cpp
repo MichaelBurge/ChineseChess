@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <boost/lexical_cast.hpp>
 using namespace std;
+using namespace boost;
 
 void _assert(bool condition, string message) {
   if (condition)
@@ -30,6 +31,7 @@ template void assert_eq(const uint32_t&, const int32_t&, string);
 template void assert_eq(const uint64_t&, const int32_t&, string);
 template void assert_eq(const uint64_t&, const uint64_t&, string);
 template void assert_eq(const int32_t&,  const int32_t&, string);
+template void assert_eq(const Piece&, const Piece&, string);
 template<> void assert_eq(const string& actual, const string& expected, string message) {
     _assert(
         actual == expected,

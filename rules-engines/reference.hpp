@@ -16,6 +16,7 @@ namespace implementation {
     extern vector<Move> _available_moves_from(const ReferenceGameState& state, const Position& position);
     extern int          _num_available_moves(const ReferenceGameState& state);
     extern int          _num_available_captures(const ReferenceGameState& state);
+    extern bool         _results_in_check(const ReferenceGameState& state, const Move& move);
 
     // Auxillary function
     extern void insert_available_moves_for_general(const ReferenceGameState&, Position, Player, vector<Move>&);
@@ -60,11 +61,17 @@ public:
     static bool         is_legal_move(const ReferenceGameState & state, const Move& move, bool allow_check = false)
     { return implementation::_is_legal_move(state, move, allow_check); }
 
-    static optional<Player> winner(const ReferenceGameState& state)
+    static bool is_winner(const ReferenceGameState& state)
+    { return implementation::_is_winner(state); }
+
+    static Player winner(const ReferenceGameState& state)
     { return implementation::_winner(state); }
 
     static bool         is_king_in_check(const ReferenceGameState& state, Player player)
     { return implementation::_is_king_in_check(state, player); }
+
+    static bool results_in_check(const ReferenceGameState& state, const Move& move)
+    { return implementation::_results_in_check(state, move); }
 
     static vector<Move> filter_available_moves(const ReferenceGameState& state, function<bool(const Move&)> action)
     { return implementation::_filter_available_moves(state, action); }

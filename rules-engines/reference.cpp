@@ -154,7 +154,7 @@ namespace implementation {
 	    insert_available_moves_for_soldier(state, position, owner(piece), all_moves);
 	    break;
 	default:
-	    throw logic_error("Unknown piece " + lexical_cast<string>(piece));
+	    throw logic_error("Unknown piece " + lexical_cast<string>((int)piece));
 	}
     }
 
@@ -180,8 +180,8 @@ namespace implementation {
     }
 
     bool violates_flying_kings_rule(const ReferenceGameState& state) {
-	auto red_king = state.get_position(Piece(RED_GENERAL));
-	auto black_king = state.get_position(Piece(BLACK_GENERAL));
+	auto red_king = state.get_king_position(RED);
+	auto black_king = state.get_king_position(BLACK);
 
 	if (!red_king || !black_king)
 	    return false;
@@ -207,7 +207,7 @@ namespace implementation {
 	if (!captured_piece)
 	    return false;
 
-	return owner(*from_piece) == owner(*captured_piece);
+	return owner(from_piece) == owner(captured_piece);
     }
 
     bool is_invalid_state(const ReferenceGameState& state) {
@@ -252,14 +252,9 @@ namespace implementation {
 
 
     optional<Player> __winner(const ReferenceGameState& state) {
-	auto red_king = state.get_position(RED_GENERAL);
-	auto black_king = state.get_position(BLACK_GENERAL);
-	if ((!!red_king && !!black_king) || (!red_king && !black_king)) {
-	    return optional<Player>();
-	}
-	if (!red_king)
-	    return BLACK;
-	return RED;
+	return (_num_available_moves(state) == 0)
+	    ? state.current_turn()
+	    : optional<Player>();
     }
 
     vector<Move> _available_moves_without_check(const ReferenceGameState & state) {
@@ -274,7 +269,7 @@ namespace implementation {
 	return all_moves;
     }
     
-    bool results_in_check(const ReferenceGameState& state, const Move& move)
+    bool _results_in_check(const ReferenceGameState& state, const Move& move)
     {
 	bool ret;
 	state.peek_move(move, [&] (const ReferenceGameState& new_state) {
@@ -287,9 +282,7 @@ namespace implementation {
     vector<Move> _available_moves(const ReferenceGameState & state) {
 	vector<Move> moves = _available_moves_without_check(state);
 	auto new_end = remove_if(moves.begin(), moves.end(), [&] (const Move& move) -> bool {
-		if (results_in_check(state, move))
-		    return true;
-		return false;
+		return _results_in_check(state, move);
 	    });
 	moves.erase(new_end, moves.end());
 	return moves;
@@ -307,12 +300,7 @@ namespace implementation {
     bool _is_king_in_check(const ReferenceGameState& original_state, Player player) {
 	auto state = original_state;
 	state.current_turn(next_player(player));
-	Piece king;
-	if (player == RED)
-	    king = RED_GENERAL;
-	else
-	    king = BLACK_GENERAL;
-	auto king_position = state.get_position(king);
+	auto king_position = state.get_king_position(player);
 	if (!king_position)
 	    return false;
     

@@ -20,6 +20,8 @@ Player owner(Piece piece) {
     case BLACK_HORSE:
     case BLACK_CANNON:
 	return BLACK;
+    case EMPTY:
+	throw logic_error("Asked for color of empty piece");
     default:
 	throw logic_error("Invalid piece");
     }
@@ -58,7 +60,7 @@ char character_for_piece(Piece piece) {
     case BLACK_SOLDIER:
 	return 's';
     default:
-        throw logic_error("Unknown piece: " + lexical_cast<string>(piece));
+        throw logic_error("Unknown piece: " + lexical_cast<string>((int)piece));
     }
 }
 

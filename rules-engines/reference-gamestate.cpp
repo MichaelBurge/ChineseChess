@@ -120,11 +120,19 @@ Piece ReferenceGameState::get_piece(const Position& position) const {
 void ReferenceGameState::insert_piece(const Position& position, const Piece& piece) {
     if (piece == EMPTY)
 	throw logic_error("Cannot insert an empty piece");
+    if (piece == RED_GENERAL)
+	this->red_king = position;
+    if (piece == BLACK_GENERAL)
+	this->black_king = position;
     this->pieces_array.insert_piece(position, piece);
     this->pieces_map.insert_piece(position, piece);
 }
 
 void ReferenceGameState::remove_piece(const Position& position) {
+    if (!!this->red_king && *red_king == position)
+	this->red_king = optional<Position>();
+    if (!!this->black_king && *black_king == position)
+	this->black_king = optional<Position>();
     this->pieces_array.remove_piece(position);
     this->pieces_map.remove_piece(position);
 }
@@ -132,8 +140,6 @@ void ReferenceGameState::remove_piece(const Position& position) {
 void ReferenceGameState::for_each_piece(function<void(Position, Piece)> action) const {
     this->pieces_map.for_each_piece(action);
 }
-
-
 
 void ReferenceGameState::switch_turn() {
     this->current_turn(next_player(this->current_turn()));    
@@ -227,13 +233,10 @@ void ReferenceGameState::rollback() {
     auto piece = this->get_piece(move.to);
     if (!piece)
 	throw logic_error("No piece at to location for move " + move_repr(move));
-    if (piece == RED_GENERAL)
-	this->red_king = move.from;
-    if (piece == BLACK_GENERAL)
-	this->black_king = move.from;
+
     this->remove_piece(move.to);
     this->insert_piece(move.from, piece);
-    if (!!node.former_occupant)
+    if (!!node.former_occupant && *node.former_occupant)
 	this->insert_piece(move.to, *node.former_occupant);
 
     this->switch_turn();

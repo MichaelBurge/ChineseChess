@@ -26,7 +26,7 @@ struct GameState
 
     void peek_move(const Move& move, const function<void(const GameState&)> action) const
     {
-	implementation.peek_move(move, [&] (const Implementation& impl) {
+	implementation.peek_move(move, [&] (const Implementation&) {
 	    action(const_cast<GameState&>(*this));
 	});
     }	

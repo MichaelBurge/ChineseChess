@@ -20,9 +20,6 @@ int negamax_basic(const StandardGameState& state, int depth, function<int(const 
     return best_value;
 }
 
-void reorder_moves(const StandardGameState& state, vector<Move>& available_moves, function<int(const StandardGameState&, const Move&)> valuation) {
-}
-
 int negamax_with_pruning(const StandardGameState& state, int depth, int alpha, int beta, function<int(const StandardGameState&)> valuation) {
     int best_value = lowest;
     auto moves = StandardRulesEngine::available_moves(state);
@@ -31,7 +28,7 @@ int negamax_with_pruning(const StandardGameState& state, int depth, int alpha, i
     if (depth == 0)
 	return valuation(state);
     auto available_moves = StandardRulesEngine::available_moves(state);
-    //    reorder_moves(
+    //    reorder_moves here for speed
     for (const Move& move : available_moves) {
 	state.peek_move(move, [&] (const StandardGameState& newState) -> void {
             auto val = -negamax_with_pruning(newState, depth - 1, -beta, -alpha, valuation);
@@ -44,7 +41,7 @@ int negamax_with_pruning(const StandardGameState& state, int depth, int alpha, i
     return best_value;
 }
 
-int negamax(const StandardGameState& state, int depth, int& node_count, function<int(const StandardGameState&)> valuation) {
+int negamax(const StandardGameState& state, int depth, int&, function<int(const StandardGameState&)> valuation) {
     //    return negamax_with_pruning(state, depth, node_count, lowest, highest, valuation);
     // auto value = negamax_basic(state, depth, valuation);
     auto value = negamax_with_pruning(state, depth, lowest, highest, valuation);

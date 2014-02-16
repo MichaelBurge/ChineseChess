@@ -16,7 +16,7 @@ using namespace std::placeholders;
 using namespace boost;
 
 namespace implementation {
-    void insert_available_moves_for_general(const ReferenceGameState& state, Position position, Player owner, vector<Move>& all_moves) {
+    void insert_available_moves_for_general(const ReferenceGameState&, Position position, vector<Move>& all_moves) {
 	with_90_degree_rotations(NORTH, [&] (Direction direction) {
 		auto new_position = move_direction(position, direction);
 		if (!is_position_in_castle(new_position))
@@ -25,7 +25,7 @@ namespace implementation {
 	    });
     }
 
-    void insert_available_moves_for_advisor(const ReferenceGameState& state, Position position, Player owner, vector<Move>& all_moves) {
+    void insert_available_moves_for_advisor(const ReferenceGameState&, Position position, vector<Move>& all_moves) {
 	with_90_degree_rotations(NORTHEAST, [&] (Direction direction) {
 		auto new_position = move_direction(position, direction);
 		if (!is_position_in_castle(new_position))
@@ -34,7 +34,7 @@ namespace implementation {
 	    });
     }
 
-    void insert_available_moves_for_horse(const ReferenceGameState& state, Position position, Player owner, vector<Move>& all_moves) {
+    void insert_available_moves_for_horse(const ReferenceGameState& state, Position position, vector<Move>& all_moves) {
 	with_90_degree_rotations(NORTH, [&] (Direction direction) {
 		Position one_step = move_direction(position, direction);
 		if (is_position_occupied(state, one_step))
@@ -55,7 +55,7 @@ namespace implementation {
 	    });
     }
 
-    void insert_available_moves_for_elephant(const ReferenceGameState& state, Position position, Player owner, vector<Move>& all_moves) {
+    void insert_available_moves_for_elephant(const ReferenceGameState& state, Position position, vector<Move>& all_moves) {
 	with_90_degree_rotations(NORTHEAST, [&] (Direction direction) {
 		Position one_step = move_direction(position, direction);
 		if (is_position_occupied(state, one_step))
@@ -65,7 +65,7 @@ namespace implementation {
 	    });
     }
 
-    void insert_available_moves_for_chariot(const ReferenceGameState& state, Position position, Player owner, vector<Move>& all_moves) {
+    void insert_available_moves_for_chariot(const ReferenceGameState& state, Position position, vector<Move>& all_moves) {
 	with_90_degree_rotations(NORTH, [&] (Direction direction) {
 		shoot_ray_in_direction_until_should_stop(position, direction, [&] (const Position& candidate) {
 			if (!candidate.is_valid())
@@ -79,7 +79,7 @@ namespace implementation {
 	    });
     }
 
-    void insert_available_moves_for_cannon(const ReferenceGameState& state, Position position, Player owner, vector<Move>& all_moves) {
+    void insert_available_moves_for_cannon(const ReferenceGameState& state, Position position, vector<Move>& all_moves) {
 	with_90_degree_rotations(NORTH, [&] (Direction direction) {
 		bool has_collided = false;
 		shoot_ray_in_direction_until_should_stop(position, direction, [&] (const Position& candidate) {
@@ -108,15 +108,8 @@ namespace implementation {
 	    : (1 <= position.rank && position.rank <= 5);
     }
 
-    void insert_available_moves_for_soldier(const ReferenceGameState& state, Position position, Player owner, vector<Move>& all_moves) {
-	auto should_flip_direction = [] (Player player) {
-	    return player != RED;
-	};
-
-	auto northlike_direction = NORTH;
-	if (should_flip_direction(owner))
-	    northlike_direction = SOUTH;
-	all_moves.push_back(Move(position, northlike_direction));
+    void insert_available_moves_for_soldier(const ReferenceGameState&, Position position, Player owner, vector<Move>& all_moves) {
+	all_moves.push_back(Move(position, owner == RED ? NORTH : SOUTH));
 	if (has_crossed_river(position, owner)) {
 	    all_moves.push_back(Move(position, EAST));
 	    all_moves.push_back(Move(position, WEST));
@@ -127,27 +120,27 @@ namespace implementation {
 	switch (piece) {
 	case RED_GENERAL:
 	case BLACK_GENERAL:
-	    insert_available_moves_for_general(state, position, owner(piece), all_moves);
+	    insert_available_moves_for_general(state, position, all_moves);
 	    break;
 	case RED_ADVISOR:
 	case BLACK_ADVISOR:
-	    insert_available_moves_for_advisor(state, position, owner(piece), all_moves);
+	    insert_available_moves_for_advisor(state, position, all_moves);
 	    break;
 	case RED_ELEPHANT:
 	case BLACK_ELEPHANT:
-	    insert_available_moves_for_elephant(state, position, owner(piece), all_moves);
+	    insert_available_moves_for_elephant(state, position, all_moves);
 	    break;
 	case RED_HORSE:
 	case BLACK_HORSE:
-	    insert_available_moves_for_horse(state, position, owner(piece), all_moves);
+	    insert_available_moves_for_horse(state, position, all_moves);
 	    break;
 	case RED_CHARIOT:
 	case BLACK_CHARIOT:
-	    insert_available_moves_for_chariot(state, position, owner(piece), all_moves);
+	    insert_available_moves_for_chariot(state, position, all_moves);
 	    break;
 	case RED_CANNON:
 	case BLACK_CANNON:
-	    insert_available_moves_for_cannon(state, position, owner(piece), all_moves);
+	    insert_available_moves_for_cannon(state, position, all_moves);
 	    break;
 	case RED_SOLDIER:
 	case BLACK_SOLDIER:
@@ -225,7 +218,7 @@ namespace implementation {
     }
 
     bool is_position_occupied(const ReferenceGameState& state, Position position) {
-	return !!(state.get_piece(position));
+	return !position.is_valid() || state.get_piece(position);
     }
 
     void filter_invalid_moves(const ReferenceGameState& state, vector<Move>& moves) {
@@ -253,7 +246,7 @@ namespace implementation {
 
     optional<Player> __winner(const ReferenceGameState& state) {
 	return (_num_available_moves(state) == 0)
-	    ? state.current_turn()
+	    ? next_player(state.current_turn())
 	    : optional<Player>();
     }
 
@@ -315,7 +308,7 @@ namespace implementation {
     }
 
     bool _is_winner(const ReferenceGameState& state) {
-	return !!_winner(state);
+	return !!__winner(state);
     }
 
     bool _is_capture(const ReferenceGameState& state, const Move& move) {

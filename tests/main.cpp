@@ -169,7 +169,7 @@ void test_parsing() {
     assert_eq((*u1).first, string("12"), "12 not parsed");
     assert_eq((*u1).second, string("34"), "34 not parsed");
 
-    auto u2 = parse_until("derp", [] (char c) { return true; });
+    auto u2 = parse_until("derp", [] (char) { return true; });
     deny(u2, "u2 parsed");
 
     auto r1 = parse_rank("5");
@@ -215,14 +215,17 @@ void test_parsing() {
 }
 
 void test_winning() {
-    auto state = StandardGameState(RED);
-    _assert(!StandardRulesEngine::winner(state), "Winner when no kings");
+    auto state = StandardGameState::new_game();
+    deny(StandardRulesEngine::is_winner(state), "Winner at start of game");
 
+    state = StandardGameState(RED);
     state.insert_piece(Position(2, 5), RED_GENERAL);
-    _assert(StandardRulesEngine::winner(state), "Should be winner if one king");
+    state.insert_piece(Position(2, 7), BLACK_CHARIOT);
+    state.insert_piece(Position(3, 7), BLACK_CHARIOT);
+    state.insert_piece(Position(8, 5), BLACK_GENERAL);
 
-    state.insert_piece(Position(8, 6), BLACK_GENERAL);
-    deny(StandardRulesEngine::winner(state), "Winner when two kings");
+    _assert(StandardRulesEngine::is_winner(state), "No winner");
+    assert_eq(StandardRulesEngine::winner(state), BLACK, "Wrong winner");
 }
 
 void test_game_state_dictionary_storage() {
@@ -236,7 +239,7 @@ void test_game_state_dictionary_storage() {
 void test_data_structures() {
     auto game = StandardGameState::new_game();
     auto num_pieces = 0;
-    game.for_each_piece([&] (Position position, Piece piece) {
+    game.for_each_piece([&] (Position, Piece) {
         num_pieces++;
     });
     assert_eq(num_pieces, 32, "for_each_piece is broken");
@@ -248,19 +251,18 @@ void test_data_structures() {
     state.insert_piece(move_direction(old_position, NORTH), RED_CHARIOT);
     state.insert_piece(Position(9, 1), BLACK_CHARIOT);
     state.peek_move(Move(old_position, new_position), [&] (const StandardGameState newState) {
-	newState.peek_move(Move(Position(9, 1), Position(9, 2)), [&] (const StandardGameState& newState) {
-	    newState.peek_move(Move(new_position, old_position), [] (const StandardGameState& newState) {
+	newState.peek_move(Move(Position(9, 1), Position(9, 2)), [&] (const StandardGameState&) {
+	    newState.peek_move(Move(new_position, old_position), [] (const StandardGameState&) {
 	    });
 	});
     });
     assert_eq(state.current_turn(), RED, "current_turn not preserved 1");
-    state.print_debug_board();
     best_move(state, 3, 1000, piece_score);
     assert_eq(state.current_turn(), RED, "current_turn not preserved 2");
 
     assert_eq(state.get_piece(old_position), RED_GENERAL, "General non-existent or in the wrong place");
-    assert_eq(state.get_piece(old_position), RED_CHARIOT, "Black chariot non-existent or in the wrong place");
-    assert_eq(state.get_piece(old_position), BLACK_CHARIOT, "Black chariot non-existent or in the wrong place");
+    assert_eq(state.get_piece(move_direction(old_position, NORTH)), RED_CHARIOT, "Red chariot non-existent or in the wrong place");
+    assert_eq(state.get_piece(Position(9, 1)), BLACK_CHARIOT, "Black chariot non-existent or in the wrong place");
 }
 
 void test_check() {
@@ -298,7 +300,7 @@ void test_scoring() {
     auto ally_king_position = Position(2, 5);
     auto chariot_position = Position(5, 5);
     auto enemy_king_position = Position(8, 5);
-    state.insert_piece(enemy_king_position, BLACK_CHARIOT);
+    state.insert_piece(enemy_king_position, BLACK_GENERAL);
     state.insert_piece(chariot_position,    RED_CHARIOT);
     state.insert_piece(ally_king_position,  RED_GENERAL);
     assert_eq(piece_score(state), piece_value(RED_CHARIOT), "Generals don't cancel out 1");
@@ -323,9 +325,6 @@ void test_basic_minimax() {
     auto best = Move(chariot_position, Position(5, 4));
     auto ai_move = best_move(state, 3, 1000, piece_score);
     assert_eq(ai_move, best, "AI chose a terrible move");
-
-    // Black king test isn't realistic because the red king can't get in the north castle
-    //test_captures_lone_general(BLACK, true);
 }
 
 void test_performance() {

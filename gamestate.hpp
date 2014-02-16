@@ -1,108 +1,103 @@
 #pragma once
 
 #include "move.hpp"
-#include <boost/bimap.hpp>
-#include <boost/multi_array.hpp>
-#include <boost/optional/optional.hpp>
-#include <functional>
-#include <list>
-#include <map>
+#include "player.hpp"
+#include "piece.hpp"
 
-using namespace std;
-using namespace boost;
+template<class Implementation>
+struct GameState
+{
+    GameState(Player _current_turn) : implementation(Implementation(_current_turn)) {}
 
-struct GameState;
+    Piece get_piece(const Position& position) const
+    { return implementation.get_piece(position); }
 
-enum PieceType { EMPTY, GENERAL, ADVISOR, ELEPHANT, HORSE, CHARIOT, CANNON, SOLDIER };
+    void insert_piece(const Position& position, const Piece& piece)
+    { implementation.insert_piece(position, piece); }
 
-enum Player { RED, BLACK };
-extern Player next_player(Player);
+    void remove_piece(const Position& position)
+    { implementation.remove_piece(position); }
 
-struct Piece {
-    PieceType piece_type;
-    Player owner;
-    int unique_id;
-    Piece();
-    Piece(PieceType);
-    Piece(PieceType, Player);
-    Piece(PieceType, Player, int);
-    char character() const;
-    bool operator<(const Piece&) const;
-    bool operator==(const Piece&) const;
-};
-ostream& operator<<(ostream&, const Piece&);
+    void for_each_piece(function<void(Position, Piece)> action) const
+    { implementation.for_each_piece(action); }
 
-struct UndoNode {
-    Move move;
-    optional<Piece> former_occupant;
-    UndoNode(const GameState&, const Move&);
-};
-ostream& operator<<(ostream& os, const UndoNode&);
+    void apply_move(const Move& move)
+    { implementation.apply_move(move); }
 
-struct GameStateStorageMethod {
-    virtual ~GameStateStorageMethod() {};
-    virtual optional<Piece> get_piece(const Position& position) const = 0;
-    virtual optional<Position> get_position(const Piece&) const = 0;
-    virtual void remove_piece(const Position&) = 0;
-    virtual void for_each_piece(function<void(Position, Piece)> action) const = 0;
-};
+    void peek_move(const Move& move, const function<void(const GameState&)> action) const
+    {
+	implementation.peek_move(move, [&] (const Implementation& impl) {
+	    action(const_cast<GameState&>(*this));
+	});
+    }	
 
-struct GameStateArrayStorage : GameStateStorageMethod {
-    GameStateArrayStorage();
-    virtual optional<Piece> get_piece(const Position& position) const;
-    virtual optional<Position> get_position(const Piece& piece) const;
-    virtual void insert_piece(const Position&, const Piece&);
-    virtual void remove_piece(const Position&);
-    virtual void for_each_piece(function<void(Position, Piece)> action) const;
+    void current_turn(Player player)
+    { implementation.current_turn(player); }
 
-    Piece get_piece_direct(const Position& position) const;
-private:
-    multi_array<Piece, 2> pieces;
-};
-ostream& operator<<(ostream& os, const GameStateArrayStorage&);
+    Player current_turn() const
+    { return implementation.current_turn(); }
 
-struct GameStateDictionaryStorage : GameStateStorageMethod {
-    GameStateDictionaryStorage();
-    virtual optional<Piece> get_piece(const Position& position) const;
-    virtual optional<Position> get_position(const Piece& piece) const;
-    virtual void insert_piece(const Position&, const Piece&);
-    virtual void remove_piece(const Position&);
-    virtual void for_each_piece(function<void(Position, Piece)> action) const;
-    int size() const;
-private:
-    bimap<Position, Piece> pieces;
-};
-ostream& operator<<(ostream& os, const GameStateDictionaryStorage&);
+    void switch_turn()
+    { implementation.switch_turn(); }
 
-struct GameState : GameStateStorageMethod {
-    GameState(Player _current_turn);
+    template<class T>
+    friend ostream& operator<<(ostream&, const GameState<T>&);
 
-    virtual optional<Piece> get_piece(const Position&) const;
-    virtual optional<Position> get_position(const Piece&) const;
-    virtual void insert_piece(const Position&, const Piece&);
-    virtual void remove_piece(const Position&);
-    virtual void for_each_piece(function<void(Position, Piece)> action) const;
+    static GameState new_game()
+    {
+	auto state = GameState(RED);
 
-    virtual void apply_move(const Move&);
-    void current_turn(Player);
-    void switch_turn();
+	auto rank = 1;
+	state.insert_piece(Position(rank, 1), RED_CHARIOT);
+	state.insert_piece(Position(rank, 2), RED_HORSE);
+	state.insert_piece(Position(rank, 3), RED_ELEPHANT);
+	state.insert_piece(Position(rank, 4), RED_ADVISOR);
+	state.insert_piece(Position(rank, 5), RED_GENERAL);
+	state.insert_piece(Position(rank, 6), RED_ADVISOR);
+	state.insert_piece(Position(rank, 7), RED_ELEPHANT);
+	state.insert_piece(Position(rank, 8), RED_HORSE);
+	state.insert_piece(Position(rank, 9), RED_CHARIOT);
 
-    template<typename T> T peek_move(Move, const function<T(const GameState &)>& action) const;
-    Player current_turn() const;
-    vector<Position> filter_pieces(function<bool(Position, Piece)> pred) const;
-    void print_debug_board() const;
-    void print_undo_stack() const;
-private:
-    void commit();
-    void rollback();
-    char character_for_piece(Piece);
+	rank = 3;
+	state.insert_piece(Position(rank, 2), RED_CANNON);
+	state.insert_piece(Position(rank, 8), RED_CANNON);
 
-    mutable Player turn;
-    mutable GameStateArrayStorage pieces_array;
-    mutable GameStateDictionaryStorage pieces_map;
-    mutable list<UndoNode> undo_stack;
-    friend ostream& operator<<(ostream& os, const GameState&);
+	rank = 4;
+	state.insert_piece(Position(rank, 1), RED_SOLDIER);
+	state.insert_piece(Position(rank, 3), RED_SOLDIER);
+	state.insert_piece(Position(rank, 5), RED_SOLDIER);
+	state.insert_piece(Position(rank, 7), RED_SOLDIER);
+	state.insert_piece(Position(rank, 9), RED_SOLDIER);
+
+	rank = 10;
+	state.insert_piece(Position(rank, 1), BLACK_CHARIOT);
+	state.insert_piece(Position(rank, 2), BLACK_HORSE);
+	state.insert_piece(Position(rank, 3), BLACK_ELEPHANT);
+	state.insert_piece(Position(rank, 4), BLACK_ADVISOR);
+	state.insert_piece(Position(rank, 5), BLACK_GENERAL);
+	state.insert_piece(Position(rank, 6), BLACK_ADVISOR);
+	state.insert_piece(Position(rank, 7), BLACK_ELEPHANT);
+	state.insert_piece(Position(rank, 8), BLACK_HORSE);
+	state.insert_piece(Position(rank, 9), BLACK_CHARIOT);
+    
+	rank = 8;
+	state.insert_piece(Position(rank, 2), BLACK_CANNON);
+	state.insert_piece(Position(rank, 8), BLACK_CANNON);
+
+	rank = 7;
+	state.insert_piece(Position(rank, 1), BLACK_SOLDIER);
+	state.insert_piece(Position(rank, 3), BLACK_SOLDIER);
+	state.insert_piece(Position(rank, 5), BLACK_SOLDIER);
+	state.insert_piece(Position(rank, 7), BLACK_SOLDIER);
+	state.insert_piece(Position(rank, 9), BLACK_SOLDIER);
+
+	return state;
+    }
+    Implementation implementation;
 };
 
-extern ostream& operator<<(ostream& os, const GameState&);
-extern char character_for_piece(Piece piece);
+template<class T>
+ostream& operator<<(ostream& os, const GameState<T>& state)
+{ return os << state.implementation; }
+
+

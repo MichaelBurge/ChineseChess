@@ -2,39 +2,45 @@
 #include <stdexcept>
 using namespace std;
 
-int piece_value(PieceType piece_type) {
-    switch (piece_type) {
-    case GENERAL:
+int piece_value(Piece piece) {
+    switch (piece) {
+    case RED_GENERAL:
+    case BLACK_GENERAL:
         return 1000000;
-    case ADVISOR:
+    case RED_ADVISOR:
+    case BLACK_ADVISOR:
         return 1000;
-    case CHARIOT:
+    case RED_CHARIOT:
+    case BLACK_CHARIOT:
         return 10000;
-    case ELEPHANT:
+    case RED_ELEPHANT:
+    case BLACK_ELEPHANT:
         return 2000;
-    case SOLDIER:
+    case RED_SOLDIER:
+    case BLACK_SOLDIER:
         return 500;
-    case HORSE:
+    case RED_HORSE:
+    case BLACK_HORSE:
         return 3000;
-    case CANNON:
+    case RED_CANNON:
+    case BLACK_CANNON:
         return 5000;
     default:
         throw logic_error("Unknown piece");
     }
 }
-extern bool debug;
 
-int piece_score(const GameState& state) {
+int piece_score(const StandardGameState& state) {
     int accum = 0;
     state.for_each_piece([&] (const Position& position, const Piece& piece) {
-        int value = piece_value(piece.piece_type);
-        if (piece.owner != state.current_turn())
+        int value = piece_value(piece);
+        if (owner(piece) != state.current_turn())
             value *= -1;
         accum += value;
     });
     return accum;
 }
 
-int standard_score_function(const GameState& state) {
+int standard_score_function(const StandardGameState& state) {
     return piece_score(state);
 }

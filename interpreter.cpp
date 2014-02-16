@@ -4,11 +4,9 @@
 #include "exceptions.hpp"
 #include "scoring.hpp"
 #include "minimax.hpp"
-#include "rules-engines/reference.hpp"
 
 Interpreter::Interpreter() : 
-    rules(&THE_REFERENCE_RULES),
-    _state(rules->new_game()),
+    _state(StandardGameState::new_game()),
     running(true),
     difficulty(2),
     max_nodes(1000)
@@ -78,7 +76,7 @@ void Interpreter::cmd_empty() {
 }
 
 void Interpreter::cmd_new() {
-    this->_state = rules->new_game();
+    this->_state = StandardGameState::new_game();
 }
 
 void Interpreter::cmd_exit() {
@@ -94,7 +92,7 @@ void Interpreter::cmd_show() {
 }
 
 void Interpreter::run_move(const Move& move) {
-    if (rules->is_legal_move(this->_state, move)) {
+    if (StandardRulesEngine::is_legal_move(this->_state, move)) {
         this->_state.apply_move(move);
     } else {
 	cout << "Illegal move: " << move << endl;
@@ -114,10 +112,10 @@ void Interpreter::cmd_show_moves(const string& remaining_text) {
     auto moves = vector<Move>();
     auto parsed_position = parse_position(remaining_text);
     if (!parsed_position) {
-        moves = rules->available_moves(this->state());
+        moves = StandardRulesEngine::available_moves(this->state());
     } else {
         auto position = (*parsed_position).first;
-        moves = rules->available_moves_from(this->state(), position);
+        moves = StandardRulesEngine::available_moves_from(this->state(), position);
     }
     print_moves(moves);
 }
@@ -149,7 +147,7 @@ void Interpreter::cmd_show_move_scores() {
     print_move_scores(move_scores(this->state(), standard_score_function));
 }
 
-const GameState& Interpreter::state() {
+const StandardGameState& Interpreter::state() {
     return this->_state;
 }
 

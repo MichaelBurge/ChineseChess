@@ -23,7 +23,7 @@ char file_display(int file) {
 }
 
 string position_repr(const Position& position) {
-    return file_display(position.file) + lexical_cast<string>(position.rank);
+    return file_display(position.file) + lexical_cast<string>((int)position.rank);
 }
 
 ostream& operator<<(ostream& os, const Position& position) {

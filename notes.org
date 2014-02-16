@@ -1,0 +1,33 @@
+* Bitboard representation
+
+** Facts
++ There are 90 different locations on the board.
+
+** Representation
+*** Position: 1 bit to represent river side; 7 bits to represent the rest of the board
+*** Piece: 0 is empty, 1-7 are RED, 9-15 are BLACK.
+**** x != 0 implies x & 0x10 is nonzero if x is black
+*** Board state: 14 128-bit integers represent the board, a separate boolean represents the current turn
+*** Possible moves: Define 90-element lookup tables for each piece. Given a position, index into the table to find a base set of possible moves.
+**** Maybe use DeBrujin sequences or modular arithmetic to figure out the position of the first bit in a bitset
+*** Useful derived information is cached on the GameState
+
+** Answering useful questions
++ black_moves = <some process that returns bits set in many locations>
++ red_pieces = red_generals | red_soldiers | red_advisors | red_elephants | red_horses | red_chariots | red_cannons;
++ black_captures = black_moves & red_pieces
++ is_red_king_in_check = black_captures & red_generals
+
+** Psuedocode
+*** new_game = hardcoded state
+*** available_moves
++ Extract all (position, piece) pairs
++ Define accumulator
++ For each pair
++  Switch on the piece type to get a hardcoded 90 element lookup table
++  Retrieve the available moves
++  Flip the board if black
++  Or accumulator with board
++ 
+
+** Computing the precomputed bitboards

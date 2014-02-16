@@ -1,17 +1,16 @@
 #pragma once
 
-#include "rules-engine.hpp"
+#include "configuration.hpp"
 
 struct Interpreter {
-    RulesEngine *rules;
-    GameState _state;
+    StandardGameState _state;
     bool running;
     int difficulty;
     int max_nodes;
     Interpreter();
     void prompt();
     void run_move(const Move& move);
-    const GameState& state();
+    const StandardGameState& state();
     void dispatch_command(const string& command);
     void cmd_move(const string&);
     void cmd_show_moves(const string&);

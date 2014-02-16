@@ -1,7 +1,8 @@
 #pragma once
 
 #include "gamestate.hpp"
+#include "configuration.hpp"
 
-extern int standard_score_function(const GameState& state);
-extern int piece_value(PieceType piece_type);
-extern int piece_score(const GameState& state);
+extern int standard_score_function(const StandardGameState& state);
+extern int piece_score(const StandardGameState& state);
+extern int piece_value(Piece piece_type);

@@ -40,6 +40,9 @@ struct GameState
     void switch_turn()
     { implementation.switch_turn(); }
 
+    void print_debug_board()
+    { implementation.print_debug_board(); }
+
     template<class T>
     friend ostream& operator<<(ostream&, const GameState<T>&);
 

@@ -73,6 +73,8 @@ Piece ReferenceGameStateDictionaryStorage::get_piece(const Position& position) c
 void ReferenceGameStateDictionaryStorage::insert_piece(const Position& position, const Piece& piece) {
     if (!position.is_valid())
 	throw logic_error("Invalid position " + position_repr(position));
+    if (piece == EMPTY)
+	throw logic_error("Tried to insert an empty piece at " + position_repr(position));
     this->pieces.right.insert(bimap<Position, Piece>::right_value_type(piece, position));
 }
 
@@ -116,6 +118,8 @@ Piece ReferenceGameState::get_piece(const Position& position) const {
 }
 
 void ReferenceGameState::insert_piece(const Position& position, const Piece& piece) {
+    if (piece == EMPTY)
+	throw logic_error("Cannot insert an empty piece");
     this->pieces_array.insert_piece(position, piece);
     this->pieces_map.insert_piece(position, piece);
 }

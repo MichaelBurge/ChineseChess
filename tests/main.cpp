@@ -254,6 +254,7 @@ void test_data_structures() {
 	});
     });
     assert_eq(state.current_turn(), RED, "current_turn not preserved 1");
+    state.print_debug_board();
     best_move(state, 3, 1000, piece_score);
     assert_eq(state.current_turn(), RED, "current_turn not preserved 2");
 

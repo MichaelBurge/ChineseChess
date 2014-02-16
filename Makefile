@@ -1,4 +1,4 @@
-primary_files = parsing.o direction.o position.o move.o player.o piece.o minimax.o scoring.o interpreter.o rules-engines/reference-gamestate.o rules-engines/reference.o 
+primary_files = uint128_t.o parsing.o direction.o position.o move.o player.o piece.o minimax.o scoring.o interpreter.o rules-engines/reference-gamestate.o rules-engines/reference.o 
 test_files = tests/main.o test.o
 performance_files = tests/performance.o
 

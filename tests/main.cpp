@@ -1,3 +1,4 @@
+#include "../utility.hpp"
 #include "../direction.hpp"
 #include "../parsing.hpp"
 #include "../position.hpp"
@@ -7,12 +8,30 @@
 #include "../minimax.hpp"
 #include "../interpreter.hpp"
 #include "../configuration.hpp"
+#include "../uint128_t.hpp"
 #include <iostream>
 #include <stdexcept>
+#include <iomanip>
 using namespace std;
 
 Position center_of_castle() { return Position(2, 5); }
 Position center_of_board() { return Position(5, 5); }
+
+void test_uint128() {
+    uint128_t derp = uint128_t(0x00F0FFFF0000FFFF, 0x0F00FFFF0000FFFF);
+
+    assert_eq(lsb_first_set(derp), (uint8_t)0, "First one wrong 1");
+    assert_eq(msb_first_set(derp), (uint8_t)119, "Second one wrong 1");
+
+    uint128_t herp = uint128_t(0x00000000FFF00000, 0x0000000000000000);
+    assert_eq(lsb_first_set(herp), (uint8_t)83, "First one wrong 2");
+    assert_eq(msb_first_set(herp), (uint8_t)95, "Second one wrong 2");
+
+    uint128_t zerp = uint128_t(0x0000000000000000, 0x00000000FFF00000);
+    assert_eq(lsb_first_set(zerp), (uint8_t)20, "First one wrong 3");
+    assert_eq(msb_first_set(zerp), (uint8_t)31, "Second one wrong 3");
+
+}
 
 void test_general() {
   auto state = StandardGameState(RED);
@@ -357,6 +376,7 @@ void test_perft() {
 
 int main() {
   try {
+      test_uint128();
       test_game_state_dictionary_storage();
       test_data_structures();
       test_general();

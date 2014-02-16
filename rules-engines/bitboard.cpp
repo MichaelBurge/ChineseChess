@@ -2,11 +2,6 @@
 #include "bitboard-gamestate.hpp"
 using namespace std;
 
-Position first_one(bitboard board) {
-}
-
-Position last_one(bitboard board) {
-}
 
 constexpr Position move_direction(Position position, Direction direction) {
 }

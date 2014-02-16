@@ -25,13 +25,19 @@ template<typename T, typename U> void assert_eq(const T& actual, const U& expect
   );
 }
 
-template void assert_eq(const char&, const char&, string);
 template void assert_eq(const uint32_t&, const uint32_t&, string);
 template void assert_eq(const uint32_t&, const int32_t&, string);
 template void assert_eq(const uint64_t&, const int32_t&, string);
 template void assert_eq(const uint64_t&, const uint64_t&, string);
 template void assert_eq(const int32_t&,  const int32_t&, string);
 template void assert_eq(const Piece&, const Piece&, string);
+template<> void assert_eq(const char& actual, const char& expected, string message) {
+    assert_eq((int)actual, (int)expected, message);
+}
+template<> void assert_eq(const uint8_t& actual, const uint8_t& expected, string message) {
+    assert_eq((int)actual, (int)expected, message);
+}
+
 template<> void assert_eq(const string& actual, const string& expected, string message) {
     _assert(
         actual == expected,

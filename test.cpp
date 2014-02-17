@@ -1,4 +1,5 @@
 #include "gamestate.hpp"
+#include "uint128_t.hpp"
 #include <cstdint>
 #include <iostream>
 #include <map>
@@ -31,6 +32,7 @@ template void assert_eq(const uint64_t&, const int32_t&, string);
 template void assert_eq(const uint64_t&, const uint64_t&, string);
 template void assert_eq(const int32_t&,  const int32_t&, string);
 template void assert_eq(const Piece&, const Piece&, string);
+template void assert_eq(const uint128_t&, const uint128_t&, string);
 template<> void assert_eq(const char& actual, const char& expected, string message) {
     assert_eq((int)actual, (int)expected, message);
 }

@@ -1,7 +1,15 @@
 #pragma once
 
+#include "../move.hpp"
+#include "../piece.hpp"
+#include "../player.hpp"
+#include "../position.hpp"
+#include "../uint128_t.hpp"
+#include <functional>
+#include <vector>
+using namespace std;
+
 typedef uint128_t bitboard;
-typedef uint8_t Position;
 
 struct Cell {
     Position position;
@@ -9,8 +17,8 @@ struct Cell {
 };
 
 struct BitboardGameState {
+    BitboardGameState(Player player) : _current_turn(player) {};
     // Fundamental data
-    bool current_turn;
     vector<Cell> pieces;
     bitboard red_generals;
     bitboard red_advisors;
@@ -28,6 +36,7 @@ struct BitboardGameState {
     bitboard black_soldiers;
 
     // Computed data
+    bitboard all_pieces;
     bitboard red_pieces;
     bitboard black_pieces;
     bitboard moves;
@@ -38,7 +47,12 @@ struct BitboardGameState {
     void remove_piece(const Position&);
     void apply_move(const Move&);
     void current_turn(Player);
-    Player current_turn();
-    void peek_move(const Move&, const function<void(const ReferencGameState&)>& action) const;
+    Player current_turn() const;
+    void peek_move(const Move&, const function<void(const BitboardGameState&)>& action) const;
     void print_debug_board() const;
+    void for_each_piece(function<void(Position, Piece)> action) const;
+private:
+    Player _current_turn;
 };
+
+extern ostream& operator<<(ostream& os, const BitboardGameState& state);

@@ -19,9 +19,10 @@ Position center_of_board() { return Position(5, 5); }
 
 void test_uint128() {
     uint128_t derp = uint128_t(0x00F0FFFF0000FFFF, 0x0F00FFFF0000FFFF);
-
     assert_eq(lsb_first_set(derp), (uint8_t)0, "First one wrong 1");
     assert_eq(msb_first_set(derp), (uint8_t)119, "Second one wrong 1");
+    _assert(derp.get(119), "Third one wrong 1");
+    deny   (derp.get(120), "Fourth one wrong 1");
 
     uint128_t herp = uint128_t(0x00000000FFF00000, 0x0000000000000000);
     assert_eq(lsb_first_set(herp), (uint8_t)83, "First one wrong 2");
@@ -31,6 +32,13 @@ void test_uint128() {
     assert_eq(lsb_first_set(zerp), (uint8_t)20, "First one wrong 3");
     assert_eq(msb_first_set(zerp), (uint8_t)31, "Second one wrong 3");
 
+}
+
+void test_bitboards() {
+    auto bitboard_state = GameState<BitboardGameState>::new_game();
+    bitboard_state.apply_move(Move(Position(5, 4), Position(5, 5)));
+    bitboard& red_soldiers = bitboard_state.implementation.red_soldiers;
+    assert_eq(red_soldiers, flip(flip(red_soldiers)), "Bitboard flip not an involation");
 }
 
 void test_general() {

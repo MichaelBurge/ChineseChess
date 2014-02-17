@@ -92,3 +92,7 @@ void shoot_ray_in_direction_until_should_stop(const Position& center, Direction 
     candidate = move_direction(candidate, direction);
   } while (!should_stop(candidate));
 }
+
+Position  multi_move_direction(const Position& position, Direction direction) {
+    return move_direction(move_direction(position, direction), direction);
+}

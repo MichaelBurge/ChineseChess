@@ -5,16 +5,52 @@
 using namespace std;
 
 struct uint128_t {
+    uint128_t() : msb(0), lsb(0) {}
     uint128_t(uint64_t msb, uint64_t lsb) : msb(msb), lsb(lsb) {}
     uint64_t msb;
     uint64_t lsb;
-    uint128_t operator&(uint128_t b)
+    bool get(uint8_t position) const
+    {
+	if (position < 64)
+	    return lsb & (1 << position);
+	else
+	    return msb & (1 << (position - 64));
+    }
+
+    void set(uint8_t position)
+    {
+	if (position < 64)
+	    lsb |= 1 << position;
+	else
+	    msb |= 1 << (position - 64);
+    }
+
+    void clear(uint8_t position)
+    {
+	if (position < 64)
+	    lsb &= 1 << position;
+	else
+	    msb &= 1 << (position - 64);
+    }
+
+    void toggle(uint8_t position)
+    {
+	if (position < 64)
+	    lsb ^= 1 << position;
+	else
+	    msb ^= 1 << (position - 64);
+    }
+
+    bool operator==(uint128_t b) const
+    { return msb == b.msb && lsb == b.lsb; }
+
+    uint128_t operator&(uint128_t b) const
     { return uint128_t(msb & b.msb, lsb & b.lsb); }
 
-    uint128_t operator|(uint128_t b)
+    uint128_t operator|(uint128_t b) const
     { return uint128_t(msb | b.msb, lsb | b.lsb); }
 
-    uint128_t operator^(uint128_t b)
+    uint128_t operator^(uint128_t b) const
     { return uint128_t(msb ^ b.msb, lsb ^ b.lsb); }
 
     const uint128_t& operator&=(uint128_t b)
@@ -25,7 +61,6 @@ struct uint128_t {
 
     const uint128_t& operator^=(uint128_t b)
     { msb ^= b.msb; lsb ^= b.lsb; return *this; }
-
     bool operator!() { return !msb || !lsb; }
 };
 

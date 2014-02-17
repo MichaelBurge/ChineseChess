@@ -1,8 +1,9 @@
-primary_files = uint128_t.o parsing.o direction.o position.o move.o player.o piece.o minimax.o scoring.o interpreter.o rules-engines/reference-gamestate.o rules-engines/reference.o 
+primary_files = uint128_t.o parsing.o direction.o position.o move.o player.o piece.o minimax.o scoring.o interpreter.o rules-engines/reference-gamestate.o rules-engines/reference.o  rules-engines/bitboard-gamestate.o rules-engines/bitboard-rules.o rules-engines/bitboard.o
+
 test_files = tests/main.o test.o
 performance_files = tests/performance.o
 
-options = -O2 -g -Wall -Wextra -std=c++11
+options = -O2 -g -Wall -std=c++11
 
 %.o: %.cpp
 	g++ $(options) -o $@ -c $<

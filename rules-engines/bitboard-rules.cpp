@@ -11,7 +11,7 @@ uint8_t  minimal_pos(bitboard board, Direction direction) {
 	: lsb_first_set(board);
 }
 
-bool has_crossed_river(Position position) {
+bool is_red_side(Position position) {
     return position.value < 45;
 }
 
@@ -28,17 +28,18 @@ bitboard castle_area() {
     return ret;
 }
 
-LookupTable _soldier_moves_lookup_table = generate_soldier_moves_lookup_table();
+LookupTable _red_soldier_moves_lookup_table = generate_soldier_moves_lookup_table(false);
+LookupTable _black_soldier_moves_lookup_table = generate_soldier_moves_lookup_table(true);
 LookupTable _general_moves_lookup_table = generate_general_moves_lookup_table();
 LookupTable _advisor_moves_lookup_table = generate_advisor_moves_lookup_table();
 DirectionalLookupTable _horse_moves_lookup_table = generate_horse_moves_lookup_table();
 DirectionalLookupTable _chariot_ideal_moves_table = generate_chariot_ideal_moves_table();
 
-LookupTable generate_soldier_moves_lookup_table() {
+LookupTable generate_soldier_moves_lookup_table(bool swap_board) {
     LookupTable ret;
     for (uint8_t i = 0; i < 90; i++) {
-	ret.boards[i].set(move_direction(Position(i), NORTH).value);
-	if (has_crossed_river(i)) {
+	ret.boards[i].set(move_direction(Position(i), swap_board ? SOUTH : NORTH).value);
+	if (is_red_side(i) ^ swap_board) {
 	    ret.boards[i].set(1 << move_direction(Position(i), WEST).value);
 	    ret.boards[i].set(1 << move_direction(Position(i), EAST).value);
 	}
@@ -109,8 +110,10 @@ DirectionalLookupTable generate_chariot_ideal_moves_table() {
     return ret;
 }
 
-bitboard moves_for_soldier(Position position) {
-    return _soldier_moves_lookup_table.boards[position.value];
+bitboard moves_for_soldier(const BitboardGameState& state, Position position) {
+    return (state.current_turn() == RED)
+	? _red_soldier_moves_lookup_table.boards[position.value]
+	: _black_soldier_moves_lookup_table.boards[position.value];
 }
 
 bitboard moves_for_general(Position position) {

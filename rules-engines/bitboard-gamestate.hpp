@@ -13,6 +13,7 @@ using namespace std;
 typedef uint128_t bitboard;
 
 struct Cell {
+    Cell(const Position& position, const Piece& piece) : position(position), piece(piece) { }
     Position position;
     Piece piece;
 };

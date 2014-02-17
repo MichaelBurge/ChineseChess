@@ -39,7 +39,6 @@ struct ReferenceGameStateArrayStorage : ReferenceGameStateStorageMethod {
 private:
     multi_array<Piece, 2> pieces;
 };
-ostream& operator<<(ostream& os, const ReferenceGameStateArrayStorage&);
 
 struct ReferenceGameStateDictionaryStorage : ReferenceGameStateStorageMethod {
     ReferenceGameStateDictionaryStorage();

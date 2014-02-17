@@ -24,7 +24,7 @@ namespace bitboard_implementation {
     extern bool         _results_in_check(const BitboardGameState& state, const Move& move);
 
     // Auxillary functions
-    LookupTable generate_soldier_moves_lookup_table();
+    LookupTable generate_soldier_moves_lookup_table(bool);
     LookupTable generate_general_moves_lookup_table();
     LookupTable generate_advisor_moves_lookup_table();
     DirectionalLookupTable generate_horse_moves_lookup_table();

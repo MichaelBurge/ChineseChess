@@ -55,3 +55,27 @@ uint8_t lsb_first_set(const uint128_t& board) {
 uint8_t num_set(const uint128_t& board) {
     return __builtin_popcountll(board.msb) + __builtin_popcountll(board.lsb);
 }
+
+uint128_t operator&(const uint128_t& a, const uint128_t& b)
+{ return uint128_t(a.msb & b.msb, a.lsb & b.lsb); }
+
+uint128_t operator|(const uint128_t& a, const uint128_t& b)
+{ return uint128_t(a.msb | b.msb, a.lsb | b.lsb); }
+
+uint128_t operator^(const uint128_t& a, const uint128_t& b)
+{ return uint128_t(a.msb ^ b.msb, a.lsb ^ b.lsb); }
+
+uint128_t& operator&=(uint128_t& a, const uint128_t& b)
+{ a.msb &= b.msb; a.lsb &= b.lsb; return a; }
+
+uint128_t& operator|=(uint128_t& a, const uint128_t& b)
+{ a.msb |= b.msb; a.lsb |= b.lsb; return a; }
+
+uint128_t& operator^=(uint128_t& a, const uint128_t& b)
+{ a.msb ^= b.msb; a.lsb ^= b.lsb; return a; }
+ 
+bool operator!(const uint128_t& x)
+{ return !(x.lsb > 0 || x.msb > 0); }
+
+bool operator==(const uint128_t& a, const uint128_t& b)
+{ return a.msb == b.msb && a.lsb == b.lsb; }

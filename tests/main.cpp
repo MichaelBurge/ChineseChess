@@ -34,6 +34,8 @@ BOOST_AUTO_TEST_CASE( operations_on_uint128_t ) {
     assert_eq(lsb_first_set(derp), (uint8_t)0, "First one wrong 1");
     assert_eq(msb_first_set(derp), (uint8_t)119, "Second one wrong 1");
     assert_eq(num_set(derp),       (uint8_t)72, "Number of bits set is wrong 1");
+    assert_eq(derp, derp, "Boards should equal themselves");
+    assert_eq(derp & derp, derp, "& operation not idempotent");
 
     _assert(derp.get(15), "Bit not set 1");
     deny   (derp.get(16), "Bit set 1");
@@ -49,18 +51,33 @@ BOOST_AUTO_TEST_CASE( operations_on_uint128_t ) {
     assert_eq(lsb_first_set(zerp), (uint8_t)20, "First one wrong 3");
     assert_eq(msb_first_set(zerp), (uint8_t)31, "Second one wrong 3");
     assert_eq(num_set(herp),       (uint8_t)12, "Number of bits set is wrong 3");
+
+    uint128_t debugging_and = uint128_t(0, 1099511627776);
+    bitboard  debug_board;
+    debug_board.set(40);
+    assert_eq(debug_board.msb, debugging_and.msb, "MSBs don't match");
+    assert_eq(debug_board.lsb, debugging_and.lsb, "LSBs don't match");
+    assert_eq(debugging_and & debug_board, debugging_and, "Boards don't match");
+
+    _assert(!!debugging_and, "Board should be non-zero");
+    _assert(!!(debugging_and & debug_board), "Board after & should be non-zero");
 }
 
-BOOST_AUTO_TEST_CASE( operations_on_bitboards ) {
+BOOST_AUTO_TEST_CASE( bitboard_get_piece ) {
     typedef GameState<BitboardGameState> bitboard_s;
     auto empty = bitboard_s(RED);
     assert_eq(num_set(empty.implementation.generals), (uint8_t)0, "Board not empty at start");
     empty.insert_piece(Position(5,5), RED_GENERAL);
     assert_eq(num_set(empty.implementation.generals), (uint8_t)1, "Wrong number of generals after insert");
+    assert_eq(empty.get_piece(Position(5,5)), RED_GENERAL, "Wrong piece at location");
+}
+
+BOOST_AUTO_TEST_CASE( operations_on_bitboards ) {
+    typedef GameState<BitboardGameState> bitboard_s;
     auto bitboard_state = bitboard_s::new_game();
+    // bitboard_state.print_debug_board();
+    //cout << bitboard_state << endl;
     bitboard_state.apply_move(Move(Position(5, 4), Position(5, 5)));
-    bitboard& soldiers = bitboard_state.implementation.soldiers;
-    assert_eq(soldiers, flip(flip(soldiers)), "Bitboard flip not an involation");
 }
 
 BOOST_AUTO_TEST_CASE( parsing ) {

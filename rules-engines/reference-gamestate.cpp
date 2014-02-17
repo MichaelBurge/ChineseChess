@@ -171,36 +171,8 @@ vector<Position> ReferenceGameState::filter_pieces(function<bool(Position, Piece
     return matches;
 }
 
-string player_repr(Player player) {
-    if (player == RED)
-        return "Red";
-    else
-        return "Black";
-}
-
-ostream& operator<<(ostream& os, const ReferenceGameStateArrayStorage& board) {
-    auto draw_river = [] () {
-	for (int i = 1; i != 9; i++)
-	    cout << "~~";
-        cout << "~" << endl;
-    };
-
-    auto draw_rank = [&] (int rank) {
-	for (int i = 1; i != 10; i++)
-            cout << character_for_piece(board.get_piece(Position(rank, i))) << ' ';
-        cout << endl;
-    };
-
-    for (int i = 10; i != 0; i--) {
-        if (i == 5)
-            draw_river();
-        draw_rank(i);
-    };
-    return os;
-}
-
 void ReferenceGameState::print_debug_board() const {
-    cout << *this;
+    cout << GameState<ReferenceGameState>(*this) << endl;
     cout << "Pieces map: " << endl;
     cout << this->pieces_map << endl;
     cout << "Debug info: " << endl;
@@ -212,12 +184,6 @@ void ReferenceGameState::print_undo_stack() const {
     for (const UndoNode& undo : this->undo_stack) {
 	cout << undo << endl;
     }
-}
-
-ostream& operator<<(ostream& os, const ReferenceGameState& state) {
-    os << "Current Turn: " << player_repr(state.current_turn()) << endl;
-    os << state.pieces_array << endl;
-    return os;
 }
 
 ostream& operator<<(ostream& os, const UndoNode& undo) {

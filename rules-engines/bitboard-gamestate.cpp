@@ -9,11 +9,33 @@ ostream& operator<<(ostream& os, const BitboardGameState& state) {
     throw runtime_error("Unimplemented");
 }
 
-Piece BitboardGameState::get_piece(const Position& ) const {
-    throw runtime_error("Unimplemented");
+Piece BitboardGameState::get_piece(const Position& position) const {
+    bitboard x;
+    x.set(position.value);
+    bool is_red = !!(red_pieces & x);
+    bool is_black = !!(black_pieces & x);
+    if (!is_red && !is_black)
+	return EMPTY;
+    if (!!(generals & x))
+	return is_red ? RED_GENERAL : BLACK_GENERAL;
+    if (!!(soldiers & x))
+	return is_red ? RED_SOLDIER : BLACK_SOLDIER;
+    if (!!(advisors & x))
+	return is_red ? RED_ADVISOR : BLACK_ADVISOR;
+    if (!!(elephants & x))
+	return is_red ? RED_ELEPHANT : BLACK_ELEPHANT;
+    if (!!(horses & x))
+	return is_red ? RED_HORSE : BLACK_HORSE;
+    if (!!(chariots & x))
+	return is_red ? RED_CHARIOT : BLACK_CHARIOT;
+    if (!!(cannons & x))
+	return is_red ? RED_CANNON : BLACK_CANNON;
+    throw logic_error("Program should not have reached here");
 }
 
 void BitboardGameState::insert_piece(const Position& position, const Piece& piece) {
+    // TODO: Maybe use push_back or push_front depending on the piece?
+    pieces.push_back(Cell(position, piece));
     uint8_t index = position.value;
     all_pieces.set(index);
     switch (piece) {
@@ -97,7 +119,6 @@ void BitboardGameState::remove_piece(const Position& position) {
 }
 
 void BitboardGameState::apply_move(const Move& move) {
-    // Remember to flip the board, since soldier & elephant moves assume red.
     throw runtime_error("Unimplemented");
 }
 
@@ -106,6 +127,7 @@ void BitboardGameState::current_turn(Player) {
 }
 
 Player BitboardGameState::current_turn() const {
+    return _current_turn;
     throw runtime_error("Unimplemented");
 }
 
@@ -114,11 +136,29 @@ void BitboardGameState::peek_move(const Move&, const function<void(const Bitboar
 }
 
 void BitboardGameState::print_debug_board() const {
-    throw runtime_error("Unimplemented");
+    cout << "Current turn: " << player_repr(current_turn()) << endl;
+    cout << "Red pieces:" << endl;
+    print_bitboard(cout, red_pieces);
+    cout << "Black pieces:" << endl;
+    print_bitboard(cout, black_pieces);
+    cout << "Generals:" << endl;
+    print_bitboard(cout, generals);
+    cout << "Advisors:" << endl;
+    print_bitboard(cout, advisors);
+    cout << "Elephants:" << endl;
+    print_bitboard(cout, elephants);
+    cout << "Cannons:" << endl;
+    print_bitboard(cout, cannons);
+    cout << "Chariots:" << endl;
+    print_bitboard(cout, chariots);
+    cout << "Soldiers:" << endl;
+    print_bitboard(cout, soldiers);
 }
 
 void BitboardGameState::for_each_piece(function<void(Position, Piece)> action) const {
-    throw runtime_error("Unimplemented");
+    for (const Cell& cell : pieces) {
+	action(cell.position, cell.piece);
+    }
 }
 
 bool BitboardGameState::check_internal_consistency() const {

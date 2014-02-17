@@ -3,11 +3,15 @@
 #include "move.hpp"
 #include "player.hpp"
 #include "piece.hpp"
+#include "player.hpp"
+#include <iostream>
+using namespace std;
 
 template<class Implementation>
 struct GameState
 {
     GameState(Player _current_turn) : implementation(Implementation(_current_turn)) {}
+    GameState(const Implementation& implementation) : implementation(implementation) {}
 
     Piece get_piece(const Position& position) const
     { return implementation.get_piece(position); }
@@ -100,7 +104,30 @@ struct GameState
 };
 
 template<class T>
+void print_board(ostream& os, const GameState<T>& state) {
+    os << "Current Turn: " << player_repr(state.current_turn()) << endl;
+    auto draw_river = [] () {
+	for (int i = 1; i != 9; i++)
+	    cout << "~~";
+        cout << "~" << endl;
+    };
+
+    auto draw_rank = [&] (int rank) {
+	for (int i = 1; i != 10; i++)
+            cout << character_for_piece(state.get_piece(Position(rank, i))) << ' ';
+        cout << endl;
+    };
+
+    for (int i = 10; i != 0; i--) {
+        if (i == 5)
+            draw_river();
+        draw_rank(i);
+    };
+}
+
+
+template<class T>
 ostream& operator<<(ostream& os, const GameState<T>& state)
-{ return os << state.implementation; }
+{ print_board(os, state); return os; }
 
 

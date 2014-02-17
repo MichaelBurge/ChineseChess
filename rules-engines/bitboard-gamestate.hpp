@@ -5,8 +5,9 @@
 #include "../player.hpp"
 #include "../position.hpp"
 #include "../uint128_t.hpp"
+#include "bitboard.hpp"
 #include <functional>
-#include <vector>
+#include <list>
 using namespace std;
 
 typedef uint128_t bitboard;
@@ -19,26 +20,19 @@ struct Cell {
 struct BitboardGameState {
     BitboardGameState(Player player) : _current_turn(player) {};
     // Fundamental data
-    vector<Cell> pieces;
-    bitboard red_generals;
-    bitboard red_advisors;
-    bitboard red_elephants;
-    bitboard red_horses;
-    bitboard red_chariots;
-    bitboard red_cannons;
-    bitboard red_soldiers;
-    bitboard black_generals;
-    bitboard black_advisors;
-    bitboard black_elephants;
-    bitboard black_horses;
-    bitboard black_chariots;
-    bitboard black_cannons;
-    bitboard black_soldiers;
+    list<Cell> pieces;
+    bitboard red_pieces; 
+    bitboard black_pieces;
+    bitboard generals;
+    bitboard advisors;
+    bitboard elephants;
+    bitboard horses;
+    bitboard chariots;
+    bitboard cannons;
+    bitboard soldiers;
 
     // Computed data
     bitboard all_pieces;
-    bitboard red_pieces;
-    bitboard black_pieces;
     bitboard moves;
 
     // Standard GameState methods
@@ -51,6 +45,7 @@ struct BitboardGameState {
     void peek_move(const Move&, const function<void(const BitboardGameState&)>& action) const;
     void print_debug_board() const;
     void for_each_piece(function<void(Position, Piece)> action) const;
+    bool check_internal_consistency() const;
 private:
     Player _current_turn;
 };

@@ -3,7 +3,7 @@ primary_files = uint128_t.o parsing.o direction.o position.o move.o player.o pie
 test_files = tests/main.o test.o
 performance_files = tests/performance.o
 
-options = -O2 -g -Wall -std=c++11
+options = -g -Wall -std=c++11
 
 %.o: %.cpp
 	g++ $(options) -o $@ -c $<

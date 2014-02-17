@@ -12,33 +12,33 @@ struct uint128_t {
     bool get(uint8_t position) const
     {
 	if (position < 64)
-	    return lsb & (1 << position);
+	    return (lsb & (1ULL << position)) != 0;
 	else
-	    return msb & (1 << (position - 64));
+	    return (msb & (1ULL << (position - 64))) != 0;
     }
 
     void set(uint8_t position)
     {
 	if (position < 64)
-	    lsb |= 1 << position;
+	    lsb |= 1ULL << position;
 	else
-	    msb |= 1 << (position - 64);
+	    msb |= 1ULL << (position - 64);
     }
 
     void clear(uint8_t position)
     {
 	if (position < 64)
-	    lsb &= 1 << position;
+	    lsb &= 1ULL << position;
 	else
-	    msb &= 1 << (position - 64);
+	    msb &= 1ULL << (position - 64);
     }
 
     void toggle(uint8_t position)
     {
 	if (position < 64)
-	    lsb ^= 1 << position;
+	    lsb ^= 1ULL << position;
 	else
-	    msb ^= 1 << (position - 64);
+	    msb ^= 1ULL << (position - 64);
     }
 
     bool operator==(uint128_t b) const
@@ -67,3 +67,4 @@ struct uint128_t {
 extern ostream& operator<<(ostream& os, const uint128_t& bits);
 extern uint8_t msb_first_set(const uint128_t& value);
 extern uint8_t lsb_first_set(const uint128_t& value);
+extern uint8_t num_set(const uint128_t& value);

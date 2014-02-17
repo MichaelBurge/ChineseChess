@@ -11,8 +11,8 @@ uint8_t  minimal_pos(bitboard board, Direction direction) {
 	: lsb_first_set(board);
 }
 
-bool has_crossed_river(Position) {
-    throw logic_error("This function doesn't make any sense unless you swap sides for the board every make");
+bool has_crossed_river(Position position) {
+    return position.value < 45;
 }
 
 bitboard castle_area() {

@@ -1,5 +1,6 @@
 #include "uint128_t.hpp"
 #include <iomanip>
+#include <stdexcept>
 using namespace std;
 
 ostream& operator<<(ostream& os, const uint128_t& bits) {
@@ -49,4 +50,8 @@ uint8_t lsb_first_set(const uint128_t& board) {
     } else {
 	return 255;
     }
+}
+
+uint8_t num_set(const uint128_t& board) {
+    return __builtin_popcountll(board.msb) + __builtin_popcountll(board.lsb);
 }

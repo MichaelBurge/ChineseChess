@@ -120,7 +120,7 @@ LookupTable generate_advisor_moves_lookup_table() {
 	ret.boards[i].set(move_direction(Position(i), NORTHEAST).value);
 	ret.boards[i].set(move_direction(Position(i), NORTHWEST).value);
 	ret.boards[i].set(move_direction(Position(i), SOUTHEAST).value);
-	ret.boards[i].set(move_direction(Position(i), SOUTHEAST).value);
+	ret.boards[i].set(move_direction(Position(i), SOUTHWEST).value);
 	ret.boards[i] &= get_castle_area();
     }
     return ret;

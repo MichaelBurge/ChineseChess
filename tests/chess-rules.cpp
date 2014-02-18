@@ -74,6 +74,7 @@ BOOST_AUTO_TEST_CASE( chariot ) {
   auto chariotPosition = center_of_board();
   auto state = StandardGameState(RED);
   state.insert_piece(chariotPosition, RED_CHARIOT);
+
   assert_eq(StandardRulesEngine::num_available_moves(state), 5+4+4+4, "Incorrect number of chariot moves 1");
 
   state.insert_piece(
@@ -92,17 +93,17 @@ BOOST_AUTO_TEST_CASE( cannon ) {
   auto state = StandardGameState(RED);
   state.insert_piece(cannonPosition, RED_CANNON);
 
-  assert_eq(StandardRulesEngine::num_available_moves(state), 5+4+4+4, "Incorrect number of chariot moves(no obstructions)");
+  assert_eq(StandardRulesEngine::num_available_moves(state), 5+4+4+4, "Incorrect number of cannon moves(no obstructions)");
 
   state.insert_piece(
       move_direction(cannonPosition, NORTH),
       BLACK_SOLDIER);
-  assert_eq(StandardRulesEngine::num_available_moves(state), 0+4+4+4, "Incorrect number of chariot moves(one obstruction)");
+  assert_eq(StandardRulesEngine::num_available_moves(state), 0+4+4+4, "Incorrect number of cannon moves(one obstruction)");
 
   state.insert_piece(
       move_direction(move_direction(cannonPosition, NORTH), NORTH),
       BLACK_ELEPHANT);
-  assert_eq(StandardRulesEngine::num_available_moves(state), 1+4+4+4, "Incorrect number of chariot moves(one capture)");
+  assert_eq(StandardRulesEngine::num_available_moves(state), 1+4+4+4, "Incorrect number of cannon moves(one capture)");
 
   state = StandardGameState(RED);
   state.insert_piece(Position(10, 8), RED_CANNON);

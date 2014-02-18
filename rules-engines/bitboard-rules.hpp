@@ -23,6 +23,14 @@ namespace bitboard_implementation {
     extern int          _num_available_captures(const BitboardGameState& state);
     extern bool         _results_in_check(const BitboardGameState& state, const Move& move);
 
+    extern const DirectionalLookupTable& _chariot_ideal_moves_table();
+    extern const DirectionalLookupTable& _horse_moves_lookup_table();
+    extern const LookupTable& _advisor_moves_lookup_table();
+    extern const LookupTable& _general_moves_lookup_table();
+    extern const LookupTable& _black_soldier_moves_lookup_table();
+    extern const LookupTable& _red_soldier_moves_lookup_table();
+    extern bitboard get_entire_board();
+
     // Auxillary functions
     bitboard generate_entire_board();
     bitboard generate_castle_area();

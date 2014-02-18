@@ -6,7 +6,17 @@ bool Position::is_valid() const {
     return value < 90;
 }
 
-Position::Position(uint8_t rank, uint8_t file) : value((rank-1) * 9 + (file-1)) { }
+Position::Position(uint8_t rank, uint8_t file) :
+    value(
+	  (
+	   rank >= 1 &&
+	   rank <= 10 &&
+	   file >= 1 &&
+	   file <= 9
+	  )
+	  ? (rank-1) * 9 + (file-1)
+	  : 255
+	 ) { }
 
 uint8_t Position::rank() const {
     return value / 9 + 1;

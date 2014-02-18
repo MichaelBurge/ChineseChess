@@ -148,3 +148,4 @@ BOOST_AUTO_TEST_CASE( peek_move_stress_test ) {
     BOOST_REQUIRE_EQUAL(state.get_piece(Position(3, 5)), EMPTY);
     BOOST_REQUIRE_EQUAL(state.get_piece(Position(2, 5)), RED_GENERAL);
 }
+

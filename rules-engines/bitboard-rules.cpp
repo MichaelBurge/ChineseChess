@@ -216,7 +216,12 @@ bitboard moves_for_chariot(const BitboardGameState& state, Position position) {
         uint8_t first_blocker = minimal_pos(blockers, (Direction)direction);
 	bitboard moves =
 	    ideal ^
-	    _chariot_ideal_moves_table().tables[direction].boards[first_blocker];
+	    (
+	     (first_blocker < 90)
+	     ? _chariot_ideal_moves_table().tables[direction].boards[first_blocker]
+	     : bitboard(0, 0)
+	    );
+								    
 	accum |= moves;
     }
     return accum;
@@ -281,8 +286,7 @@ void insert_vectorized_moves(const bitboard& board, const Position& root, vector
 void ensure_moves_cached(const BitboardGameState& state) {
     if (state.is_cache_valid)
 	return;
-    bitboard reachable_positions = compute_reachable_positions(state);
-    state.moves = reachable_positions;
+    state.moves = compute_reachable_positions(state);
     state.is_cache_valid = true;
 }
 

@@ -1,8 +1,10 @@
 #include "bitboard-gamestate.hpp"
 #include <algorithm>
+#include <boost/lexical_cast.hpp>
 #include <stdexcept>
 #include <cassert>
 #include <iostream>
+using namespace boost;
 using namespace std;
 
 Piece BitboardGameState::get_piece(const Position& position) const {
@@ -101,6 +103,8 @@ void BitboardGameState::insert_piece(const Position& position, const Piece& piec
 }
 
 void BitboardGameState::remove_piece(const Position& position) {
+    if (get_piece(position) == EMPTY)
+	throw logic_error("Tried to remove an empty piece");
     auto index = position.value;
     all_pieces.  clear(index);
     red_pieces.  clear(index);
@@ -112,9 +116,15 @@ void BitboardGameState::remove_piece(const Position& position) {
     chariots.    clear(index);
     cannons.     clear(index);
     soldiers.    clear(index);
-    pieces.erase(find_if(pieces.begin(), pieces.end(), [&] (const Cell& cell) {
-	return cell.position == position;
-    }));
+    unsigned int size = pieces.size();
+    auto cell_to_delete = find_if(pieces.begin(), pieces.end(), [&] (const Cell& cell) {
+        return cell.position == position;
+    });
+    if (cell_to_delete == pieces.end())
+	throw logic_error("No piece corresponding to position " + position_repr(position) + " was found in the pieces list");
+    pieces.erase(cell_to_delete);
+    if (pieces.size() == size)
+	throw logic_error("No piece was removed from the list");
     clear_cached_data();
     assert(check_internal_consistency());
 }
@@ -129,7 +139,10 @@ void BitboardGameState::clear_cached_data() {
 
 void BitboardGameState::apply_move(const Move& move) {
     Piece from_piece = get_piece(move.from);
-    remove_piece(move.to);
+    // TODO: There are about 5 get_piece calls hidden here - performance problem?
+    if (get_piece(move.to) != EMPTY)
+	remove_piece(move.to);
+    remove_piece(move.from);
     insert_piece(move.to, from_piece);
     switch_turn();
 
@@ -174,6 +187,10 @@ void BitboardGameState::print_debug_board() const {
     print_bitboard(cout, chariots);
     cout << "Soldiers:" << endl;
     print_bitboard(cout, soldiers);
+    cout << "Pieces list:" << endl;
+    for (const Cell& cell : pieces) {
+	cout << "Position = " << cell.position << ", Piece = " << character_for_piece(cell.piece) << endl;
+    }
 }
 
 void BitboardGameState::for_each_piece(function<void(Position, Piece)> action) const {
@@ -204,9 +221,12 @@ bool BitboardGameState::check_internal_consistency() const {
 	if ((a & b) == uint128_t(0, 0)) {
 	    return;
 	} else {
-	    raise_error(a, b, message);
-	}
+	    raise_error(a, b, message);	}
     };
+
+    if (pieces.size() != num_set(all_pieces))
+	throw logic_error("Internal consistency_check_failed: num_pieces mismatch " + lexical_cast<string>(pieces.size()) + " != " + lexical_cast<string>((int)num_set(all_pieces)));
+
     assert_equal(all_pieces, red_pieces | black_pieces, "All pieces & (red | black)");
 
     assert_equal(

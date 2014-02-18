@@ -1,8 +1,13 @@
 #include "bitboard.hpp"
 #include <ostream>
+#include <iostream>
 using namespace std;
 
 constexpr uint64_t first_26_bits = 0x3FFFFFF;
+
+void print_bitboard(const bitboard& board) {
+    print_bitboard(cout, board);
+}
 
 void print_bitboard(ostream& os, const bitboard& board) {
     for (uint8_t rank = 1; rank != 11; rank++) {
@@ -12,3 +17,4 @@ void print_bitboard(ostream& os, const bitboard& board) {
 	os << endl;
     }
 }
+

@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include "bitboard-gamestate.hpp"
 #include "bitboard-rules.hpp"
+#include <iostream>
 using namespace std;
 
 namespace bitboard_implementation {
@@ -44,15 +45,50 @@ bitboard generate_red_side() {
     return ret;
 }
 
-bitboard _entire_board = generate_entire_board();
-bitboard _castle_area = generate_castle_area();
-bitboard _red_side = generate_red_side();
-LookupTable _red_soldier_moves_lookup_table = generate_soldier_moves_lookup_table(false);
-LookupTable _black_soldier_moves_lookup_table = generate_soldier_moves_lookup_table(true);
-LookupTable _general_moves_lookup_table = generate_general_moves_lookup_table();
-LookupTable _advisor_moves_lookup_table = generate_advisor_moves_lookup_table();
-DirectionalLookupTable _horse_moves_lookup_table = generate_horse_moves_lookup_table();
-DirectionalLookupTable _chariot_ideal_moves_table = generate_chariot_ideal_moves_table();
+bitboard get_entire_board() {
+    static bitboard reference = generate_entire_board();
+    return reference;
+}
+
+bitboard get_castle_area() {
+    static bitboard reference = generate_castle_area();
+    return reference;
+}
+
+bitboard get_red_side() {
+    static bitboard reference = generate_red_side();
+    return reference;
+}
+
+const LookupTable& _red_soldier_moves_lookup_table() {
+    static LookupTable reference = generate_soldier_moves_lookup_table(false);
+    return reference;
+}
+
+const LookupTable& _black_soldier_moves_lookup_table() {
+    static LookupTable reference = generate_soldier_moves_lookup_table(true);
+    return reference;
+}
+
+const LookupTable& _general_moves_lookup_table() {
+    static LookupTable reference = generate_general_moves_lookup_table();
+    return reference;
+}
+
+const LookupTable& _advisor_moves_lookup_table() {
+    static LookupTable reference = generate_advisor_moves_lookup_table();
+    return reference;
+}
+
+const DirectionalLookupTable& _horse_moves_lookup_table() {
+	static DirectionalLookupTable reference = generate_horse_moves_lookup_table();
+	return reference;
+}
+
+const DirectionalLookupTable& _chariot_ideal_moves_table() {
+	static DirectionalLookupTable reference = generate_chariot_ideal_moves_table();
+	return reference;
+}
 
 LookupTable generate_soldier_moves_lookup_table(bool swap_board) {
     LookupTable ret;
@@ -73,7 +109,7 @@ LookupTable generate_general_moves_lookup_table() {
 	ret.boards[i].set(move_direction(Position(i), SOUTH).value);
 	ret.boards[i].set(move_direction(Position(i), EAST).value);
 	ret.boards[i].set(move_direction(Position(i), WEST).value);
-	ret.boards[i] &= _castle_area;
+	ret.boards[i] &= get_castle_area();
     }
     return ret;
 }
@@ -85,7 +121,7 @@ LookupTable generate_advisor_moves_lookup_table() {
 	ret.boards[i].set(move_direction(Position(i), NORTHWEST).value);
 	ret.boards[i].set(move_direction(Position(i), SOUTHEAST).value);
 	ret.boards[i].set(move_direction(Position(i), SOUTHEAST).value);
-	ret.boards[i] &= _castle_area;
+	ret.boards[i] &= get_castle_area();
     }
     return ret;
 }
@@ -130,32 +166,32 @@ DirectionalLookupTable generate_chariot_ideal_moves_table() {
 }
 
 bitboard moves_for_red_soldier(Position position) {
-    return _red_soldier_moves_lookup_table.boards[position.value];
+    return _red_soldier_moves_lookup_table().boards[position.value];
 }
 
 bitboard moves_for_black_soldier(Position position) {
-    return _black_soldier_moves_lookup_table.boards[position.value];
+    return _black_soldier_moves_lookup_table().boards[position.value];
 }
 
 bitboard moves_for_general(Position position) {
-    return _general_moves_lookup_table.boards[position.value];
+    return _general_moves_lookup_table().boards[position.value];
 }
 
 bitboard moves_for_advisor(Position position) {
-    return _advisor_moves_lookup_table.boards[position.value];
+    return _advisor_moves_lookup_table().boards[position.value];
 }
 
 bitboard moves_for_horse(const BitboardGameState& state, Position position) {
     // Blockers = 4 groups of 64 bitboards set to 1 if the position blocks a horse(in a direction)
     bitboard accum;
     if (!(state.all_pieces.get(move_direction(position, NORTH).value)))
-	accum |= _horse_moves_lookup_table.tables[0].boards[position.value];
+	accum |= _horse_moves_lookup_table().tables[0].boards[position.value];
     if (!(state.all_pieces.get(move_direction(position, WEST).value)))
-	accum |= _horse_moves_lookup_table.tables[1].boards[position.value];
+	accum |= _horse_moves_lookup_table().tables[1].boards[position.value];
     if (!(state.all_pieces.get(move_direction(position, SOUTH).value)))
-	accum |= _horse_moves_lookup_table.tables[2].boards[position.value];
+	accum |= _horse_moves_lookup_table().tables[2].boards[position.value];
     if (!(state.all_pieces.get(move_direction(position, EAST).value)))
-	accum |= _horse_moves_lookup_table.tables[3].boards[position.value];
+	accum |= _horse_moves_lookup_table().tables[3].boards[position.value];
     return accum;
 }
 
@@ -175,12 +211,12 @@ bitboard moves_for_elephant(const BitboardGameState& state, Position position) {
 bitboard moves_for_chariot(const BitboardGameState& state, Position position) {
     bitboard accum;
     for (uint8_t direction = 0; direction < 4; direction++) {
-	bitboard ideal = _chariot_ideal_moves_table.tables[direction].boards[position.value];
+	bitboard ideal = _chariot_ideal_moves_table().tables[direction].boards[position.value];
 	bitboard blockers = ideal & state.all_pieces;
         uint8_t first_blocker = minimal_pos(blockers, (Direction)direction);
 	bitboard moves =
 	    ideal ^
-	    _chariot_ideal_moves_table.tables[direction].boards[first_blocker];
+	    _chariot_ideal_moves_table().tables[direction].boards[first_blocker];
 	accum |= moves;
     }
     return accum;
@@ -189,14 +225,14 @@ bitboard moves_for_chariot(const BitboardGameState& state, Position position) {
 bitboard moves_for_cannon(const BitboardGameState& state, Position position) {
     bitboard accum;
     for (uint8_t direction = 0; direction < 4; direction++) {
-	bitboard ideal = _chariot_ideal_moves_table.tables[direction].boards[position.value];
+	bitboard ideal = _chariot_ideal_moves_table().tables[direction].boards[position.value];
 	bitboard blockers = ideal & state.all_pieces;
 	uint8_t first_blocker = minimal_pos(blockers, (Direction)direction);
 	blockers.toggle(first_blocker);
 	uint8_t second_blocker = minimal_pos(blockers, (Direction)direction);
 	bitboard moves =
 	    ideal ^
-	    _chariot_ideal_moves_table.tables[direction].boards[first_blocker];
+	    _chariot_ideal_moves_table().tables[direction].boards[first_blocker];
 	moves.toggle(first_blocker);
 	moves.toggle(second_blocker);
 	accum |= moves;
@@ -287,7 +323,9 @@ bool _is_capture(const BitboardGameState& state, const Move& move) {
 
 bool _is_legal_move(const BitboardGameState& state, const Move& move, bool allow_check) {
     ensure_moves_cached(state);
-    auto moves = _available_moves(state);
+    auto moves = allow_check
+	? _available_moves_without_check(state)
+	: _available_moves(state);
     for (const Move& candidate : moves) {
 	if (move == candidate)
 	    return true;
@@ -310,6 +348,7 @@ bool _is_winner(const BitboardGameState& state) {
 
 bool _is_king_in_check(const BitboardGameState& state, Player player) {
     if (player != state.current_turn()) {
+	cerr << "derp" << endl;
 	ensure_moves_cached(state);
 	return !!(state.generals & state.moves);
     } else {

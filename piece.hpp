@@ -24,5 +24,5 @@ enum Piece {
 };
 
 extern Player owner(Piece piece);
-extern char character_for_piece();
+extern char character_for_piece(Piece piece);
 extern ostream& operator<<(ostream& os, const Piece& piece);

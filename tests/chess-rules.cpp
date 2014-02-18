@@ -29,7 +29,7 @@ Position center_of_board() { return Position(5, 5); }
 BOOST_AUTO_TEST_CASE( general) {
   auto state = StandardGameState(RED);
   state.insert_piece(center_of_castle(), RED_GENERAL);
-  cout << state << endl;
+  print_bitboard(cout, bitboard_implementation::moves_for_piece(state.implementation, center_of_castle(), RED_GENERAL));
   print_moves(StandardRulesEngine::available_moves(state));
 
   BOOST_CHECK_EQUAL(StandardRulesEngine::num_available_moves(state), 4);
@@ -274,32 +274,4 @@ BOOST_AUTO_TEST_CASE( basic_minimax ) {
     auto best = Move(chariot_position, Position(5, 4));
     auto ai_move = best_move(state, 3, 1000, piece_score);
     assert_eq(ai_move, best, "AI chose a terrible move");
-}
-
-BOOST_AUTO_TEST_CASE( performance ) {
-    auto interpreter = Interpreter();
-    interpreter.max_nodes = 1000000;
-    interpreter.difficulty = 2;
-    interpreter.cmd_run_computer();
-}
-
-int perft(const StandardGameState& initial, int n) {
-    int count = 0;
-    for (const Move& move : StandardRulesEngine::available_moves(initial)) {
-	if (n == 0) {
-	    count += 1;
-	} else {
-	    initial.peek_move(move, [&] (const StandardGameState& new_state) {
-	        count += perft(new_state, n - 1);
-	    });
-	}
-    }
-    return count;
-}
-
-BOOST_AUTO_TEST_CASE( several_perft_cases ) {
-    auto state = StandardGameState::new_game();
-    assert_eq(perft(state, 0), 44, "Failed perft(0)");
-    assert_eq(perft(state, 1), 1920, "Failed perft(1)");
-    assert_eq(perft(state, 2), 79666, "Failed perft(2)");
 }

@@ -21,7 +21,7 @@ bool Position::operator<(const Position& b) const {
 }
 
 bool Position::operator==(const Position& b) const {
-    return value < b.value;
+    return value == b.value;
 }
 
 char file_display(int file) {

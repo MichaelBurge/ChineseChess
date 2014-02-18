@@ -18,10 +18,14 @@ struct Cell {
     Piece piece;
 };
 
+// There are 38 extra bits on a bitboard that can be used to carry information
+constexpr uint8_t is_cached_bit_index = 91;
+
 struct BitboardGameState {
     BitboardGameState(Player player) : _current_turn(player) {};
-    // Fundamental data
+    // Fundamental data (Consistent during state-manipulating methods)
     list<Cell> pieces;
+    bitboard all_pieces;
     bitboard red_pieces; 
     bitboard black_pieces;
     bitboard generals;
@@ -32,9 +36,8 @@ struct BitboardGameState {
     bitboard cannons;
     bitboard soldiers;
 
-    // Computed data
-    bitboard all_pieces;
-    bitboard moves;
+    // Computed data (Other people will compute and cache these using the above information)
+    mutable bitboard moves;
 
     // Standard GameState methods
     Piece get_piece(const Position&) const;
@@ -49,6 +52,11 @@ struct BitboardGameState {
     void for_each_piece(function<void(Position, Piece)> action) const;
     bool check_internal_consistency() const;
 private:
-    void refresh_cached_data();
+    void ensure_moves_cached();
+    void clear_cached_data();
     Player _current_turn;
 };
+
+inline bool is_cached(const bitboard& bitboard) {
+    return bitboard.get(is_cached_bit_index);
+}

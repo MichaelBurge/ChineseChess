@@ -128,10 +128,12 @@ DirectionalLookupTable generate_chariot_ideal_moves_table() {
     return ret;
 }
 
-bitboard moves_for_soldier(const BitboardGameState& state, Position position) {
-    return (state.current_turn() == RED)
-	? _red_soldier_moves_lookup_table.boards[position.value]
-	: _black_soldier_moves_lookup_table.boards[position.value];
+bitboard moves_for_red_soldier(Position position) {
+    return _red_soldier_moves_lookup_table.boards[position.value];
+}
+
+bitboard moves_for_black_soldier(Position position) {
+    return _black_soldier_moves_lookup_table.boards[position.value];
 }
 
 bitboard moves_for_general(Position position) {
@@ -202,61 +204,151 @@ bitboard moves_for_cannon(const BitboardGameState& state, Position position) {
 }
 
 bitboard moves_for_piece(const BitboardGameState& state, Position position, Piece piece) {
-    throw runtime_error("Unimplemented");
+    switch (piece) {
+    case RED_SOLDIER:
+	return moves_for_red_soldier(piece);
+    case BLACK_SOLDIER:
+	return moves_for_black_soldier(piece);
+    case RED_GENERAL:
+    case BLACK_GENERAL:
+	return moves_for_general(position);
+    case RED_ADVISOR:
+    case BLACK_ADVISOR:
+	return moves_for_advisor(position);
+    case RED_HORSE:
+    case BLACK_HORSE:
+	return moves_for_horse(state, position);
+    case RED_ELEPHANT:
+    case BLACK_ELEPHANT:
+	return moves_for_elephant(state, position);
+    case RED_CHARIOT:
+    case BLACK_CHARIOT:
+	return moves_for_chariot(state, position);
+    case RED_CANNON:
+    case BLACK_CANNON:
+	return moves_for_cannon(state, position);
+    default:
+	throw logic_error("Unknown piece");
+    }
+}
+
+void insert_vectorized_moves(const bitboard& board, const Position& root, vector<Move>& moves) {
+    bitboard copy = board;
+    uint8_t i = 0;
+    while ((i = msb_first_set(copy)) < 90) {
+	moves.push_back(Move(root, Position(i)));
+	copy.clear(i);
+    }
+}
+
+void ensure_moves_cached(const BitboardGameState& state) {
+    if (is_cached(state.moves))
+	return;
+    compute_reachable_positions(state);
+}
+
+void compute_reachable_positions(const BitboardGameState& state) {
+    for (const Cell& cell : state.pieces) {
+	if (owner(cell.piece) != state.current_turn())
+	    continue;
+	state.moves |= moves_for_piece(state, cell.position, cell.piece);
+    }
+    state.moves.set(is_cached_bit_index);
 }
 
 vector<Move> _available_moves(const BitboardGameState& state) {
+    
     throw runtime_error("Unimplemented");
     //for (const Cell& : state.pieces) {
 
     //}
 }
 vector<Move> _available_moves_without_check(const BitboardGameState& state) {
-    throw runtime_error("Unimplemented");
+    // TODO: See if assuming ~38 moves is a performance improvement
+    auto moves = vector<Move>();
+    for (const Cell& cell : state.pieces) {
+	if (owner(cell.piece) != state.current_turn())
+	    continue;
+	bitboard piece_moves = moves_for_piece(state, cell.position, cell.piece);
+	insert_vectorized_moves(piece_moves, cell.position, moves);
+    }
+    return moves;
 }
 
-bool         _is_capture(const BitboardGameState&, const Move&) {
-    throw runtime_error("Unimplemented");
+bool _is_capture(const BitboardGameState& state, const Move& move) {
+    return state.all_pieces.get(move.to.value);
 }
 
-bool         _is_legal_move(const BitboardGameState &, const Move&, bool allow_check) {
-    throw runtime_error("Unimplemented");
+bool _is_legal_move(const BitboardGameState& state, const Move& move, bool allow_check) {
+    ensure_moves_cached(state);
+    auto moves = _available_moves(state);
+    for (const Move& candidate : moves) {
+	if (move == candidate)
+	    return true;
+    }
+    return false;
 }
 
-Player       _winner(const BitboardGameState& state) {
-    throw runtime_error("Unimplemented");
+Player _winner(const BitboardGameState& state) {
+    ensure_moves_cached(state);
+    if (!state.moves)
+	return next_player(state.current_turn());
+    else
+	throw logic_error("No moves available");
 }
 
-bool         _is_winner(const BitboardGameState& state) {
-    throw runtime_error("Unimplemented");
+bool _is_winner(const BitboardGameState& state) {
+    ensure_moves_cached(state);
+    return !state.moves;
 }
 
-bool         _is_king_in_check(const BitboardGameState& state, Player) {
-    throw runtime_error("Unimplemented");
+bool _is_king_in_check(const BitboardGameState& state, Player player) {
+    if (player != state.current_turn()) {
+	ensure_moves_cached(state);
+	return !!(state.generals & state.moves);
+    } else {
+	throw logic_error("Unimplemented");
+    }
 }
 
 vector<Move> _filter_available_moves(const BitboardGameState& state, function<bool(const Move&)> pred) {
-    throw runtime_error("Unimplemented");
+    throw logic_error("_filter_available_moves is unimplemented");
+    auto moves = vector<Move>();
+    for (const Move& move : _available_moves(state)) {
+	if (pred(move))
+	    moves.push_back(move);
+    }
+    return moves;
 }
 
 vector<Move> _captures_for_position(const BitboardGameState& state, const Position& position) {
-    throw runtime_error("Unimplemented");
+    throw logic_error("_captures_for_position is Unimplemented");
 }
 
 vector<Move> _available_moves_from(const BitboardGameState& state, const Position& position) {
-    throw runtime_error("Unimplemented");
+    auto moves = vector<Move>();
+    auto piece = state.get_piece(position);
+    auto piece_reachable = moves_for_piece(state, position, piece);
+    insert_vectorized_moves(piece_reachable, position, moves);
+    return moves;
 }
 
-int          _num_available_moves(const BitboardGameState& state) {
-    throw runtime_error("Unimplemented");
+int _num_available_moves(const BitboardGameState& state) {
+    ensure_moves_cached(state);
+    return num_set(state.moves);
 }
 
-int          _num_available_captures(const BitboardGameState& state) {
-    throw runtime_error("Unimplemented");
+int _num_available_captures(const BitboardGameState& state) {
+    ensure_moves_cached(state);
+    return num_set(state.moves & (state.all_pieces));
 }
 
-bool         _results_in_check(const BitboardGameState& state, const Move& move) {
-    throw runtime_error("Unimplemented");
+bool _results_in_check(const BitboardGameState& state, const Move& move) {
+    bool result;
+    state.peek_move(move, [&] (const BitboardGameState& newState) {
+	result = _is_king_in_check(newState, state.current_turn());
+    });
+    return result;
 }
 
 };

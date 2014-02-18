@@ -29,7 +29,8 @@ namespace bitboard_implementation {
     LookupTable generate_advisor_moves_lookup_table();
     DirectionalLookupTable generate_horse_moves_lookup_table();
     DirectionalLookupTable generate_chariot_ideal_moves_table();
-    bitboard moves_for_soldier(Position position);
+    bitboard moves_for_red_soldier(Position position);
+    bitboard moves_for_black_soldier(Position position);
     bitboard moves_for_elephant(Position position);
     bitboard moves_for_general(Position position);
     bitboard moves_for_advisor(Position position);
@@ -37,6 +38,9 @@ namespace bitboard_implementation {
     bitboard moves_for_chariot(const BitboardGameState& state, Position position);
     bitboard moves_for_cannon(const BitboardGameState& state, Position position);
     bitboard moves_for_piece(const BitboardGameState& state, Position position, Piece piece);
+    void insert_vectorized_moves(const bitboard& board, const Position& root, vector<Move>& moves);
+    void ensure_moves_cached(const BitboardGameState& state);
+    void compute_reachable_positions(const BitboardGameState& state);
 };
 
 class BitboardRules {

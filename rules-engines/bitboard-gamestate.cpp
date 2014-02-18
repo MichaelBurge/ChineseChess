@@ -32,6 +32,7 @@ Piece BitboardGameState::get_piece(const Position& position) const {
 void BitboardGameState::insert_piece(const Position& position, const Piece& piece) {
     // TODO: Maybe use push_back or push_front depending on the piece?
     pieces.push_back(Cell(position, piece));
+    clear_cached_data();
     uint8_t index = position.value;
     all_pieces.set(index);
     switch (piece) {
@@ -101,6 +102,7 @@ void BitboardGameState::insert_piece(const Position& position, const Piece& piec
 
 void BitboardGameState::remove_piece(const Position& position) {
     auto index = position.value;
+    all_pieces.  clear(index);
     red_pieces.  clear(index);
     black_pieces.clear(index);
     generals.    clear(index);
@@ -113,6 +115,7 @@ void BitboardGameState::remove_piece(const Position& position) {
     pieces.erase(find_if(pieces.begin(), pieces.end(), [&] (const Cell& cell) {
 	return cell.position == position;
     }));
+    clear_cached_data();
     assert(check_internal_consistency());
 }
 
@@ -120,8 +123,8 @@ void BitboardGameState::switch_turn() {
     current_turn(next_player(current_turn()));
 }
 
-void BitboardGameState::refresh_cached_data() {
-    all_pieces = red_pieces | black_pieces;
+void BitboardGameState::clear_cached_data() {
+    moves.clear(is_cached_bit_index);
 }
 
 void BitboardGameState::apply_move(const Move& move) {
@@ -203,6 +206,8 @@ bool BitboardGameState::check_internal_consistency() const {
 	    raise_error(a, b, message);
 	}
     };
+    assert_equal(all_pieces, red_pieces | black_pieces, "All pieces & (red | black)");
+
     assert_equal(
         red_pieces | black_pieces,
 	generals | advisors | elephants | horses | chariots | cannons | soldiers,

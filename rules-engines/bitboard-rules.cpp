@@ -9,8 +9,8 @@ namespace bitboard_implementation {
 
 uint8_t  minimal_pos(bitboard board, Direction direction) {
     return (direction == NORTH || direction == WEST)
-	? msb_first_set(board)
-	: lsb_first_set(board);
+	? lsb_first_set(board)
+	: msb_first_set(board);
 }
 
 bool is_red_side(Position position) {
@@ -232,15 +232,20 @@ bitboard moves_for_cannon(const BitboardGameState& state, Position position) {
     for (uint8_t direction = 0; direction < 4; direction++) {
 	bitboard ideal = _chariot_ideal_moves_table().tables[direction].boards[position.value];
 	bitboard blockers = ideal & state.all_pieces;
-	uint8_t first_blocker = minimal_pos(blockers, (Direction)direction);
-	blockers.toggle(first_blocker);
-	uint8_t second_blocker = minimal_pos(blockers, (Direction)direction);
-	bitboard moves =
-	    ideal ^
-	    _chariot_ideal_moves_table().tables[direction].boards[first_blocker];
-	moves.toggle(first_blocker);
-	moves.toggle(second_blocker);
-	accum |= moves;
+	if (!blockers) {
+	    accum |= ideal;
+	} else {
+	    uint8_t first_blocker = minimal_pos(blockers, (Direction)direction);
+	    blockers.toggle(first_blocker);
+	    uint8_t second_blocker = minimal_pos(blockers, (Direction)direction);
+	    bitboard moves =
+		ideal ^
+		_chariot_ideal_moves_table().tables[direction].boards[first_blocker];
+	    moves.toggle(first_blocker);
+	    if (second_blocker < 90)
+		moves.toggle(second_blocker);
+	    accum |= moves;
+	}
     }
     return accum;
 }

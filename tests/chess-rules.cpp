@@ -103,6 +103,7 @@ BOOST_AUTO_TEST_CASE( cannon ) {
   state.insert_piece(
       move_direction(move_direction(cannonPosition, NORTH), NORTH),
       BLACK_ELEPHANT);
+
   assert_eq(StandardRulesEngine::num_available_moves(state), 1+4+4+4, "Incorrect number of cannon moves(one capture)");
 
   state = StandardGameState(RED);

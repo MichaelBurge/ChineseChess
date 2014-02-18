@@ -122,10 +122,10 @@ BOOST_AUTO_TEST_CASE( soldier ) {
     assert_eq(StandardRulesEngine::num_available_moves(state), 1, "Incorrect number of pre-river soldier moves");
 
     state = StandardGameState(RED);
+    auto north = move_direction(position, NORTH);
     state.insert_piece(
-        move_direction(position, NORTH),
+	north,
 	RED_SOLDIER);
-
     assert_eq(StandardRulesEngine::num_available_moves(state), 3, "Incorrect number of post-river soldier moves");
 }
 

@@ -93,10 +93,14 @@ const DirectionalLookupTable& _chariot_ideal_moves_table() {
 LookupTable generate_soldier_moves_lookup_table(bool swap_board) {
     LookupTable ret;
     for (uint8_t i = 0; i < 90; i++) {
-	ret.boards[i].set(move_direction(Position(i), swap_board ? SOUTH : NORTH).value);
-	if (is_red_side(i) ^ swap_board) {
-	    ret.boards[i].set(1 << move_direction(Position(i), WEST).value);
-	    ret.boards[i].set(1 << move_direction(Position(i), EAST).value);
+        auto forward = move_direction(Position(i), swap_board ? SOUTH : NORTH);
+	if (forward.value < 90)
+	    ret.boards[i].set(forward.value);
+	if (!(is_red_side(i) ^ swap_board)) {
+	    auto west = move_direction(Position(i), WEST);
+	    auto east = move_direction(Position(i), EAST);
+	    ret.boards[i].set(west.value);
+	    ret.boards[i].set(east.value);
 	}
     }
     return ret;
@@ -253,9 +257,9 @@ bitboard moves_for_cannon(const BitboardGameState& state, Position position) {
 bitboard moves_for_piece(const BitboardGameState& state, Position position, Piece piece) {
     switch (piece) {
     case RED_SOLDIER:
-	return moves_for_red_soldier(piece);
+	return moves_for_red_soldier(position);
     case BLACK_SOLDIER:
-	return moves_for_black_soldier(piece);
+	return moves_for_black_soldier(position);
     case RED_GENERAL:
     case BLACK_GENERAL:
 	return moves_for_general(position);

@@ -25,11 +25,11 @@ bitboard generate_entire_board() {
 
 bitboard generate_castle_area() {
     bitboard ret(0, 0);
-    for (uint8_t i = 3; i < 6; i++) {
-	for (uint8_t j = 0; j < 3; j++) {
+    for (uint8_t i = 4; i <= 6; i++) {
+	for (uint8_t j = 1; j <= 3; j++) {
 	    ret.set(Position(j, i).value);
 	}
-	for (uint8_t j = 6; j < 9; j++) {
+	for (uint8_t j = 8; j <= 10; j++) {
 	    ret.set(Position(j, i).value);
 	}
     }

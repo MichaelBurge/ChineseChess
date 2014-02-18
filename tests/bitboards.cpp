@@ -23,6 +23,7 @@
 #include <iomanip>
 using namespace boost;
 using namespace std;
+using namespace bitboard_implementation;
 
 BOOST_AUTO_TEST_CASE( bitboard_get_piece ) {
     typedef GameState<BitboardGameState> bitboard_s;
@@ -58,4 +59,29 @@ BOOST_AUTO_TEST_CASE( operations_on_bitboards ) {
     bitboard_state.insert_piece(Position(4, 5), RED_SOLDIER);
 
     bitboard_state.apply_move(Move(Position(4, 5), Position(5, 5)));
+}
+
+BOOST_AUTO_TEST_CASE( precomputed_entire_board_bitboard) {
+    auto entire_board = generate_entire_board();
+    BOOST_REQUIRE_EQUAL(num_set(entire_board), 90);
+}
+
+BOOST_AUTO_TEST_CASE( precomputed_castle_area_bitboard) {
+    auto castle_area = generate_castle_area();
+    BOOST_REQUIRE_EQUAL(num_set(castle_area), 18);
+}
+
+BOOST_AUTO_TEST_CASE( precomputed_general_lookup_table ) {
+    LookupTable table = generate_general_moves_lookup_table();
+    bitboard castle_area = generate_castle_area();
+    int num_positions_checked = 0;
+    for (uint8_t position = 0; position < 90; position++) {
+	if (!castle_area.get(position))
+	    continue;
+	BOOST_TEST_CHECKPOINT( "Checking position: " << Position(position));
+	BOOST_REQUIRE_GE(num_set(table.boards[position]), 2);
+	BOOST_REQUIRE_LE(num_set(table.boards[position]), 4);
+	num_positions_checked++;
+    }
+    BOOST_REQUIRE_EQUAL(num_positions_checked, 18);
 }

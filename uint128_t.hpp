@@ -52,6 +52,8 @@ extern uint128_t& operator^=(uint128_t& a, const uint128_t& b);
 extern uint128_t operator| (const uint128_t& a, const uint128_t& b);
 extern uint128_t operator& (const uint128_t& a, const uint128_t& b);
 extern uint128_t operator^ (const uint128_t& a, const uint128_t& b);
+inline uint128_t operator~(const uint128_t& a)
+{ return uint128_t(~a.msb, ~a.lsb); }
 
 extern bool operator==(const uint128_t& a, const uint128_t& b);
 extern bool operator!(const uint128_t& x);

@@ -255,32 +255,37 @@ bitboard moves_for_cannon(const BitboardGameState& state, Position position) {
 }
 
 bitboard moves_for_piece(const BitboardGameState& state, Position position, Piece piece) {
+    bitboard ret;
     switch (piece) {
     case RED_SOLDIER:
-	return moves_for_red_soldier(position);
+	ret = moves_for_red_soldier(position); break;
     case BLACK_SOLDIER:
-	return moves_for_black_soldier(position);
+	ret = moves_for_black_soldier(position); break;
     case RED_GENERAL:
     case BLACK_GENERAL:
-	return moves_for_general(position);
+	ret = moves_for_general(position); break;
     case RED_ADVISOR:
     case BLACK_ADVISOR:
-	return moves_for_advisor(position);
+	ret = moves_for_advisor(position); break;
     case RED_HORSE:
     case BLACK_HORSE:
-	return moves_for_horse(state, position);
+	ret = moves_for_horse(state, position); break;
     case RED_ELEPHANT:
     case BLACK_ELEPHANT:
-	return moves_for_elephant(state, position);
+	ret = moves_for_elephant(state, position); break;
     case RED_CHARIOT:
     case BLACK_CHARIOT:
-	return moves_for_chariot(state, position);
+	ret = moves_for_chariot(state, position); break;
     case RED_CANNON:
     case BLACK_CANNON:
-	return moves_for_cannon(state, position);
+	ret = moves_for_cannon(state, position); break;
     default:
-	throw logic_error("Unknown piece");
+	throw logic_error("Unknown piece"); break;
     }
+    ret &= (state.current_turn() == RED)
+	? ~(state.red_pieces)
+	: ~(state.black_pieces);
+    return ret;
 }
 
 void insert_vectorized_moves(const bitboard& board, const Position& root, vector<Move>& moves) {

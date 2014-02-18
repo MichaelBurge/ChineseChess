@@ -124,7 +124,7 @@ void BitboardGameState::switch_turn() {
 }
 
 void BitboardGameState::clear_cached_data() {
-    moves.clear(is_cached_bit_index);
+    is_cache_valid = false;
 }
 
 void BitboardGameState::apply_move(const Move& move) {
@@ -150,7 +150,8 @@ void BitboardGameState::peek_move(const Move& move, const function<void(const Bi
     self.apply_move(move);
     action(self);
     self.apply_move(Move(move.to, move.from));
-    self.insert_piece(move.to, to_piece);
+    if (to_piece)
+	self.insert_piece(move.to, to_piece);
 
     check_internal_consistency();
 }

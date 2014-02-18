@@ -38,9 +38,9 @@ namespace bitboard_implementation {
     bitboard moves_for_chariot(const BitboardGameState& state, Position position);
     bitboard moves_for_cannon(const BitboardGameState& state, Position position);
     bitboard moves_for_piece(const BitboardGameState& state, Position position, Piece piece);
+    bitboard compute_reachable_positions(const BitboardGameState& state);
     void insert_vectorized_moves(const bitboard& board, const Position& root, vector<Move>& moves);
     void ensure_moves_cached(const BitboardGameState& state);
-    void compute_reachable_positions(const BitboardGameState& state);
 };
 
 class BitboardRules {

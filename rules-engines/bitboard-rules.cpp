@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <stdint.h>
 #include "bitboard-gamestate.hpp"
 #include "bitboard-rules.hpp"
@@ -242,27 +243,32 @@ void insert_vectorized_moves(const bitboard& board, const Position& root, vector
 }
 
 void ensure_moves_cached(const BitboardGameState& state) {
-    if (is_cached(state.moves))
+    if (state.is_cache_valid);
 	return;
-    compute_reachable_positions(state);
+    state.moves = compute_reachable_positions(state);
+    state.is_cache_valid = true;
 }
 
-void compute_reachable_positions(const BitboardGameState& state) {
+bitboard compute_reachable_positions(const BitboardGameState& state) {
+    bitboard reachable_positions;
     for (const Cell& cell : state.pieces) {
 	if (owner(cell.piece) != state.current_turn())
 	    continue;
-	state.moves |= moves_for_piece(state, cell.position, cell.piece);
+	reachable_positions |= moves_for_piece(state, cell.position, cell.piece);
     }
-    state.moves.set(is_cached_bit_index);
+    return reachable_positions;
 }
 
 vector<Move> _available_moves(const BitboardGameState& state) {
-    
-    throw runtime_error("Unimplemented");
-    //for (const Cell& : state.pieces) {
+    // TODO: This could be really slow. See if caching the positions that result in check helps.
+    vector<Move> moves = _available_moves_without_check(state);
+    auto new_end = remove_if(moves.begin(), moves.end(), [&] (const Move& move) -> bool {
+        return _results_in_check(state, move);
+    });
+    moves.erase(new_end, moves.end());
+    return moves;
+}\
 
-    //}
-}
 vector<Move> _available_moves_without_check(const BitboardGameState& state) {
     // TODO: See if assuming ~38 moves is a performance improvement
     auto moves = vector<Move>();
@@ -307,7 +313,11 @@ bool _is_king_in_check(const BitboardGameState& state, Player player) {
 	ensure_moves_cached(state);
 	return !!(state.generals & state.moves);
     } else {
-	throw logic_error("Unimplemented");
+	auto& mutable_state = const_cast<BitboardGameState&>(state);
+	mutable_state.switch_turn();
+	bool is_check = !!(compute_reachable_positions(mutable_state) & mutable_state.generals);
+	mutable_state.switch_turn();
+	return is_check;
     }
 }
 

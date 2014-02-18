@@ -40,8 +40,11 @@ struct uint128_t {
 	else
 	    msb ^= 1ULL << (position - 64);
     }
+    inline uint128_t& operator=(const uint128_t& b)
+    { msb = b.msb; lsb = b.msb; return *this; }
 
 };
+
 
 extern uint128_t& operator|=(uint128_t& a, const uint128_t& b);
 extern uint128_t& operator&=(uint128_t& a, const uint128_t& b);

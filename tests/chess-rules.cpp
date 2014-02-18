@@ -29,9 +29,6 @@ Position center_of_board() { return Position(5, 5); }
 BOOST_AUTO_TEST_CASE( general) {
   auto state = StandardGameState(RED);
   state.insert_piece(center_of_castle(), RED_GENERAL);
-  print_bitboard(cout, bitboard_implementation::moves_for_piece(state.implementation, center_of_castle(), RED_GENERAL));
-  print_moves(StandardRulesEngine::available_moves(state));
-
   BOOST_CHECK_EQUAL(StandardRulesEngine::num_available_moves(state), 4);
 }
 

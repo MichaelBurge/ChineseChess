@@ -57,6 +57,11 @@ BOOST_AUTO_TEST_CASE( operations_on_uint128_t ) {
 
     _assert(!!debugging_and, "Board should be non-zero");
     _assert(!!(debugging_and & debug_board), "Board after & should be non-zero");
+
+    uint128_t nerp = uint128_t(50, 70);
+    uint128_t lerp;
+    lerp = nerp;
+    BOOST_REQUIRE_EQUAL(nerp, lerp);
 }
 
 BOOST_AUTO_TEST_CASE( bitboard_clear ) {

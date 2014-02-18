@@ -279,9 +279,10 @@ void insert_vectorized_moves(const bitboard& board, const Position& root, vector
 }
 
 void ensure_moves_cached(const BitboardGameState& state) {
-    if (state.is_cache_valid);
+    if (state.is_cache_valid)
 	return;
-    state.moves = compute_reachable_positions(state);
+    bitboard reachable_positions = compute_reachable_positions(state);
+    state.moves = reachable_positions;
     state.is_cache_valid = true;
 }
 

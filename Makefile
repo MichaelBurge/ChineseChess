@@ -10,7 +10,7 @@ options = -g -Wall -std=c++11
 all: main.exe
 
 main.exe: $(primary_files) main.o
-	g++ $(options) $^ -o $<
+	g++ $(options) $^ -o $@
 
 performance: test_performance.exe
 	./test_performance.exe

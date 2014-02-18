@@ -130,4 +130,9 @@ template<class T>
 ostream& operator<<(ostream& os, const GameState<T>& state)
 { print_board(os, state); return os; }
 
-
+template<class T>
+int get_num_pieces(const GameState<T>& state) {
+    int accum = 0;
+    state.for_each_piece([&] (Position, Piece) { accum++; });
+    return accum;
+}

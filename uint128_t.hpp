@@ -28,9 +28,9 @@ struct uint128_t {
     void clear(uint8_t position)
     {
 	if (position < 64)
-	    lsb &= 1ULL << position;
+	    lsb &= ~(1ULL << position);
 	else
-	    msb &= 1ULL << (position - 64);
+	    msb &= ~(1ULL << (position - 64));
     }
 
     void toggle(uint8_t position)

@@ -29,6 +29,11 @@ Position center_of_board() { return Position(5, 5); }
 
 BOOST_AUTO_TEST_SUITE( foundational_datatypes )
 
+BOOST_AUTO_TEST_CASE( position_internal_value ) {
+    auto position = Position(4, 5); // Should be the center red soldier
+    assert_eq(position.value, (uint8_t)31, "Position internal value is wrong");
+}
+
 BOOST_AUTO_TEST_CASE( operations_on_uint128_t ) {
     uint128_t derp = uint128_t(0x00F0FFFF0000FFFF, 0x0F00FFFF0000FFFF);
     assert_eq(lsb_first_set(derp), (uint8_t)0, "First one wrong 1");
@@ -72,12 +77,40 @@ BOOST_AUTO_TEST_CASE( bitboard_get_piece ) {
     assert_eq(empty.get_piece(Position(5,5)), RED_GENERAL, "Wrong piece at location");
 }
 
+BOOST_AUTO_TEST_CASE( bitboard_clear ) {
+    bitboard x = uint128_t(0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF);
+    BOOST_CHECK_EQUAL((int)num_set(x), 128L);
+    x.clear(50);
+    BOOST_CHECK_EQUAL((int)num_set(x), 127L);
+    x.clear(100);
+    BOOST_CHECK_EQUAL((int)num_set(x), 126L);
+}
+
+BOOST_AUTO_TEST_CASE( removing_and_adding_pieces ) {
+    typedef GameState<BitboardGameState> bitboard_s;
+
+    auto bitboard_state = bitboard_s::new_game();
+    BOOST_REQUIRE_EQUAL(bitboard_state.get_piece(Position(4, 5)), RED_SOLDIER);
+    BOOST_CHECK_EQUAL(get_num_pieces(bitboard_state), 32);
+
+    bitboard_state.remove_piece(Position(4, 5));
+    BOOST_CHECK_EQUAL(bitboard_state.get_piece(Position(4, 5)), EMPTY);
+    BOOST_CHECK_EQUAL(get_num_pieces(bitboard_state), 31);
+
+    bitboard_state.insert_piece(Position(4, 5), RED_SOLDIER);
+    BOOST_REQUIRE_EQUAL(bitboard_state.get_piece(Position(4, 5)), RED_SOLDIER);
+    BOOST_CHECK_EQUAL(get_num_pieces(bitboard_state), 32);
+}
+
 BOOST_AUTO_TEST_CASE( operations_on_bitboards ) {
     typedef GameState<BitboardGameState> bitboard_s;
     auto bitboard_state = bitboard_s::new_game();
-    // bitboard_state.print_debug_board();
-    //cout << bitboard_state << endl;
-    bitboard_state.apply_move(Move(Position(5, 4), Position(5, 5)));
+    assert_eq(bitboard_state.get_piece(Position(4, 5)), RED_SOLDIER, "Not a red soldier");
+
+    bitboard_state.remove_piece(Position(4, 5));
+    bitboard_state.insert_piece(Position(4, 5), RED_SOLDIER);
+
+    bitboard_state.apply_move(Move(Position(4, 5), Position(5, 5)));
 }
 
 BOOST_AUTO_TEST_CASE( parsing ) {

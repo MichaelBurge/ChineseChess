@@ -30,6 +30,7 @@ namespace bitboard_implementation {
     DirectionalLookupTable generate_horse_moves_lookup_table();
     DirectionalLookupTable generate_chariot_ideal_moves_table();
     bitboard moves_for_soldier(Position position);
+    bitboard moves_for_elephant(Position position);
     bitboard moves_for_general(Position position);
     bitboard moves_for_advisor(Position position);
     bitboard moves_for_horse(const BitboardGameState& state, Position position);

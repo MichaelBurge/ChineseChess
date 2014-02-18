@@ -15,7 +15,14 @@ bool is_red_side(Position position) {
     return position.value < 45;
 }
 
-bitboard castle_area() {
+bitboard generate_entire_board() {
+    bitboard ret(0, 0);
+    for (uint8_t i = 0; i < 90; i++)
+	ret.set(i);
+    return ret;
+}
+
+bitboard generate_castle_area() {
     bitboard ret(0, 0);
     for (uint8_t i = 3; i < 6; i++) {
 	for (uint8_t j = 0; j < 3; j++) {
@@ -28,6 +35,17 @@ bitboard castle_area() {
     return ret;
 }
 
+bitboard generate_red_side() {
+    bitboard ret(0, 0);
+    for (uint8_t i = 0; i < 45; i++) {
+	ret.set(i);
+    }
+    return ret;
+}
+
+bitboard _entire_board = generate_entire_board();
+bitboard _castle_area = generate_castle_area();
+bitboard _red_side = generate_red_side();
 LookupTable _red_soldier_moves_lookup_table = generate_soldier_moves_lookup_table(false);
 LookupTable _black_soldier_moves_lookup_table = generate_soldier_moves_lookup_table(true);
 LookupTable _general_moves_lookup_table = generate_general_moves_lookup_table();
@@ -54,7 +72,7 @@ LookupTable generate_general_moves_lookup_table() {
 	ret.boards[i].set(move_direction(Position(i), SOUTH).value);
 	ret.boards[i].set(move_direction(Position(i), EAST).value);
 	ret.boards[i].set(move_direction(Position(i), WEST).value);
-	ret.boards[i] &= castle_area();
+	ret.boards[i] &= _castle_area;
     }
     return ret;
 }
@@ -66,7 +84,7 @@ LookupTable generate_advisor_moves_lookup_table() {
 	ret.boards[i].set(move_direction(Position(i), NORTHWEST).value);
 	ret.boards[i].set(move_direction(Position(i), SOUTHEAST).value);
 	ret.boards[i].set(move_direction(Position(i), SOUTHEAST).value);
-	ret.boards[i] &= castle_area();
+	ret.boards[i] &= _castle_area;
     }
     return ret;
 }
@@ -138,7 +156,7 @@ bitboard moves_for_horse(const BitboardGameState& state, Position position) {
     return accum;
 }
 
-bitboard moves_for_bishop(const BitboardGameState& state, Position position) {
+bitboard moves_for_elephant(const BitboardGameState& state, Position position) {
     bitboard accum;
     if (!(state.all_pieces.get(move_direction(position, NORTHEAST).value)))
 	accum.set(multi_move_direction(position, NORTHEAST).value);

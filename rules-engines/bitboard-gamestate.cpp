@@ -5,10 +5,6 @@
 #include <iostream>
 using namespace std;
 
-ostream& operator<<(ostream& os, const BitboardGameState& state) {
-    throw runtime_error("Unimplemented");
-}
-
 Piece BitboardGameState::get_piece(const Position& position) const {
     bitboard x;
     x.set(position.value);
@@ -95,6 +91,8 @@ void BitboardGameState::insert_piece(const Position& position, const Piece& piec
 	soldiers.set(index);
 	black_pieces.set(index);
 	break;
+    case EMPTY:
+	throw logic_error("Attempted to insert an empty piece");
     default:
 	throw logic_error("Unknown piece");
     }
@@ -118,21 +116,40 @@ void BitboardGameState::remove_piece(const Position& position) {
     assert(check_internal_consistency());
 }
 
-void BitboardGameState::apply_move(const Move& move) {
-    throw runtime_error("Unimplemented");
+void BitboardGameState::switch_turn() {
+    current_turn(next_player(current_turn()));
 }
 
-void BitboardGameState::current_turn(Player) {
-    throw runtime_error("Unimplemented");
+void BitboardGameState::refresh_cached_data() {
+    all_pieces = red_pieces | black_pieces;
+}
+
+void BitboardGameState::apply_move(const Move& move) {
+    Piece from_piece = get_piece(move.from);
+    remove_piece(move.to);
+    insert_piece(move.to, from_piece);
+    switch_turn();
+
+    check_internal_consistency();
+}
+
+void BitboardGameState::current_turn(Player player) {
+    _current_turn = player;
 }
 
 Player BitboardGameState::current_turn() const {
     return _current_turn;
-    throw runtime_error("Unimplemented");
 }
 
-void BitboardGameState::peek_move(const Move&, const function<void(const BitboardGameState&)>& action) const {
-    throw runtime_error("Unimplemented");
+void BitboardGameState::peek_move(const Move& move, const function<void(const BitboardGameState&)>& action) const {
+    Piece to_piece = get_piece(move.to);
+    auto& self = const_cast<BitboardGameState&>(*this);
+    self.apply_move(move);
+    action(self);
+    self.apply_move(Move(move.to, move.from));
+    self.insert_piece(move.to, to_piece);
+
+    check_internal_consistency();
 }
 
 void BitboardGameState::print_debug_board() const {

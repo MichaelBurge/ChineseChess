@@ -43,12 +43,12 @@ struct BitboardGameState {
     void apply_move(const Move&);
     void current_turn(Player);
     Player current_turn() const;
+    void switch_turn();
     void peek_move(const Move&, const function<void(const BitboardGameState&)>& action) const;
     void print_debug_board() const;
     void for_each_piece(function<void(Position, Piece)> action) const;
     bool check_internal_consistency() const;
 private:
+    void refresh_cached_data();
     Player _current_turn;
 };
-
-extern ostream& operator<<(ostream& os, const BitboardGameState& state);

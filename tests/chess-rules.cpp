@@ -222,7 +222,9 @@ BOOST_AUTO_TEST_CASE( check ) {
     assert_eq(StandardRulesEngine::num_available_moves(state), 4, "Incorrect number of general moves");
 
     state.insert_piece(Position(6, 5), BLACK_CHARIOT);
+
     _assert(StandardRulesEngine::is_king_in_check(state, RED), "King not scared of chariot");
+
     _assert(StandardRulesEngine::results_in_check(state, Move(position, move_direction(position, NORTH))), "NORTH check");
     _assert(StandardRulesEngine::results_in_check(state, Move(position, move_direction(position, SOUTH))), "SOUTH check");
     deny(StandardRulesEngine::results_in_check(state, Move(position, move_direction(position, WEST))), "WEST check");

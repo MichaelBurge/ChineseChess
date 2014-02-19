@@ -367,13 +367,13 @@ bool _is_winner(const BitboardGameState& state) {
 
 bool _is_king_in_check(const BitboardGameState& state, Player player) {
     if (player != state.current_turn()) {
-	cerr << "derp" << endl;
 	ensure_moves_cached(state);
 	return !!(state.generals & state.moves);
     } else {
 	auto& mutable_state = const_cast<BitboardGameState&>(state);
 	mutable_state.switch_turn();
-	bool is_check = !!(compute_reachable_positions(mutable_state) & mutable_state.generals);
+	auto reachable_positions = compute_reachable_positions(mutable_state);
+	bool is_check = !!(reachable_positions & mutable_state.generals);
 	mutable_state.switch_turn();
 	return is_check;
     }
@@ -402,19 +402,23 @@ vector<Move> _available_moves_from(const BitboardGameState& state, const Positio
 }
 
 int _num_available_moves(const BitboardGameState& state) {
-    ensure_moves_cached(state);
-    return num_set(state.moves);
+    return _available_moves(state).size();
 }
 
 int _num_available_captures(const BitboardGameState& state) {
-    ensure_moves_cached(state);
-    return num_set(state.moves & (state.all_pieces));
+    auto moves = _available_moves(state);
+    auto new_end = remove_if(moves.begin(), moves.end(), [&] (const Move& move) {
+        return !_is_capture(state, move);
+    });
+    moves.erase(new_end, moves.end());
+    return moves.size();
 }
 
 bool _results_in_check(const BitboardGameState& state, const Move& move) {
     bool result;
+    Player current_turn = state.current_turn();
     state.peek_move(move, [&] (const BitboardGameState& newState) {
-	result = _is_king_in_check(newState, state.current_turn());
+	result = _is_king_in_check(newState, current_turn);
     });
     return result;
 }

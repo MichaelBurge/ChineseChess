@@ -52,6 +52,8 @@ namespace bitboard_implementation {
     bitboard compute_reachable_positions(const BitboardGameState& state);
     void insert_vectorized_moves(const bitboard& board, const Position& root, vector<Move>& moves);
     void ensure_moves_cached(const BitboardGameState& state);
+    bool violates_flying_kings_rule(const BitboardGameState& state);
+    uint8_t  minimal_pos(bitboard board, Direction direction);
 };
 
 class BitboardRules {

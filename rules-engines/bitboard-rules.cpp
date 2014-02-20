@@ -288,6 +288,14 @@ bitboard moves_for_piece(const BitboardGameState& state, Position position, Piec
     return ret;
 }
 
+bool violates_flying_kings_rule(const BitboardGameState& state) {
+    // This is simalar to the chariot rule, but specialized for only one direction
+    uint8_t first_king = minimal_pos(state.generals, SOUTH);
+    bitboard king_killing_ray = _chariot_ideal_moves_table().tables[SOUTH].boards[first_king];
+    uint8_t target = minimal_pos(king_killing_ray & state.all_pieces, SOUTH);
+    return state.generals.get(target);
+}
+
 void insert_vectorized_moves(const bitboard& board, const Position& root, vector<Move>& moves) {
     bitboard copy = board;
     uint8_t i = 0;
@@ -318,7 +326,7 @@ vector<Move> _available_moves(const BitboardGameState& state) {
     // TODO: This could be really slow. See if caching the positions that result in check helps.
     vector<Move> moves = _available_moves_without_check(state);
     auto new_end = remove_if(moves.begin(), moves.end(), [&] (const Move& move) -> bool {
-        return _results_in_check(state, move);
+	return _results_in_check(state, move);
     });
     moves.erase(new_end, moves.end());
     return moves;
@@ -418,7 +426,9 @@ bool _results_in_check(const BitboardGameState& state, const Move& move) {
     bool result;
     Player current_turn = state.current_turn();
     state.peek_move(move, [&] (const BitboardGameState& newState) {
-	result = _is_king_in_check(newState, current_turn);
+	result =
+	    _is_king_in_check(newState, current_turn) ||
+	    violates_flying_kings_rule(newState);
     });
     return result;
 }

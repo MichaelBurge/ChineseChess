@@ -361,16 +361,14 @@ bool _is_legal_move(const BitboardGameState& state, const Move& move, bool allow
 }
 
 Player _winner(const BitboardGameState& state) {
-    ensure_moves_cached(state);
-    if (!state.moves)
+    if (_is_winner(state))
 	return next_player(state.current_turn());
     else
 	throw logic_error("No moves available");
 }
 
 bool _is_winner(const BitboardGameState& state) {
-    ensure_moves_cached(state);
-    return !state.moves;
+    return _num_available_moves(state) == 0;
 }
 
 bool _is_king_in_check(const BitboardGameState& state, Player player) {

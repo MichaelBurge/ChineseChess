@@ -153,29 +153,31 @@ BOOST_AUTO_TEST_CASE( piece_capture ) {
 BOOST_AUTO_TEST_CASE( flying_kings_rule ) {
     auto state = StandardGameState(RED);
     state.insert_piece(Position(2, 5), RED_GENERAL);
-    assert_eq(StandardRulesEngine::num_available_moves(state), 4, "Incorrect # of king moves");
+    BOOST_REQUIRE_EQUAL(StandardRulesEngine::num_available_moves(state), 4);
 
     state.insert_piece(Position(8, 6), BLACK_GENERAL);
-    assert_eq(StandardRulesEngine::num_available_moves(state), 3, "Enemy king doesn't block a move");
+    BOOST_REQUIRE_EQUAL(StandardRulesEngine::num_available_moves(state), 3);
 
     state.insert_piece(Position(5, 6), BLACK_SOLDIER);
-    assert_eq(StandardRulesEngine::num_available_moves(state), 4, "Soldier doesn't block flying kings");
+    BOOST_REQUIRE_EQUAL(StandardRulesEngine::num_available_moves(state), 4);
 }
 
 
 
 BOOST_AUTO_TEST_CASE( winning ) {
     auto state = StandardGameState::new_game();
-    deny(StandardRulesEngine::is_winner(state), "Winner at start of game");
+    BOOST_REQUIRE(!StandardRulesEngine::is_winner(state));
 
     state = StandardGameState(RED);
     state.insert_piece(Position(2, 5), RED_GENERAL);
+    state.insert_piece(Position(1, 8), BLACK_CANNON);
+    state.insert_piece(Position(1, 7), BLACK_SOLDIER);
     state.insert_piece(Position(2, 7), BLACK_CHARIOT);
     state.insert_piece(Position(3, 7), BLACK_CHARIOT);
-    state.insert_piece(Position(8, 5), BLACK_GENERAL);
+    state.insert_piece(Position(8, 6), BLACK_GENERAL);
 
-    _assert(StandardRulesEngine::is_winner(state), "No winner");
-    assert_eq(StandardRulesEngine::winner(state), BLACK, "Wrong winner");
+    BOOST_REQUIRE(StandardRulesEngine::is_winner(state));
+    BOOST_REQUIRE_EQUAL(StandardRulesEngine::winner(state), BLACK);
 }
 
 BOOST_AUTO_TEST_CASE( game_state_dictionary_storage ) {

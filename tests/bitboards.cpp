@@ -1,12 +1,8 @@
 #undef __STRICT_ANSI__
-#include "../utility.hpp"
 #include "../direction.hpp"
-#include "../parsing.hpp"
 #include "../position.hpp"
 #include "../rules-engines/reference.hpp"
-#include "../test.hpp"
 #include "../scoring.hpp"
-#include "../minimax.hpp"
 #include "../interpreter.hpp"
 #include "../configuration.hpp"
 #include "../uint128_t.hpp"
@@ -28,10 +24,10 @@ using namespace bitboard_implementation;
 BOOST_AUTO_TEST_CASE( bitboard_get_piece ) {
     typedef GameState<BitboardGameState> bitboard_s;
     auto empty = bitboard_s(RED);
-    assert_eq(num_set(empty.implementation.generals), (uint8_t)0, "Board not empty at start");
+    BOOST_REQUIRE_EQUAL(num_set(empty.implementation.generals), (uint8_t)0);
     empty.insert_piece(Position(5,5), RED_GENERAL);
-    assert_eq(num_set(empty.implementation.generals), (uint8_t)1, "Wrong number of generals after insert");
-    assert_eq(empty.get_piece(Position(5,5)), RED_GENERAL, "Wrong piece at location");
+    BOOST_REQUIRE_EQUAL(num_set(empty.implementation.generals), (uint8_t)1);
+    BOOST_REQUIRE_EQUAL(empty.get_piece(Position(5,5)), RED_GENERAL);
 }
 
 BOOST_AUTO_TEST_CASE( removing_and_adding_pieces ) {

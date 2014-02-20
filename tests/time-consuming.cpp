@@ -2,7 +2,6 @@
 #include "../utility.hpp"
 #include "../direction.hpp"
 #include "../position.hpp"
-#include "../test.hpp"
 #include "../scoring.hpp"
 #include "../minimax.hpp"
 #include "../interpreter.hpp"
@@ -44,7 +43,7 @@ int perft(const StandardGameState& initial, int n) {
 
 BOOST_AUTO_TEST_CASE( several_perft_cases ) {
     auto state = StandardGameState::new_game();
-    assert_eq(perft(state, 0), 44, "Failed perft(0)");
-    assert_eq(perft(state, 1), 1920, "Failed perft(1)");
-    assert_eq(perft(state, 2), 79666, "Failed perft(2)");
+    BOOST_REQUIRE_EQUAL(perft(state, 0), 44);
+    BOOST_REQUIRE_EQUAL(perft(state, 1), 1920);
+    BOOST_REQUIRE_EQUAL(perft(state, 2), 79666);
 }

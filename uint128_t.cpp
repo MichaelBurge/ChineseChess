@@ -46,7 +46,7 @@ uint8_t lsb_first_set(const uint128_t& board) {
     if (board.lsb) {
 	return __builtin_ctzll(board.lsb);
     } else if (board.msb) {
-	return __builtin_ctzll((uint64_t)board.msb) + 64 - 1;
+	return __builtin_ctzll((uint64_t)board.msb) + 64;
     } else {
 	return 255;
     }

@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE( operations_on_uint128_t ) {
     BOOST_REQUIRE(!derp.get(120));
 
     uint128_t herp = uint128_t(0x00000000FFF00000, 0x0000000000000000);
-    BOOST_REQUIRE_EQUAL(lsb_first_set(herp), (uint8_t)83);
+    BOOST_REQUIRE_EQUAL(lsb_first_set(herp), (uint8_t)84);
     BOOST_REQUIRE_EQUAL(msb_first_set(herp), (uint8_t)95);
     BOOST_REQUIRE_EQUAL(num_set(herp),       (uint8_t)12);
 

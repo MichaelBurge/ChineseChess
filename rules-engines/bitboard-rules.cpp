@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <stdint.h>
+#include "bitboard.hpp"
 #include "bitboard-gamestate.hpp"
 #include "bitboard-rules.hpp"
 #include <iostream>
@@ -15,13 +16,6 @@ uint8_t  minimal_pos(bitboard board, Direction direction) {
 
 bool is_red_side(Position position) {
     return position.value < 45;
-}
-
-bitboard generate_entire_board() {
-    bitboard ret(0, 0);
-    for (uint8_t i = 0; i < 90; i++)
-	ret.set(i);
-    return ret;
 }
 
 bitboard generate_castle_area() {
@@ -43,11 +37,6 @@ bitboard generate_red_side() {
 	ret.set(i);
     }
     return ret;
-}
-
-bitboard get_entire_board() {
-    static bitboard reference = generate_entire_board();
-    return reference;
 }
 
 bitboard get_castle_area() {
@@ -102,6 +91,7 @@ LookupTable generate_soldier_moves_lookup_table(bool swap_board) {
 	    ret.boards[i].set(west.value);
 	    ret.boards[i].set(east.value);
 	}
+        ret.boards[i] &= get_entire_board();
     }
     return ret;
 }
@@ -138,21 +128,25 @@ DirectionalLookupTable generate_horse_moves_lookup_table() {
             move_direction(move_direction(position, NORTH), NORTHEAST).value);
 	ret.tables[0].boards[i].set(
             move_direction(move_direction(position, NORTH), NORTHWEST).value);
+        ret.tables[0].boards[i] &= get_entire_board();
 
 	ret.tables[1].boards[i].set(
             move_direction(move_direction(position, WEST), NORTHWEST).value);
 	ret.tables[1].boards[i].set(
             move_direction(move_direction(position, WEST), SOUTHWEST).value);
+        ret.tables[1].boards[i] &= get_entire_board();
 
 	ret.tables[2].boards[i].set(
             move_direction(move_direction(position, SOUTH), SOUTHEAST).value);
 	ret.tables[2].boards[i].set(
             move_direction(move_direction(position, SOUTH), SOUTHWEST).value);
+        ret.tables[2].boards[i] &= get_entire_board();
 
 	ret.tables[3].boards[i].set(
             move_direction(move_direction(position, EAST), NORTHEAST).value);
 	ret.tables[3].boards[i].set(
             move_direction(move_direction(position, EAST), SOUTHEAST).value);
+        ret.tables[3].boards[i] &= get_entire_board();
     }
     return ret;
 }
@@ -188,14 +182,24 @@ bitboard moves_for_advisor(Position position) {
 bitboard moves_for_horse(const BitboardGameState& state, Position position) {
     // Blockers = 4 groups of 64 bitboards set to 1 if the position blocks a horse(in a direction)
     bitboard accum;
-    if (!(state.all_pieces.get(move_direction(position, NORTH).value)))
-	accum |= _horse_moves_lookup_table().tables[0].boards[position.value];
-    if (!(state.all_pieces.get(move_direction(position, WEST).value)))
-	accum |= _horse_moves_lookup_table().tables[1].boards[position.value];
-    if (!(state.all_pieces.get(move_direction(position, SOUTH).value)))
-	accum |= _horse_moves_lookup_table().tables[2].boards[position.value];
-    if (!(state.all_pieces.get(move_direction(position, EAST).value)))
-	accum |= _horse_moves_lookup_table().tables[3].boards[position.value];
+    uint8_t north = move_direction(position, NORTH).value;
+    uint8_t south = move_direction(position, SOUTH).value;
+    uint8_t west = move_direction(position, WEST).value;
+    uint8_t east = move_direction(position, EAST).value;
+
+    bool is_north_blocked = north < 90 && state.all_pieces.get(north);
+    bool is_south_blocked = south < 90 && state.all_pieces.get(south);
+    bool is_west_blocked = west < 90 && state.all_pieces.get(west);
+    bool is_east_blocked = east < 90 && state.all_pieces.get(east);
+
+    if (!is_north_blocked)
+	accum |= _horse_moves_lookup_table().tables[NORTH].boards[position.value];
+    if (!is_south_blocked)
+	accum |= _horse_moves_lookup_table().tables[WEST].boards[position.value];
+    if (!is_west_blocked)
+	accum |= _horse_moves_lookup_table().tables[SOUTH].boards[position.value];
+    if (!is_east_blocked)
+	accum |= _horse_moves_lookup_table().tables[EAST].boards[position.value];
     return accum;
 }
 
@@ -400,10 +404,11 @@ vector<Move> _captures_for_position(const BitboardGameState& state, const Positi
 }
 
 vector<Move> _available_moves_from(const BitboardGameState& state, const Position& position) {
-    auto moves = vector<Move>();
-    auto piece = state.get_piece(position);
-    auto piece_reachable = moves_for_piece(state, position, piece);
-    insert_vectorized_moves(piece_reachable, position, moves);
+    auto moves = _available_moves(state);
+    auto new_end = remove_if(moves.begin(), moves.end(), [&] (const Move& candidate) {
+	return !(candidate.from == position);
+    });
+    moves.erase(new_end, moves.end());
     return moves;
 }
 

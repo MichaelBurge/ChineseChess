@@ -29,10 +29,8 @@ namespace bitboard_implementation {
     extern const LookupTable& _general_moves_lookup_table();
     extern const LookupTable& _black_soldier_moves_lookup_table();
     extern const LookupTable& _red_soldier_moves_lookup_table();
-    extern bitboard get_entire_board();
 
     // Auxillary functions
-    bitboard generate_entire_board();
     bitboard generate_castle_area();
     bitboard generate_red_side();
     LookupTable generate_soldier_moves_lookup_table(bool);

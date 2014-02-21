@@ -9,7 +9,6 @@
 #include "../rules-engines/bitboard.hpp"
 #include <iostream>
 #define BOOST_TEST_MAIN 1
-#define BOOST_TEST_MODULE "chess tests"
 
 // 'put_env' is not exported with strict ansi set
 #include <cstdlib>
@@ -67,7 +66,7 @@ BOOST_AUTO_TEST_CASE( operations_on_bitboards ) {
 }
 
 BOOST_AUTO_TEST_CASE( precomputed_entire_board_bitboard) {
-    auto entire_board = generate_entire_board();
+    auto entire_board = get_entire_board();
     BOOST_REQUIRE_EQUAL(num_set(entire_board), 90);
 }
 
@@ -150,4 +149,10 @@ BOOST_AUTO_TEST_CASE( flying_kings_rule_test ) {
     state.insert_piece(Position(2, 5), RED_GENERAL);
     state.insert_piece(Position(8, 5), BLACK_GENERAL);
     BOOST_REQUIRE(violates_flying_kings_rule(state));
+}
+
+BOOST_AUTO_TEST_CASE( horse_moves_test) {
+    auto state = GameState<BitboardGameState>::new_game();
+    auto horse_moves = moves_for_piece(state.implementation, Position(1, 2), RED_HORSE);
+    BOOST_REQUIRE_EQUAL(num_set(horse_moves), 2);
 }

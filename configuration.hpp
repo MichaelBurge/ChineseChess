@@ -10,10 +10,12 @@
 typedef GameState<BitboardGameState> StandardBitboardGameState;
 typedef GameState<ReferenceGameState> StandardReferenceGameState;
 
+//typedef StandardReferenceGameState StandardGameState;
 typedef StandardBitboardGameState StandardGameState;
 
 typedef RulesEngine<StandardGameState, BitboardRules> StandardBitboardRulesEngine;
 typedef RulesEngine<StandardGameState, ReferenceRules> StandardReferenceRulesEngine;
 
 
+//typedef StandardReferenceRulesEngine StandardRulesEngine;
 typedef StandardBitboardRulesEngine StandardRulesEngine;

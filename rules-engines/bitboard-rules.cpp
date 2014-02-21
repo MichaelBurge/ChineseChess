@@ -205,14 +205,37 @@ bitboard moves_for_horse(const BitboardGameState& state, Position position) {
 
 bitboard moves_for_elephant(const BitboardGameState& state, Position position) {
     bitboard accum;
-    if (!(state.all_pieces.get(move_direction(position, NORTHEAST).value)))
-	accum.set(multi_move_direction(position, NORTHEAST).value);
-    if (!(state.all_pieces.get(move_direction(position, SOUTHEAST).value)))
-	accum.set(multi_move_direction(position, SOUTHEAST).value);
-    if (!(state.all_pieces.get(move_direction(position, NORTHWEST).value)))
-	accum.set(multi_move_direction(position, NORTHWEST).value);
-    if (!(state.all_pieces.get(move_direction(position, SOUTHWEST).value)))
-	accum.set(multi_move_direction(position, SOUTHWEST).value);
+
+    uint8_t northeast = move_direction(position, NORTHEAST).value;
+    uint8_t southeast = move_direction(position, SOUTHEAST).value;
+    uint8_t northwest = move_direction(position, NORTHWEST).value;
+    uint8_t southwest = move_direction(position, SOUTHWEST).value;
+
+    bool is_northeast_blocked = northeast < 90 && state.all_pieces.get(northeast);
+    bool is_southeast_blocked = southeast < 90 && state.all_pieces.get(southeast);
+    bool is_northwest_blocked = northwest < 90 && state.all_pieces.get(northwest);
+    bool is_southwest_blocked = southwest < 90 && state.all_pieces.get(southwest);
+
+    if (!is_northeast_blocked) {
+	northeast = move_direction(Position(northeast), NORTHEAST).value;
+	if (northeast < 90)
+	    accum.set(northeast);
+    }
+    if (!is_southeast_blocked) {
+	southeast = move_direction(Position(southeast), SOUTHEAST).value;
+	if (southeast < 90)
+	    accum.set(southeast);
+    }
+    if (!is_northwest_blocked) {
+	northwest = move_direction(Position(northwest), NORTHWEST).value;
+	if (northwest < 90)
+	    accum.set(northwest);
+    }
+    if (!is_southwest_blocked) {
+	southwest = move_direction(Position(southwest), SOUTHWEST).value;
+	if (southwest < 90)
+	    accum.set(southwest);
+    }
     return accum;
 }
 

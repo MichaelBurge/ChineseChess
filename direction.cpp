@@ -57,26 +57,28 @@ Direction opposite_direction(Direction direction) {
   return rotate_90_left(rotate_90_left(direction));
 }
 Position move_direction(const Position& position, Direction direction) {
-  switch (direction) {
-  case NORTH:
-    return Position(position.rank() + 1, position.file());
-  case SOUTH:
-    return Position(position.rank() - 1, position.file());
-  case WEST:
-    return Position(position.rank(), position.file() + 1);
-  case EAST:
-    return Position(position.rank(), position.file() - 1);
-  case SOUTHEAST:
-    return Position(position.rank() - 1, position.file() - 1);
-  case SOUTHWEST:
-    return Position(position.rank() - 1, position.file() + 1);
-  case NORTHEAST:
-    return Position(position.rank() + 1, position.file() - 1);
-  case NORTHWEST:
-    return Position(position.rank() + 1, position.file() + 1);
-  default:
-    throw logic_error("Unknown direction");
-  }
+    if (position.value >= 90)
+	return Position(255);
+    switch (direction) {
+    case NORTH:
+	return Position(position.rank() + 1, position.file());
+    case SOUTH:
+	return Position(position.rank() - 1, position.file());
+    case WEST:
+	return Position(position.rank(), position.file() + 1);
+    case EAST:
+	return Position(position.rank(), position.file() - 1);
+    case SOUTHEAST:
+	return Position(position.rank() - 1, position.file() - 1);
+    case SOUTHWEST:
+	return Position(position.rank() - 1, position.file() + 1);
+    case NORTHEAST:
+	return Position(position.rank() + 1, position.file() - 1);
+    case NORTHWEST:
+	return Position(position.rank() + 1, position.file() + 1);
+    default:
+	throw logic_error("Unknown direction");
+    }
 }
 
 void with_90_degree_rotations(Direction direction, function<void(Direction)> action) {

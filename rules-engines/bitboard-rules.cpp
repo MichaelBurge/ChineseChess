@@ -111,10 +111,20 @@ LookupTable generate_general_moves_lookup_table() {
 LookupTable generate_advisor_moves_lookup_table() {
     LookupTable ret;
     for (uint8_t i = 0; i < 90; i++) {
-	ret.boards[i].set(move_direction(Position(i), NORTHEAST).value);
-	ret.boards[i].set(move_direction(Position(i), NORTHWEST).value);
-	ret.boards[i].set(move_direction(Position(i), SOUTHEAST).value);
-	ret.boards[i].set(move_direction(Position(i), SOUTHWEST).value);
+	auto northeast = move_direction(Position(i), NORTHEAST).value;
+	auto northwest = move_direction(Position(i), NORTHWEST).value;
+        auto southeast = move_direction(Position(i), SOUTHEAST).value;
+	auto southwest = move_direction(Position(i), SOUTHWEST).value;
+
+	if (northeast < 90)
+	    ret.boards[i].set(northeast);
+	if (northwest < 90)
+	    ret.boards[i].set(northwest);
+	if (southeast < 90)
+	    ret.boards[i].set(southeast);
+	if (southwest < 90)
+	    ret.boards[i].set(southwest);
+
 	ret.boards[i] &= get_castle_area();
     }
     return ret;
@@ -187,10 +197,10 @@ bitboard moves_for_horse(const BitboardGameState& state, Position position) {
     uint8_t west = move_direction(position, WEST).value;
     uint8_t east = move_direction(position, EAST).value;
 
-    bool is_north_blocked = north < 90 && state.all_pieces.get(north);
-    bool is_south_blocked = south < 90 && state.all_pieces.get(south);
-    bool is_west_blocked = west < 90 && state.all_pieces.get(west);
-    bool is_east_blocked = east < 90 && state.all_pieces.get(east);
+    bool is_north_blocked = (north >= 90) || state.all_pieces.get(north);
+    bool is_south_blocked = (south >= 90) || state.all_pieces.get(south);
+    bool is_west_blocked  = (west  >= 90) || state.all_pieces.get(west);
+    bool is_east_blocked  = (east  >= 90) || state.all_pieces.get(east);
 
     if (!is_north_blocked)
 	accum |= _horse_moves_lookup_table().tables[NORTH].boards[position.value];
@@ -211,10 +221,10 @@ bitboard moves_for_elephant(const BitboardGameState& state, Position position) {
     uint8_t northwest = move_direction(position, NORTHWEST).value;
     uint8_t southwest = move_direction(position, SOUTHWEST).value;
 
-    bool is_northeast_blocked = northeast < 90 && state.all_pieces.get(northeast);
-    bool is_southeast_blocked = southeast < 90 && state.all_pieces.get(southeast);
-    bool is_northwest_blocked = northwest < 90 && state.all_pieces.get(northwest);
-    bool is_southwest_blocked = southwest < 90 && state.all_pieces.get(southwest);
+    bool is_northeast_blocked = (northeast >= 90) || state.all_pieces.get(northeast);
+    bool is_southeast_blocked = (southeast >= 90) || state.all_pieces.get(southeast);
+    bool is_northwest_blocked = (northwest >= 90) || state.all_pieces.get(northwest);
+    bool is_southwest_blocked = (southwest >= 90) || state.all_pieces.get(southwest);
 
     if (!is_northeast_blocked) {
 	northeast = move_direction(Position(northeast), NORTHEAST).value;

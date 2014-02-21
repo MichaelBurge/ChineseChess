@@ -6,6 +6,6 @@ using namespace std;
 
 int main() {
     auto state = StandardGameState::new_game();
-    best_move(state, 2, 100000, piece_score);
+    best_move(state, 3, 100000, piece_score);
     return 0;
 }

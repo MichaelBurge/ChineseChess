@@ -23,6 +23,8 @@ enum Piece {
     BLACK_SOLDIER = 15,
 };
 
-extern Player owner(Piece piece);
+inline Player owner(Piece piece)
+{ return piece < 8 ? RED : BLACK; }
+
 extern char character_for_piece(Piece piece);
 extern ostream& operator<<(ostream& os, const Piece& piece);

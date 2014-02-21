@@ -19,3 +19,5 @@ typedef RulesEngine<StandardGameState, ReferenceRules> StandardReferenceRulesEng
 
 //typedef StandardReferenceRulesEngine StandardRulesEngine;
 typedef StandardBitboardRulesEngine StandardRulesEngine;
+
+#define ENABLE_DEBUG_CONSISTENCY_CHECKS 1

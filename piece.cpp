@@ -2,31 +2,6 @@
 #include <boost/lexical_cast.hpp>
 using namespace boost;
 
-Player owner(Piece piece) {
-    switch (piece) {
-    case RED_GENERAL:
-    case RED_ADVISOR:
-    case RED_CHARIOT:
-    case RED_ELEPHANT:
-    case RED_SOLDIER:
-    case RED_HORSE:
-    case RED_CANNON:
-	return RED;
-    case BLACK_GENERAL:
-    case BLACK_ADVISOR:
-    case BLACK_CHARIOT:
-    case BLACK_ELEPHANT:
-    case BLACK_SOLDIER:
-    case BLACK_HORSE:
-    case BLACK_CANNON:
-	return BLACK;
-    case EMPTY:
-	throw logic_error("Asked for color of empty piece");
-    default:
-	throw logic_error("Invalid piece");
-    }
-}
-
 char character_for_piece(Piece piece) {
     switch (piece) {
     case EMPTY:

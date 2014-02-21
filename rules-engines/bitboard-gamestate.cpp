@@ -200,6 +200,10 @@ void BitboardGameState::for_each_piece(function<void(Position, Piece)> action) c
 }
 
 bool BitboardGameState::check_internal_consistency() const {
+#ifndef ENABLE_DEBUG_CONSISTENCY_CHECKS
+    return true;
+#endif
+
 
     auto raise_error = [] (const bitboard& a, const bitboard& b, string message) {
 	cerr << "Assertion failure: " << message << endl;

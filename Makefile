@@ -31,4 +31,4 @@ test_performance.exe: $(primary_files) tests/performance.o
 	g++ -p -pg $(options) $^ -o $@
 
 clean:
-	rm $(primary_files) main.o tests/performance.o tests/chess-rules.o tests/bitboard.o main.exe test_chess-rules.exe test_bitboards.exe test_foundational.exe test_performance.exe test_time-consuming.exe
+	rm $(primary_files) main.o tests/foundational.o tests/time-consuming.o tests/performance.o tests/chess-rules.o tests/bitboards.o main.exe test_chess-rules.exe test_bitboards.exe test_foundational.exe test_performance.exe test_time-consuming.exe

@@ -134,29 +134,29 @@ DirectionalLookupTable generate_horse_moves_lookup_table() {
     DirectionalLookupTable ret;
     for (uint8_t i = 0; i < 90; i++) {
 	auto position = Position(i);
-	ret.tables[0].boards[i].set(
+	ret.tables[NORTH].boards[i].set(
             move_direction(move_direction(position, NORTH), NORTHEAST).value);
-	ret.tables[0].boards[i].set(
+	ret.tables[NORTH].boards[i].set(
             move_direction(move_direction(position, NORTH), NORTHWEST).value);
-        ret.tables[0].boards[i] &= get_entire_board();
+        ret.tables[NORTH].boards[i] &= get_entire_board();
 
-	ret.tables[1].boards[i].set(
+	ret.tables[WEST].boards[i].set(
             move_direction(move_direction(position, WEST), NORTHWEST).value);
-	ret.tables[1].boards[i].set(
+	ret.tables[WEST].boards[i].set(
             move_direction(move_direction(position, WEST), SOUTHWEST).value);
-        ret.tables[1].boards[i] &= get_entire_board();
+        ret.tables[WEST].boards[i] &= get_entire_board();
 
-	ret.tables[2].boards[i].set(
+	ret.tables[SOUTH].boards[i].set(
             move_direction(move_direction(position, SOUTH), SOUTHEAST).value);
-	ret.tables[2].boards[i].set(
+	ret.tables[SOUTH].boards[i].set(
             move_direction(move_direction(position, SOUTH), SOUTHWEST).value);
-        ret.tables[2].boards[i] &= get_entire_board();
+        ret.tables[SOUTH].boards[i] &= get_entire_board();
 
-	ret.tables[3].boards[i].set(
+	ret.tables[EAST].boards[i].set(
             move_direction(move_direction(position, EAST), NORTHEAST).value);
-	ret.tables[3].boards[i].set(
+	ret.tables[EAST].boards[i].set(
             move_direction(move_direction(position, EAST), SOUTHEAST).value);
-        ret.tables[3].boards[i] &= get_entire_board();
+        ret.tables[EAST].boards[i] &= get_entire_board();
     }
     return ret;
 }
@@ -205,9 +205,9 @@ bitboard moves_for_horse(const BitboardGameState& state, Position position) {
     if (!is_north_blocked)
 	accum |= _horse_moves_lookup_table().tables[NORTH].boards[position.value];
     if (!is_south_blocked)
-	accum |= _horse_moves_lookup_table().tables[WEST].boards[position.value];
-    if (!is_west_blocked)
 	accum |= _horse_moves_lookup_table().tables[SOUTH].boards[position.value];
+    if (!is_west_blocked)
+	accum |= _horse_moves_lookup_table().tables[WEST].boards[position.value];
     if (!is_east_blocked)
 	accum |= _horse_moves_lookup_table().tables[EAST].boards[position.value];
     return accum;

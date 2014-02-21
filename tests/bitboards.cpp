@@ -155,4 +155,8 @@ BOOST_AUTO_TEST_CASE( horse_moves_test) {
     auto state = GameState<BitboardGameState>::new_game();
     auto horse_moves = moves_for_piece(state.implementation, Position(1, 2), RED_HORSE);
     BOOST_REQUIRE_EQUAL(num_set(horse_moves), 2);
+
+    state.apply_move(Move(Position(1,1), Position(3, 1)));
+    horse_moves = moves_for_piece(state.implementation, Position(10, 2), BLACK_HORSE);
+    BOOST_REQUIRE_EQUAL(num_set(horse_moves), 2);
 }

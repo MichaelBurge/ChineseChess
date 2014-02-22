@@ -246,6 +246,10 @@ bitboard moves_for_elephant(const BitboardGameState& state, Position position) {
 	if (southwest < 90)
 	    accum.set(southwest);
     }
+    if (state.current_turn() == RED)
+    	accum &= get_red_side();
+    else
+    	accum &= ~get_red_side();
     return accum;
 }
 

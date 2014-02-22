@@ -56,21 +56,21 @@ BOOST_AUTO_TEST_CASE( horse ) {
 }
 
 BOOST_AUTO_TEST_CASE( elephant ) {
-  auto elephantPosition = center_of_board();
-  auto state = StandardGameState(RED);
-  state.insert_piece(elephantPosition, RED_ELEPHANT);
+    auto elephantPosition = Position(3, 5);
+    auto state = StandardGameState(RED);
+    state.insert_piece(elephantPosition, RED_ELEPHANT);
 
-  BOOST_REQUIRE_EQUAL(StandardRulesEngine::num_available_moves(state), 4);
-  state.insert_piece(
-      move_direction(elephantPosition, NORTHEAST),
-      BLACK_SOLDIER);
-  BOOST_REQUIRE_EQUAL(StandardRulesEngine::num_available_moves(state), 3);
+    BOOST_REQUIRE_EQUAL(StandardRulesEngine::num_available_moves(state), 4);
+    state.insert_piece(
+        move_direction(elephantPosition, NORTHEAST),
+	BLACK_SOLDIER);
+    BOOST_REQUIRE_EQUAL(StandardRulesEngine::num_available_moves(state), 3);
 }
 
 BOOST_AUTO_TEST_CASE( elephant_cant_cross_river ) {
     auto state = StandardGameState(RED);
     state.insert_piece(Position(5, 3), RED_ELEPHANT);
-    //BOOST_REQUIRE_EQUAL(StandardRulesEngine::num_available_moves(state), 2);
+    BOOST_REQUIRE_EQUAL(StandardRulesEngine::num_available_moves(state), 2);
 }
 
 BOOST_AUTO_TEST_CASE( chariot ) {

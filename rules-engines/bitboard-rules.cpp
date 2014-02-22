@@ -353,11 +353,63 @@ void ensure_moves_cached(const BitboardGameState& state) {
     state.is_cache_valid = true;
 }
 
-bitboard compute_reachable_positions(const BitboardGameState& state) {
+bitboard compute_red_reachable_positions(const BitboardGameState& state) {
+    uint8_t position;
+    const bitboard& red_pieces = state.red_pieces;
     bitboard reachable_positions;
-    state.for_each_player_piece(state.current_turn(), [&] (Position position, Piece piece) {
-	reachable_positions |= moves_for_piece(state, position, piece);
-    });
+    bitboard candidates;
+
+    for (candidates = state.chariots & red_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))    
+	reachable_positions |= moves_for_piece(state, position, RED_CHARIOT);
+
+    for (candidates = state.cannons & red_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+	reachable_positions |= moves_for_piece(state, position, RED_CANNON);
+
+    for (candidates = state.horses & red_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+	reachable_positions |= moves_for_piece(state, position, RED_HORSE);
+
+    for (candidates = state.soldiers & red_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+	reachable_positions |= moves_for_piece(state, position, RED_SOLDIER);
+
+    for (candidates = state.advisors & red_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+	reachable_positions |= moves_for_piece(state, position, RED_ADVISOR);
+
+    for (candidates = state.generals & red_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+	reachable_positions |= moves_for_piece(state, position, RED_GENERAL);
+
+    for (candidates = state.elephants & red_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+	reachable_positions |= moves_for_piece(state, position, RED_ELEPHANT);
+
+    return reachable_positions;
+}
+
+bitboard compute_black_reachable_positions(const BitboardGameState& state) {
+    uint8_t position;
+    const bitboard& black_pieces = state.black_pieces;
+    bitboard reachable_positions;
+    bitboard candidates;
+
+    for (candidates = state.chariots & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))    
+	reachable_positions |= moves_for_piece(state, position, BLACK_CHARIOT);
+
+    for (candidates = state.cannons & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+	reachable_positions |= moves_for_piece(state, position, BLACK_CANNON);
+
+    for (candidates = state.horses & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+	reachable_positions |= moves_for_piece(state, position, BLACK_HORSE);
+
+    for (candidates = state.soldiers & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+	reachable_positions |= moves_for_piece(state, position, BLACK_SOLDIER);
+
+    for (candidates = state.advisors & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+	reachable_positions |= moves_for_piece(state, position, BLACK_ADVISOR);
+
+    for (candidates = state.generals & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+	reachable_positions |= moves_for_piece(state, position, BLACK_GENERAL);
+
+    for (candidates = state.elephants & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+	reachable_positions |= moves_for_piece(state, position, BLACK_ELEPHANT);
+
     return reachable_positions;
 }
 

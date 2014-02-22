@@ -67,6 +67,12 @@ BOOST_AUTO_TEST_CASE( elephant ) {
   BOOST_REQUIRE_EQUAL(StandardRulesEngine::num_available_moves(state), 3);
 }
 
+BOOST_AUTO_TEST_CASE( elephant_cant_cross_river ) {
+    auto state = StandardGameState(RED);
+    state.insert_piece(Position(5, 3), RED_ELEPHANT);
+    //BOOST_REQUIRE_EQUAL(StandardRulesEngine::num_available_moves(state), 2);
+}
+
 BOOST_AUTO_TEST_CASE( chariot ) {
   auto chariotPosition = center_of_board();
   auto state = StandardGameState(RED);

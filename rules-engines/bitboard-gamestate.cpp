@@ -180,44 +180,61 @@ void BitboardGameState::print_debug_board() const {
     cout << "Pieces list:" << endl;
 }
 
-void BitboardGameState::for_each_piece(function<void(Position, Piece)> action) const {
+void BitboardGameState::for_each_red_piece(function<void(Position, Piece)> action) const {
     uint8_t position;
     bitboard candidates;
 
-    for (candidates = chariots & red_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+    for (candidates = chariots & red_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))    
 	action(Position(position), RED_CHARIOT);
-    for (candidates = chariots & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
-	action(Position(position), BLACK_CHARIOT);
 
     for (candidates = cannons & red_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
 	action(Position(position), RED_CANNON);
-    for (candidates = cannons & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
-	action(Position(position), BLACK_CANNON);
 
     for (candidates = horses & red_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
 	action(Position(position), RED_HORSE);
-    for (candidates = horses & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
-	action(Position(position), BLACK_HORSE);
 
     for (candidates = soldiers & red_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
 	action(Position(position), RED_SOLDIER);
-    for (candidates = soldiers & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
-	action(Position(position), BLACK_SOLDIER);
 
     for (candidates = advisors & red_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
 	action(Position(position), RED_ADVISOR);
-    for (candidates = advisors & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
-	action(Position(position), BLACK_ADVISOR);
 
     for (candidates = generals & red_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
 	action(Position(position), RED_GENERAL);
-    for (candidates = generals & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
-	action(Position(position), BLACK_GENERAL);
 
     for (candidates = elephants & red_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
 	action(Position(position), RED_ELEPHANT);
+}
+
+void BitboardGameState::for_each_black_piece(function<void(Position, Piece)> action) const {
+    uint8_t position;
+    bitboard candidates;
+
+    for (candidates = chariots & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))    
+	action(Position(position), BLACK_CHARIOT);
+
+    for (candidates = cannons & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+	action(Position(position), BLACK_CANNON);
+
+    for (candidates = horses & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+	action(Position(position), BLACK_HORSE);
+
+    for (candidates = soldiers & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+	action(Position(position), BLACK_SOLDIER);
+
+    for (candidates = advisors & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+	action(Position(position), BLACK_ADVISOR);
+
+    for (candidates = generals & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+	action(Position(position), BLACK_GENERAL);
+
     for (candidates = elephants & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
 	action(Position(position), BLACK_ELEPHANT);
+}
+
+void BitboardGameState::for_each_piece(function<void(Position, Piece)> action) const {
+    for_each_red_piece(action);
+    for_each_black_piece(action);
 }
 
 bool BitboardGameState::check_internal_consistency() const {

@@ -351,11 +351,11 @@ void ensure_moves_cached(const BitboardGameState& state) {
 
 bitboard compute_reachable_positions(const BitboardGameState& state) {
     bitboard reachable_positions;
-    for (const Cell& cell : state.pieces) {
-	if (owner(cell.piece) != state.current_turn())
-	    continue;
-	reachable_positions |= moves_for_piece(state, cell.position, cell.piece);
-    }
+    state.for_each_piece([&] (Position position, Piece piece) {
+	if (owner(piece) != state.current_turn())
+	    return;
+	reachable_positions |= moves_for_piece(state, position, piece);
+    });
     return reachable_positions;
 }
 
@@ -372,12 +372,12 @@ vector<Move> _available_moves(const BitboardGameState& state) {
 vector<Move> _available_moves_without_check(const BitboardGameState& state) {
     // TODO: See if assuming ~38 moves is a performance improvement
     auto moves = vector<Move>();
-    for (const Cell& cell : state.pieces) {
-	if (owner(cell.piece) != state.current_turn())
-	    continue;
-	bitboard piece_moves = moves_for_piece(state, cell.position, cell.piece);
-	insert_vectorized_moves(piece_moves, cell.position, moves);
-    }
+    state.for_each_piece([&] (Position position, Piece piece) {
+	if (owner(piece) != state.current_turn())
+	    return;
+	bitboard piece_moves = moves_for_piece(state, position, piece);
+	insert_vectorized_moves(piece_moves, position, moves);
+    });
     return moves;
 }
 

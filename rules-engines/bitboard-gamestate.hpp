@@ -21,7 +21,6 @@ struct Cell {
 struct BitboardGameState {
     BitboardGameState(Player player) : _current_turn(player) {};
     // Fundamental data (Consistent during state-manipulating methods)
-    list<Cell> pieces;
     bitboard all_pieces;
     bitboard red_pieces; 
     bitboard black_pieces;

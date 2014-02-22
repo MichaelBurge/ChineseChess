@@ -33,7 +33,6 @@ Piece BitboardGameState::get_piece(const Position& position) const {
 
 void BitboardGameState::insert_piece(const Position& position, const Piece& piece) {
     // TODO: Maybe use push_back or push_front depending on the piece?
-    pieces.push_back(Cell(position, piece));
     clear_cached_data();
     uint8_t index = position.value;
     all_pieces.set(index);
@@ -116,15 +115,6 @@ void BitboardGameState::remove_piece(const Position& position) {
     chariots.    clear(index);
     cannons.     clear(index);
     soldiers.    clear(index);
-    unsigned int size = pieces.size();
-    auto cell_to_delete = find_if(pieces.begin(), pieces.end(), [&] (const Cell& cell) {
-        return cell.position == position;
-    });
-    if (cell_to_delete == pieces.end())
-	throw logic_error("No piece corresponding to position " + position_repr(position) + " was found in the pieces list");
-    pieces.erase(cell_to_delete);
-    if (pieces.size() == size)
-	throw logic_error("No piece was removed from the list");
     clear_cached_data();
     assert(check_internal_consistency());
 }
@@ -188,15 +178,46 @@ void BitboardGameState::print_debug_board() const {
     cout << "Soldiers:" << endl;
     print_bitboard(cout, soldiers);
     cout << "Pieces list:" << endl;
-    for (const Cell& cell : pieces) {
-	cout << "Position = " << cell.position << ", Piece = " << character_for_piece(cell.piece) << endl;
-    }
 }
 
 void BitboardGameState::for_each_piece(function<void(Position, Piece)> action) const {
-    for (const Cell& cell : pieces) {
-	action(cell.position, cell.piece);
-    }
+    uint8_t position;
+    bitboard candidates;
+
+    for (candidates = chariots & red_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+	action(Position(position), RED_CHARIOT);
+    for (candidates = chariots & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+	action(Position(position), BLACK_CHARIOT);
+
+    for (candidates = cannons & red_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+	action(Position(position), RED_CANNON);
+    for (candidates = cannons & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+	action(Position(position), BLACK_CANNON);
+
+    for (candidates = horses & red_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+	action(Position(position), RED_HORSE);
+    for (candidates = horses & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+	action(Position(position), BLACK_HORSE);
+
+    for (candidates = soldiers & red_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+	action(Position(position), RED_SOLDIER);
+    for (candidates = soldiers & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+	action(Position(position), BLACK_SOLDIER);
+
+    for (candidates = advisors & red_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+	action(Position(position), RED_ADVISOR);
+    for (candidates = advisors & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+	action(Position(position), BLACK_ADVISOR);
+
+    for (candidates = generals & red_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+	action(Position(position), RED_GENERAL);
+    for (candidates = generals & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+	action(Position(position), BLACK_GENERAL);
+
+    for (candidates = elephants & red_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+	action(Position(position), RED_ELEPHANT);
+    for (candidates = elephants & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
+	action(Position(position), BLACK_ELEPHANT);
 }
 
 bool BitboardGameState::check_internal_consistency() const {
@@ -227,9 +248,6 @@ bool BitboardGameState::check_internal_consistency() const {
 	} else {
 	    raise_error(a, b, message);	}
     };
-
-    if (pieces.size() != num_set(all_pieces))
-	throw logic_error("Internal consistency_check_failed: num_pieces mismatch " + lexical_cast<string>(pieces.size()) + " != " + lexical_cast<string>((int)num_set(all_pieces)));
 
     assert_equal(all_pieces, red_pieces | black_pieces, "All pieces & (red | black)");
 

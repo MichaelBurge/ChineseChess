@@ -49,20 +49,16 @@ BOOST_AUTO_TEST_CASE( operations_on_bitboards ) {
     typedef GameState<BitboardGameState> bitboard_s;
     auto bitboard_state = bitboard_s::new_game(); 
     BOOST_REQUIRE_EQUAL(bitboard_state.get_piece(Position(4, 5)), RED_SOLDIER);
-    BOOST_REQUIRE_EQUAL(bitboard_state.implementation.pieces.size(), 32);
 
     bitboard_state.remove_piece(Position(4, 5));
     BOOST_REQUIRE_EQUAL(bitboard_state.get_piece(Position(4, 5)), EMPTY);
-    BOOST_REQUIRE_EQUAL(bitboard_state.implementation.pieces.size(), 31);
 
     bitboard_state.insert_piece(Position(4, 5), RED_SOLDIER);
     BOOST_REQUIRE_EQUAL(bitboard_state.get_piece(Position(4, 5)), RED_SOLDIER);
-    BOOST_REQUIRE_EQUAL(bitboard_state.implementation.pieces.size(), 32);
 
     bitboard_state.apply_move(Move(Position(4, 5), Position(5, 5)));
     BOOST_REQUIRE_EQUAL(bitboard_state.get_piece(Position(4, 5)), EMPTY);
     BOOST_REQUIRE_EQUAL(bitboard_state.get_piece(Position(5, 5)), RED_SOLDIER);
-    BOOST_REQUIRE_EQUAL(bitboard_state.implementation.pieces.size(), 32);
 }
 
 BOOST_AUTO_TEST_CASE( precomputed_entire_board_bitboard) {
@@ -120,13 +116,11 @@ BOOST_AUTO_TEST_CASE( apply_move_test) {
 
     BOOST_REQUIRE_EQUAL(state.get_piece(Position(3, 5)), EMPTY);
     BOOST_REQUIRE_EQUAL(state.get_piece(Position(2, 5)), RED_GENERAL);
-    BOOST_REQUIRE_EQUAL(state.pieces.size(), 2);
 
     state.apply_move(Move(Position(2, 5), Position(3, 5)));
 
     BOOST_REQUIRE_EQUAL(state.get_piece(Position(3, 5)), RED_GENERAL);
     BOOST_REQUIRE_EQUAL(state.get_piece(Position(2, 5)), EMPTY);
-    BOOST_REQUIRE_EQUAL(state.pieces.size(), 2);
 }
 
 BOOST_AUTO_TEST_CASE( peek_move_stress_test ) {

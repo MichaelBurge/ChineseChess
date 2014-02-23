@@ -408,10 +408,31 @@ vector<Move> _available_moves_without_check(const BitboardGameState& state) {
     // TODO: See if assuming ~38 moves is a performance improvement
     vector<Move> moves;
     moves.reserve(38);
-    state.for_each_player_piece(state.current_turn(), [&] (Position position, Piece piece) {
-	bitboard piece_moves = moves_for_piece(state, position, piece);
-	insert_vectorized_moves(piece_moves, position, moves);
-    });
+
+    bitboard candidates;
+    uint8_t position;
+
+#define ACTION(position, piece) ({ bitboard piece_moves = moves_for_piece(state, position, piece); insert_vectorized_moves(piece_moves, position, moves); })
+
+    if (state.current_turn() == RED) {
+	ITER_PIECES(state.chariots & state.red_pieces, RED_CHARIOT, ACTION);
+	ITER_PIECES(state.cannons & state.red_pieces, RED_CANNON, ACTION);
+	ITER_PIECES(state.horses & state.red_pieces, RED_HORSE, ACTION);
+	ITER_PIECES(state.soldiers & state.red_pieces, RED_SOLDIER, ACTION);
+	ITER_PIECES(state.advisors & state.red_pieces, RED_ADVISOR, ACTION);
+	ITER_PIECES(state.generals & state.red_pieces, RED_GENERAL, ACTION);
+	ITER_PIECES(state.elephants & state.red_pieces, RED_ELEPHANT, ACTION);
+    } else {
+	ITER_PIECES(state.chariots & state.black_pieces, BLACK_CHARIOT, ACTION);
+	ITER_PIECES(state.cannons & state.black_pieces, BLACK_CANNON, ACTION);
+	ITER_PIECES(state.horses & state.black_pieces, BLACK_HORSE, ACTION);
+	ITER_PIECES(state.soldiers & state.black_pieces, BLACK_SOLDIER, ACTION);
+	ITER_PIECES(state.advisors & state.black_pieces, BLACK_ADVISOR, ACTION);
+	ITER_PIECES(state.generals & state.black_pieces, BLACK_GENERAL, ACTION);
+	ITER_PIECES(state.elephants & state.black_pieces, BLACK_ELEPHANT, ACTION);
+    }
+#undef ACTION
+
     return moves;
 }
 

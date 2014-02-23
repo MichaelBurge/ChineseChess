@@ -257,40 +257,35 @@ bitboard moves_for_chariot(const BitboardGameState& state, Position position) {
     bitboard accum;
     for (uint8_t direction = 0; direction < 4; direction++) {
 	bitboard ideal = _chariot_ideal_moves_table().tables[direction].boards[position.value];
+	accum |= ideal;
 	bitboard blockers = ideal & state.all_pieces;
         uint8_t first_blocker = minimal_pos(blockers, (Direction)direction);
-	bitboard moves =
-	    ideal ^
-	    (
-	     (first_blocker < 90)
-	     ? _chariot_ideal_moves_table().tables[direction].boards[first_blocker]
-	     : bitboard(0, 0)
-	    );
-								    
-	accum |= moves;
+	if (first_blocker < 90)
+	    accum ^= _chariot_ideal_moves_table().tables[direction].boards[first_blocker];
     }
     return accum;
 }
 
 bitboard moves_for_cannon(const BitboardGameState& state, Position position) {
     bitboard accum;
+
     for (uint8_t direction = 0; direction < 4; direction++) {
 	bitboard ideal = _chariot_ideal_moves_table().tables[direction].boards[position.value];
+	accum |= ideal;
+
 	bitboard blockers = ideal & state.all_pieces;
-	if (!blockers) {
-	    accum |= ideal;
-	} else {
-	    uint8_t first_blocker = minimal_pos(blockers, (Direction)direction);
-	    blockers.toggle(first_blocker);
-	    uint8_t second_blocker = minimal_pos(blockers, (Direction)direction);
-	    bitboard moves =
-		ideal ^
-		_chariot_ideal_moves_table().tables[direction].boards[first_blocker];
-	    moves.toggle(first_blocker);
-	    if (second_blocker < 90)
-		moves.toggle(second_blocker);
-	    accum |= moves;
-	}
+	if (!blockers)
+	    continue;
+
+	uint8_t first_blocker = minimal_pos(blockers, (Direction)direction);
+	bitboard past_the_blocker = _chariot_ideal_moves_table().tables[direction].boards[first_blocker];
+        accum ^= past_the_blocker;
+
+	blockers.clear(first_blocker);
+	accum.clear(first_blocker);
+	uint8_t second_blocker = minimal_pos(blockers, (Direction)direction);
+	if (second_blocker < 90)
+	    accum.set(second_blocker);
     }
     return accum;
 }

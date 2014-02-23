@@ -255,14 +255,35 @@ bitboard moves_for_elephant(const BitboardGameState& state, Position position) {
 
 bitboard moves_for_chariot(const BitboardGameState& state, Position position) {
     bitboard accum;
-    for (uint8_t direction = 0; direction < 4; direction++) {
-	bitboard ideal = _chariot_ideal_moves_table().tables[direction].boards[position.value];
-	accum |= ideal;
-	bitboard blockers = ideal & state.all_pieces;
-        uint8_t first_blocker = minimal_pos(blockers, (Direction)direction);
-	if (first_blocker < 90)
-	    accum ^= _chariot_ideal_moves_table().tables[direction].boards[first_blocker];
-    }
+
+     bitboard scratch0 = _chariot_ideal_moves_table().tables[0].boards[position.value];
+     bitboard scratch1 = _chariot_ideal_moves_table().tables[1].boards[position.value];
+     bitboard scratch2 = _chariot_ideal_moves_table().tables[2].boards[position.value];
+     bitboard scratch3 = _chariot_ideal_moves_table().tables[3].boards[position.value];
+
+     accum |= scratch0;
+     accum |= scratch1;
+     accum |= scratch2;
+     accum |= scratch3;
+
+     scratch0 &= state.all_pieces;
+     scratch1 &= state.all_pieces;
+     scratch2 &= state.all_pieces;
+     scratch3 &= state.all_pieces;
+
+     uint8_t first_blocker0 = minimal_pos(scratch0, (Direction)0);
+     uint8_t first_blocker1 = minimal_pos(scratch1, (Direction)1);
+     uint8_t first_blocker2 = minimal_pos(scratch2, (Direction)2);
+     uint8_t first_blocker3 = minimal_pos(scratch3, (Direction)3);
+
+     if (first_blocker0 < 90)
+	 accum ^= _chariot_ideal_moves_table().tables[0].boards[first_blocker0];
+     if (first_blocker1 < 90)
+	 accum ^= _chariot_ideal_moves_table().tables[1].boards[first_blocker1];
+     if (first_blocker2 < 90)
+	 accum ^= _chariot_ideal_moves_table().tables[2].boards[first_blocker2];
+     if (first_blocker3 < 90)
+	 accum ^= _chariot_ideal_moves_table().tables[3].boards[first_blocker3];
     return accum;
 }
 

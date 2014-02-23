@@ -184,52 +184,26 @@ void BitboardGameState::for_each_red_piece(function<void(Position, Piece)> actio
     uint8_t position;
     bitboard candidates;
 
-    for (candidates = chariots & red_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))    
-	action(Position(position), RED_CHARIOT);
-
-    for (candidates = cannons & red_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
-	action(Position(position), RED_CANNON);
-
-    for (candidates = horses & red_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
-	action(Position(position), RED_HORSE);
-
-    for (candidates = soldiers & red_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
-	action(Position(position), RED_SOLDIER);
-
-    for (candidates = advisors & red_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
-	action(Position(position), RED_ADVISOR);
-
-    for (candidates = generals & red_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
-	action(Position(position), RED_GENERAL);
-
-    for (candidates = elephants & red_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
-	action(Position(position), RED_ELEPHANT);
+    ITER_PIECES(chariots & red_pieces, RED_CHARIOT, action);
+    ITER_PIECES(cannons & red_pieces, RED_CANNON, action);
+    ITER_PIECES(horses & red_pieces, RED_HORSE, action);
+    ITER_PIECES(soldiers & red_pieces, RED_SOLDIER, action);
+    ITER_PIECES(advisors & red_pieces, RED_ADVISOR, action);
+    ITER_PIECES(generals & red_pieces, RED_GENERAL, action);
+    ITER_PIECES(elephants & red_pieces, RED_ELEPHANT, action);
 }
 
 void BitboardGameState::for_each_black_piece(function<void(Position, Piece)> action) const {
     uint8_t position;
     bitboard candidates;
 
-    for (candidates = chariots & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))    
-	action(Position(position), BLACK_CHARIOT);
-
-    for (candidates = cannons & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
-	action(Position(position), BLACK_CANNON);
-
-    for (candidates = horses & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
-	action(Position(position), BLACK_HORSE);
-
-    for (candidates = soldiers & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
-	action(Position(position), BLACK_SOLDIER);
-
-    for (candidates = advisors & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
-	action(Position(position), BLACK_ADVISOR);
-
-    for (candidates = generals & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
-	action(Position(position), BLACK_GENERAL);
-
-    for (candidates = elephants & black_pieces; (position = lsb_first_set(candidates)) < 90; candidates.toggle(position))
-	action(Position(position), BLACK_ELEPHANT);
+    ITER_PIECES(chariots & black_pieces, BLACK_CHARIOT, action);
+    ITER_PIECES(cannons & black_pieces, BLACK_CANNON, action);
+    ITER_PIECES(horses & black_pieces, BLACK_HORSE, action);
+    ITER_PIECES(soldiers & black_pieces, BLACK_SOLDIER, action);
+    ITER_PIECES(advisors & black_pieces, BLACK_ADVISOR, action);
+    ITER_PIECES(generals & black_pieces, BLACK_GENERAL, action);
+    ITER_PIECES(elephants & black_pieces, BLACK_ELEPHANT, action);
 }
 
 void BitboardGameState::for_each_piece(function<void(Position, Piece)> action) const {

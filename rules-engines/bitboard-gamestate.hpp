@@ -36,6 +36,11 @@ struct BitboardGameState {
     mutable bool is_cache_valid;
     mutable bitboard moves;
 
+    // Variables required to be in scope:
+    // bitboard accumulator;
+    // bitboard candidates;
+#define ITER_PIECES(board, piece, action) ({ for (candidates = (board); (position = lsb_first_set(candidates)) < 90; candidates.toggle(position)) action(position, piece); })
+
     // Standard GameState methods
     Piece get_piece(const Position&) const;
     void insert_piece(const Position&, const Piece&);

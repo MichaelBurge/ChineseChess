@@ -46,8 +46,12 @@ struct BitboardGameState {
     void insert_piece(const Position&, const Piece&);
     void remove_piece(const Position&);
     void apply_move(const Move&);
-    void current_turn(Player);
-    Player current_turn() const;
+    inline void current_turn(Player player)
+    { _current_turn = player; }
+
+    Player current_turn() const
+    { return _current_turn; }
+
     void switch_turn();
     void peek_move(const Move&, const function<void(const BitboardGameState&)>& action) const;
     void print_debug_board() const;

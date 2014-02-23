@@ -67,13 +67,13 @@ BOOST_AUTO_TEST_CASE( precomputed_entire_board_bitboard) {
 }
 
 BOOST_AUTO_TEST_CASE( precomputed_castle_area_bitboard) {
-    auto castle_area = generate_castle_area();
+    auto castle_area = get_castle_area();
     BOOST_REQUIRE_EQUAL(num_set(castle_area), 18);
 }
 
 BOOST_AUTO_TEST_CASE( precomputed_general_lookup_table ) {
-    LookupTable table = generate_general_moves_lookup_table();
-    bitboard castle_area = generate_castle_area();
+    LookupTable table = _general_moves_lookup_table();
+    bitboard castle_area = get_castle_area();
     int num_positions_checked = 0;
     for (uint8_t position = 0; position < 90; position++) {
 	if (!castle_area.get(position))
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE( converting_bitboards_to_moves ) {
 }
 
 BOOST_AUTO_TEST_CASE( general_moves ) {
-    LookupTable table = generate_general_moves_lookup_table();
+    LookupTable table = _general_moves_lookup_table();
     Position position = Position(2, 5);
     bitboard moves_board = table.boards[position.value];
     vector<Move> moves_array = vector<Move>();

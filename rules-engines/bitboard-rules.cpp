@@ -7,6 +7,32 @@
 using namespace std;
 
 namespace bitboard_implementation {
+    static bitboard generate_castle_area();
+    static bitboard generate_red_side();
+    static LookupTable generate_soldier_moves_lookup_table(bool);
+    static LookupTable generate_general_moves_lookup_table();
+    static LookupTable generate_advisor_moves_lookup_table();
+    static DirectionalLookupTable generate_horse_moves_lookup_table();
+    static DirectionalLookupTable generate_chariot_ideal_moves_table();
+    static bitboard moves_for_red_soldier(Position position);
+    static bitboard moves_for_black_soldier(Position position);
+    static bitboard moves_for_elephant(const BitboardGameState& state, Position position);
+    static bitboard moves_for_general(Position position);
+    static bitboard moves_for_advisor(Position position);
+    static bitboard moves_for_horse(const BitboardGameState& state, Position position);
+    static bitboard moves_for_chariot(const BitboardGameState& state, Position position);
+    static bitboard moves_for_cannon(const BitboardGameState& state, Position position);
+    static bitboard compute_red_reachable_positions(const BitboardGameState& state);
+    static bitboard compute_black_reachable_positions(const BitboardGameState& state);
+    static inline bitboard compute_reachable_positions(const BitboardGameState& state) {
+	if (state.current_turn() == RED)
+	    return compute_red_reachable_positions(state);
+	else
+	    return compute_black_reachable_positions(state);
+    }
+    static void ensure_moves_cached(const BitboardGameState& state);
+    static bool _violates_flying_kings_rule(const BitboardGameState& state);
+    static uint8_t  minimal_pos(bitboard board, Direction direction);
 
 uint8_t  minimal_pos(bitboard board, Direction direction) {
     return (direction == NORTH || direction == WEST)
@@ -382,8 +408,8 @@ bitboard moves_for_piece(const BitboardGameState& state, Position position, Piec
     case RED_CANNON:
     case BLACK_CANNON:
 	ret = moves_for_cannon(state, position); break;
-    default:
-	throw logic_error("Unknown piece"); break;
+    case EMPTY:
+	__builtin_unreachable();
     }
     ret &= (state.current_turn() == RED)
 	? ~(state.red_pieces)
@@ -391,12 +417,16 @@ bitboard moves_for_piece(const BitboardGameState& state, Position position, Piec
     return ret;
 }
 
-bool violates_flying_kings_rule(const BitboardGameState& state) {
+bool _violates_flying_kings_rule(const BitboardGameState& state) {
     // This is simalar to the chariot rule, but specialized for only one direction
     uint8_t first_king = minimal_pos(state.generals, SOUTH);
     bitboard king_killing_ray = _chariot_ideal_moves_table().tables[SOUTH].boards[first_king];
     uint8_t target = minimal_pos(king_killing_ray & state.all_pieces, SOUTH);
     return state.generals.get(target);
+}
+
+bool violates_flying_kings_rule(const BitboardGameState& state) {
+    return _violates_flying_kings_rule(state);
 }
 
 void insert_vectorized_moves(const bitboard& board, const Position& root, vector<Move>& moves) {

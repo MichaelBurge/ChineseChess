@@ -30,35 +30,11 @@ namespace bitboard_implementation {
     extern const LookupTable& _black_soldier_moves_lookup_table();
     extern const LookupTable& _red_soldier_moves_lookup_table();
 
-    // Auxillary functions
-    bitboard generate_castle_area();
-    bitboard generate_red_side();
-    LookupTable generate_soldier_moves_lookup_table(bool);
-    LookupTable generate_general_moves_lookup_table();
-    LookupTable generate_advisor_moves_lookup_table();
-    DirectionalLookupTable generate_horse_moves_lookup_table();
-    DirectionalLookupTable generate_chariot_ideal_moves_table();
-    bitboard moves_for_red_soldier(Position position);
-    bitboard moves_for_black_soldier(Position position);
-    bitboard moves_for_elephant(Position position);
-    bitboard moves_for_general(Position position);
-    bitboard moves_for_advisor(Position position);
-    bitboard moves_for_horse(const BitboardGameState& state, Position position);
-    bitboard moves_for_chariot(const BitboardGameState& state, Position position);
-    bitboard moves_for_cannon(const BitboardGameState& state, Position position);
-    bitboard moves_for_piece(const BitboardGameState& state, Position position, Piece piece);
-    bitboard compute_red_reachable_positions(const BitboardGameState& state);
-    bitboard compute_black_reachable_positions(const BitboardGameState& state);
-    inline bitboard compute_reachable_positions(const BitboardGameState& state) {
-	if (state.current_turn() == RED)
-	    return compute_red_reachable_positions(state);
-	else
-	    return compute_black_reachable_positions(state);
-    }
-    void insert_vectorized_moves(const bitboard& board, const Position& root, vector<Move>& moves);
-    void ensure_moves_cached(const BitboardGameState& state);
-    bool violates_flying_kings_rule(const BitboardGameState& state);
-    uint8_t  minimal_pos(bitboard board, Direction direction);
+    extern bitboard get_castle_area();
+    extern bitboard get_red_side();
+    extern void insert_vectorized_moves(const bitboard& board, const Position& root, vector<Move>& moves);
+    extern bitboard moves_for_piece(const BitboardGameState& state, Position position, Piece piece);
+    extern bool violates_flying_kings_rule(const BitboardGameState& state);
 };
 
 class BitboardRules {

@@ -139,14 +139,6 @@ void BitboardGameState::apply_move(const Move& move) {
     check_internal_consistency();
 }
 
-void BitboardGameState::current_turn(Player player) {
-    _current_turn = player;
-}
-
-Player BitboardGameState::current_turn() const {
-    return _current_turn;
-}
-
 void BitboardGameState::peek_move(const Move& move, const function<void(const BitboardGameState&)>& action) const {
     Piece to_piece = get_piece(move.to);
     auto& self = const_cast<BitboardGameState&>(*this);

@@ -269,21 +269,67 @@ bitboard moves_for_chariot(const BitboardGameState& state, Position position) {
 bitboard moves_for_cannon(const BitboardGameState& state, Position position) {
     bitboard accum;
 
-    for (uint8_t direction = 0; direction < 4; direction++) {
-	bitboard ideal = _chariot_ideal_moves_table().tables[direction].boards[position.value];
-	accum |= ideal;
+    bitboard scratch0 = _chariot_ideal_moves_table().tables[0].boards[position.value];
+    bitboard scratch1 = _chariot_ideal_moves_table().tables[1].boards[position.value];
+    bitboard scratch2 = _chariot_ideal_moves_table().tables[2].boards[position.value];
+    bitboard scratch3 = _chariot_ideal_moves_table().tables[3].boards[position.value];
 
-	bitboard blockers = ideal & state.all_pieces;
-	if (!blockers)
-	    continue;
+    accum |= scratch0;
+    accum |= scratch1;
+    accum |= scratch2;
+    accum |= scratch3;
 
-	uint8_t first_blocker = minimal_pos(blockers, (Direction)direction);
-	bitboard past_the_blocker = _chariot_ideal_moves_table().tables[direction].boards[first_blocker];
+    scratch0 &= state.all_pieces;
+    scratch1 &= state.all_pieces;
+    scratch2 &= state.all_pieces;
+    scratch3 &= state.all_pieces;
+
+    uint8_t first_blocker0 = minimal_pos(scratch0, (Direction)0);
+    uint8_t first_blocker1 = minimal_pos(scratch1, (Direction)1);
+    uint8_t first_blocker2 = minimal_pos(scratch2, (Direction)2);
+    uint8_t first_blocker3 = minimal_pos(scratch3, (Direction)3);
+
+    if (first_blocker0 < 90) {
+	bitboard past_the_blocker = _chariot_ideal_moves_table().tables[0].boards[first_blocker0];
         accum ^= past_the_blocker;
 
-	blockers.clear(first_blocker);
-	accum.clear(first_blocker);
-	uint8_t second_blocker = minimal_pos(blockers, (Direction)direction);
+	accum.clear(first_blocker0);
+	scratch0.clear(first_blocker0);
+	uint8_t second_blocker = minimal_pos(scratch0, (Direction)0);
+	
+	if (second_blocker < 90)
+	    accum.set(second_blocker);
+    }
+    if (first_blocker1 < 90) {
+	bitboard past_the_blocker = _chariot_ideal_moves_table().tables[1].boards[first_blocker1];
+        accum ^= past_the_blocker;
+
+	accum.clear(first_blocker1);
+	scratch1.clear(first_blocker1);
+	uint8_t second_blocker = minimal_pos(scratch1, (Direction)1);
+	
+	if (second_blocker < 90)
+	    accum.set(second_blocker);
+    }
+    if (first_blocker2 < 90) {
+	bitboard past_the_blocker = _chariot_ideal_moves_table().tables[2].boards[first_blocker2];
+        accum ^= past_the_blocker;
+
+	accum.clear(first_blocker2);
+	scratch2.clear(first_blocker2);
+	uint8_t second_blocker = minimal_pos(scratch2, (Direction)2);
+	
+	if (second_blocker < 90)
+	    accum.set(second_blocker);
+    }
+    if (first_blocker3 < 90) {
+	bitboard past_the_blocker = _chariot_ideal_moves_table().tables[3].boards[first_blocker3];
+        accum ^= past_the_blocker;
+
+	accum.clear(first_blocker3);
+	scratch3.clear(first_blocker3);
+	uint8_t second_blocker = minimal_pos(scratch3, (Direction)3);
+	
 	if (second_blocker < 90)
 	    accum.set(second_blocker);
     }

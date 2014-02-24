@@ -14,7 +14,7 @@
 // 'put_env' is not exported with strict ansi set
 #include <cstdlib>
 
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <stdexcept>
 #include <iomanip>
 using namespace boost;

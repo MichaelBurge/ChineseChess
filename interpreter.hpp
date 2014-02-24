@@ -2,14 +2,23 @@
 
 #include "configuration.hpp"
 
+struct HumanCLI : public std::ostream {
+    
+};
+
 struct Interpreter {
     StandardGameState _state;
     bool running;
     int difficulty;
     int max_nodes;
+
     Interpreter();
     void prompt();
     void run_move(const Move& move);
+
+    ostream& human_cli();
+    ostream& xboard_cli();
+
     const StandardGameState& state();
     void dispatch_command(const string& command);
     void cmd_move(const string&);

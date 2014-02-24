@@ -5,6 +5,8 @@
 #include "scoring.hpp"
 #include "minimax.hpp"
 
+static ostream bitbucket(0);
+
 Interpreter::Interpreter() : 
     _state(StandardGameState::new_game()),
     running(true),
@@ -14,10 +16,21 @@ Interpreter::Interpreter() :
     xboard_protocol_version(0)
     { }
 
+ostream& Interpreter::human_cli() {
+    return is_running_over_xboard
+	? bitbucket
+	: cout;
+}
+
+ostream& Interpreter::xboard_cli() {
+    return cout;
+}
+
 void Interpreter::prompt() {
-    cout << "Welcome to Michael Burge's Ultimate Chinese Chess Happiness!" << endl;
+    human_cli() << "Welcome to Michael Burge's Ultimate Chinese Chess Happiness!" << endl;
     cout.setf(ios::unitbuf);
     while (this->running) {
+	human_cli() << "> ";
         string input;
         getline(cin, input);
         dispatch_command(input);

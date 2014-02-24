@@ -28,7 +28,11 @@ Piece BitboardGameState::get_piece(const Position& position) const {
 	return is_red ? RED_CHARIOT : BLACK_CHARIOT;
     if (!!(cannons & x))
 	return is_red ? RED_CANNON : BLACK_CANNON;
-    throw logic_error("Program should not have reached here");
+#ifndef ENABLE_DEBUG_CONSISTENCY_CHECKS
+    __builtin_unreachable();
+#else
+    abort();
+#endif
 }
 
 void BitboardGameState::insert_piece(const Position& position, const Piece& piece) {
@@ -94,16 +98,18 @@ void BitboardGameState::insert_piece(const Position& position, const Piece& piec
 	black_pieces.set(index);
 	break;
     case EMPTY:
-	throw logic_error("Attempted to insert an empty piece");
+	abort();
     default:
-	throw logic_error("Unknown piece");
+	__builtin_unreachable();
     }
     assert(check_internal_consistency());
 }
 
 void BitboardGameState::remove_piece(const Position& position) {
+#ifdef ENABLE_DEBUG_CONSISTENCY_CHECKS
     if (get_piece(position) == EMPTY)
-	throw logic_error("Tried to remove an empty piece");
+	abort();
+#endif
     auto index = position.value;
     all_pieces.  clear(index);
     red_pieces.  clear(index);
@@ -215,7 +221,7 @@ bool BitboardGameState::check_internal_consistency() const {
 	print_bitboard(cerr, a);
 	cerr << "b: " << b << endl;
 	print_bitboard(cerr, b);
-	throw logic_error("Internal consistency check failed: " + message);
+	abort();
     };
 
     auto assert_equal = [&] (const bitboard& a, const bitboard& b, string message) {

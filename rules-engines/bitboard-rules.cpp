@@ -545,10 +545,7 @@ bool _is_legal_move(const BitboardGameState& state, const Move& move, bool allow
 }
 
 Player _winner(const BitboardGameState& state) {
-    if (_is_winner(state))
-	return next_player(state.current_turn());
-    else
-	throw logic_error("No moves available");
+    return next_player(state.current_turn());
 }
 
 bool _is_winner(const BitboardGameState& state) {
@@ -570,7 +567,6 @@ bool _is_king_in_check(const BitboardGameState& state, Player player) {
 }
 
 vector<Move> _filter_available_moves(const BitboardGameState& state, function<bool(const Move&)> pred) {
-    throw logic_error("_filter_available_moves is unimplemented");
     auto moves = vector<Move>();
     for (const Move& move : _available_moves(state)) {
 	if (pred(move))
@@ -580,7 +576,7 @@ vector<Move> _filter_available_moves(const BitboardGameState& state, function<bo
 }
 
 vector<Move> _captures_for_position(const BitboardGameState& state, const Position& position) {
-    throw logic_error("_captures_for_position is Unimplemented");
+    abort();
 }
 
 vector<Move> _available_moves_from(const BitboardGameState& state, const Position& position) {

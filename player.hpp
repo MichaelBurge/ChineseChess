@@ -4,5 +4,16 @@
 using namespace std;
 
 enum Player { RED = 0, BLACK = 1};
-extern Player next_player(Player);
-extern string player_repr(Player player);
+
+inline Player next_player(Player player) {
+    return player == RED
+        ? BLACK
+        : RED;
+}
+
+inline string player_repr(Player player) {
+    if (player == RED)
+        return "Red";
+    else
+        return "Black";
+}

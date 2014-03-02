@@ -10,6 +10,7 @@ using namespace std;
 template<class Implementation>
 struct GameState
 {
+    GameState() : implementation(Implementation(RED)) {}
     GameState(Player _current_turn) : implementation(Implementation(_current_turn)) {}
     GameState(const Implementation& implementation) : implementation(implementation) {}
 
@@ -46,6 +47,9 @@ struct GameState
 
     void print_debug_board()
     { implementation.print_debug_board(); }
+
+    uint64_t get_hash() const
+    { return implementation.get_hash(); }
 
     template<class T>
     friend ostream& operator<<(ostream&, const GameState<T>&);

@@ -35,10 +35,18 @@ char character_for_piece(Piece piece) {
     case BLACK_SOLDIER:
 	return 's';
     default:
-        throw logic_error("Unknown piece: " + lexical_cast<string>((int)piece));
+        __builtin_unreachable();
     }
 }
 
 ostream& operator<<(ostream& os, const Piece& piece) {
     return os << character_for_piece(piece);
+}
+
+void iter_all_pieces(function<void(Piece)> action) {
+    for (int i = 1; i <= 15; i++) {
+	if (i == 8)
+	    continue;
+	action((Piece)i);
+    }
 }

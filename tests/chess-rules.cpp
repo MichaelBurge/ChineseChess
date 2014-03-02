@@ -312,3 +312,18 @@ BOOST_AUTO_TEST_CASE( num_piece_moves_at_start_of_game ) {
     check_piece(Position(4, 7), 1, RED_SOLDIER);
     check_piece(Position(4, 9), 1, RED_SOLDIER);
 }
+
+BOOST_AUTO_TEST_CASE( hash_consistency ) {
+    auto state = StandardGameState::new_game();
+    auto h1 = state.get_hash();
+    auto from = Position(1, 5);
+    auto to = Position(2, 5);
+
+    state.apply_move(Move(from, to));
+    auto h2 = state.get_hash();
+    BOOST_REQUIRE_NE(h1, h2);
+
+    state.apply_move(Move(to, from));
+    auto h3 = state.get_hash();
+    BOOST_REQUIRE_EQUAL(h1, h3);
+}

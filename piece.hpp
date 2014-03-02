@@ -1,6 +1,7 @@
 #pragma once
 
 #include "player.hpp"
+#include <functional>
 #include <ostream>
 #include <stdexcept>
 using namespace std;
@@ -22,6 +23,8 @@ enum Piece {
     BLACK_CANNON = 14,
     BLACK_SOLDIER = 15,
 };
+
+extern void iter_all_pieces(function<void(Piece)> action);
 
 inline Player owner(Piece piece)
 { return piece < 8 ? RED : BLACK; }

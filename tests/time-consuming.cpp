@@ -1,4 +1,5 @@
 #undef __STRICT_ANSI__
+#include "../gametree.hpp"
 #include "../utility.hpp"
 #include "../direction.hpp"
 #include "../position.hpp"
@@ -29,17 +30,9 @@ BOOST_AUTO_TEST_CASE( performance ) {
     interpreter.cmd_run_computer();
 }
 
-int perft(const StandardGameState& initial, int n) {
+int perft(const StandardGameState& initial, int depth) {
     int count = 0;
-    for (const Move& move : StandardRulesEngine::available_moves(initial)) {
-	if (n == 0) {
-	    count += 1;
-	} else {
-	    initial.peek_move(move, [&] (const StandardGameState& new_state) {
-	        count += perft(new_state, n - 1);
-	    });
-	}
-    }
+    enumerate_tree(initial, depth, [&] (const StandardGameState&) { count++; });
     return count;
 }
 
@@ -55,14 +48,15 @@ map<Move, int> perft_divide(const StandardGameState& initial, int n) {
 
 BOOST_AUTO_TEST_CASE( several_perft_cases ) {
     auto state = StandardGameState::new_game();
-    BOOST_REQUIRE_EQUAL(perft(state, 0), 44);
-    BOOST_REQUIRE_EQUAL(perft(state, 1), 1920);
-    BOOST_REQUIRE_EQUAL(perft(state, 2), 79666);
+    BOOST_REQUIRE_EQUAL(perft(state, 0), 1);
+    BOOST_REQUIRE_EQUAL(perft(state, 1), 44);
+    BOOST_REQUIRE_EQUAL(perft(state, 2), 1920);
+    BOOST_REQUIRE_EQUAL(perft(state, 3), 79666);
 }
 
 BOOST_AUTO_TEST_CASE( all_perft_divide_results ) {
     auto state = StandardGameState::new_game();
-    auto values = perft_divide(state, 0);
+    auto values = perft_divide(state, 1);
 
     BOOST_CHECK_EQUAL(values[Move(Position(1,1), Position(3,1))], 44);
     BOOST_CHECK_EQUAL(values[Move(Position(1,1), Position(2,1))], 44);
@@ -108,4 +102,44 @@ BOOST_AUTO_TEST_CASE( all_perft_divide_results ) {
     BOOST_CHECK_EQUAL(values[Move(Position(4,5), Position(5,5))], 44);
     BOOST_CHECK_EQUAL(values[Move(Position(4,7), Position(5,7))], 44);
     BOOST_CHECK_EQUAL(values[Move(Position(4,9), Position(5,9))], 44);
+}
+
+int count_unique_hashes(const StandardGameState& initial, int n) {
+    set<uint64_t> hashes;
+    enumerate_tree(initial, n, [&] (const StandardGameState& x) {
+	hashes.insert(x.get_hash());
+    });
+    return hashes.size();
+}
+
+bool print_collision(const StandardGameState& initial, int n) {
+    map<uint64_t, StandardGameState> entries;
+    bool found_collision = false;
+    enumerate_tree(initial, n, [&] (const StandardGameState& x) {
+	if (found_collision)
+	    return;
+        uint64_t hash = x.get_hash();
+	if (entries.find(hash) == entries.end())
+	    entries[hash] = x;
+	else {
+	    cout << "Position A with hash: " << entries[hash].get_hash() << endl;
+	    cout << entries[hash] << endl;
+	    cout << "Position B with hash: " << x.get_hash() << endl;
+	    cout << x << endl;
+	    entries[hash].implementation.recompute_hash();
+	    cout << "Position A recomputed: " << entries[hash].get_hash() << endl;
+	    x.implementation.recompute_hash();
+	    cout << "Position b recomputed: " << x.get_hash() << endl;
+	    found_collision = true;
+	}
+    });
+    if (!found_collision)
+	cout << "No collision found";
+    return found_collision;
+}
+
+BOOST_AUTO_TEST_CASE( unique_hashes_for_first_couple_moves ) {
+    auto state = StandardGameState::new_game();
+    // Higher perft counts than 2 don't hold because multiple move sequences can lead to the same position
+    BOOST_REQUIRE_EQUAL(count_unique_hashes(state, 2), perft(state, 2));
 }

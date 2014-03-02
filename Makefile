@@ -1,4 +1,4 @@
-primary_files = uint128_t.o parsing.o direction.o position.o move.o piece.o minimax.o scoring.o interpreter.o rules-engines/reference-gamestate.o rules-engines/reference.o  rules-engines/bitboard-gamestate.o rules-engines/bitboard-rules.o rules-engines/bitboard.o gametree.o
+primary_files = uint128_t.o parsing.o direction.o position.o move.o piece.o minimax.o scoring.o interpreter.o rules-engines/reference-gamestate.o rules-engines/reference.o  rules-engines/bitboard-gamestate.o rules-engines/bitboard-rules.o rules-engines/bitboard.o gametree.o hash.o
 
 home_machine_boost_include_dir = C:/mingw64/include/
 options = -O3 -g -Wall -std=c++11 -Isystem$(home_machine_boost_include_dir)

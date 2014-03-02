@@ -1,11 +1,14 @@
 #pragma once
 
+#include "hash.hpp"
 #include "move.hpp"
 #include "player.hpp"
 #include "piece.hpp"
 #include "player.hpp"
 #include <iostream>
 using namespace std;
+
+typedef uint64_t Hash;
 
 template<class Implementation>
 struct GameState
@@ -48,7 +51,7 @@ struct GameState
     void print_debug_board()
     { implementation.print_debug_board(); }
 
-    uint64_t get_hash() const
+    Hash get_hash() const
     { return implementation.get_hash(); }
 
     template<class T>
@@ -139,4 +142,14 @@ int get_num_pieces(const GameState<T>& state) {
     int accum = 0;
     state.for_each_piece([&] (Position, Piece) { accum++; });
     return accum;
+}
+
+template<class T>
+Hash recompute_zobrist_hash(const T& state) {
+    auto& zobrists = precomputed_zobrist_numbers();
+    Hash hash = 0;
+    state.for_each_piece([&] (Position position, Piece piece) {
+	hash ^= zobrists.zobrists[static_cast<Hash>(piece)][position.value];
+    });
+    return hash;
 }

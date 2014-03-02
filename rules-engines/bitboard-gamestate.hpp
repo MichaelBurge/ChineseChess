@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../gamestate.hpp"
+#include "../hash.hpp"
 #include "../move.hpp"
 #include "../piece.hpp"
 #include "../player.hpp"
@@ -35,7 +37,7 @@ struct BitboardGameState {
     // Computed data (Other people will compute and cache these using the above information)
     mutable bool is_cache_valid;
     mutable bitboard moves;
-    mutable uint64_t hash;
+    mutable Hash hash;
 
     // Variables required to be in scope:
     // bitboard accumulator;
@@ -66,8 +68,10 @@ struct BitboardGameState {
 	    for_each_black_piece(action);
     }
     bool check_internal_consistency() const;
-    void recompute_hash() const;
-    inline uint64_t get_hash() const
+    inline void recompute_hash() const
+    { hash = recompute_zobrist_hash(*this); }
+
+    inline Hash get_hash() const
     { return hash; }
 private:
     void ensure_moves_cached();

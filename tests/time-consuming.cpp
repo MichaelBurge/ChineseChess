@@ -143,3 +143,25 @@ BOOST_AUTO_TEST_CASE( unique_hashes_for_first_couple_moves ) {
     // Higher perft counts than 2 don't hold because multiple move sequences can lead to the same position
     BOOST_REQUIRE_EQUAL(count_unique_hashes(state, 2), perft(state, 2));
 }
+
+BOOST_AUTO_TEST_CASE( can_use_hashes_to_search_a_tree ) {
+    auto state = StandardGameState::new_game();
+    const int search_depth = 2;
+    int num_evaluated_nodes = 0;
+    int perft_lower =
+	fold_tree_with_hashing<int>(
+	    state,
+	    search_depth,
+	    1000,
+	    0,
+	    [&] (const StandardGameState& new_state) -> int {
+		num_evaluated_nodes++;
+		return 1;
+	    },
+	    [&] (const int& a, const int& b) {
+		return a + b;
+	    });
+    int actual_perft = perft(state, search_depth);
+    BOOST_REQUIRE_LE(num_evaluated_nodes, actual_perft);
+    BOOST_REQUIRE_GE(perft_lower, actual_perft);
+}

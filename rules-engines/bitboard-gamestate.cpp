@@ -4,60 +4,8 @@
 #include <stdexcept>
 #include <cassert>
 #include <iostream>
-#include <random>
 using namespace boost;
 using namespace std;
-
-// First digits of Pi
-const int magic_random_seed = (int)3141592653;
-//const int magic_random_seed = (int)3141592654;
-
-struct ZobristTable {
-    uint64_t zobrists[16][90];
-};
-
-ZobristTable set_zobrist_numbers() {
-    ZobristTable ret;
-    srand(magic_random_seed);
-    mt19937_64 gen(magic_random_seed);
-    uint64_t min = numeric_limits<uint64_t>::min();
-    uint64_t max = numeric_limits<uint64_t>::max();
-    uniform_int_distribution<uint64_t> dis(min, max);
-
-    iter_all_pieces([&] (Piece piece) {
-        for (int i = 0; i < 90; i++)
-	    ret.zobrists[static_cast<uint64_t>(piece)][i] = dis(gen);
-    });
-    return ret;
-}
-
-static ZobristTable& precomputed_zobrist_numbers() {
-    static ZobristTable zobrists = set_zobrist_numbers();
-    return zobrists;
-}
-
-void print_debug_zobrist_hashes() {
-    auto& zobrists = precomputed_zobrist_numbers();
-    iter_all_pieces([&] (Piece piece) {
-	for (int x = 0; x < 90; x++) {
-	    cout << "Position: "
-		 << Position(x)
-		 << ", Piece: "
-		 << piece
-		 << " - "
-		 << zobrists.zobrists[static_cast<uint64_t>(piece)][x]
-		 << endl;
-	}
-    });
-}
-
-void BitboardGameState::recompute_hash() const {
-    auto& zobrists = precomputed_zobrist_numbers();
-    hash = 0;
-    for_each_piece([&] (Position position, Piece piece) {
-	hash ^= zobrists.zobrists[static_cast<uint64_t>(piece)][position.value];
-    });
-}
 
 Piece BitboardGameState::get_piece(const Position& position) const {
     bitboard x;
@@ -92,8 +40,7 @@ void BitboardGameState::insert_piece(const Position& position, const Piece& piec
     clear_cached_data();
     uint8_t index = position.value;
 
-    auto& zobrists = precomputed_zobrist_numbers();
-    hash ^= zobrists.zobrists[static_cast<uint64_t>(piece)][index];
+    toggle_hash(this->hash, position, piece);
 
     all_pieces.set(index);
     switch (piece) {
@@ -167,8 +114,7 @@ void BitboardGameState::remove_piece(const Position& position) {
 	abort();
     auto index = position.value;
 
-    auto& zobrists = precomputed_zobrist_numbers();
-    hash ^= zobrists.zobrists[static_cast<uint64_t>(piece)][index];
+    toggle_hash(this->hash, position, piece);
 
     all_pieces.  clear(index);
     red_pieces.  clear(index);

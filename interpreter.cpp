@@ -10,6 +10,7 @@ static ostream bitbucket(0);
 Interpreter::Interpreter() : 
     _state(StandardGameState::new_game()),
     running(true),
+    are_extraneous_messages_disabled(false),
     difficulty(2),
     max_nodes(1000),
     is_running_over_xboard(false),
@@ -17,7 +18,7 @@ Interpreter::Interpreter() :
     { }
 
 ostream& Interpreter::human_cli() {
-    return is_running_over_xboard
+    return is_running_over_xboard || are_extraneous_messages_disabled
 	? bitbucket
 	: cout;
 }
@@ -226,10 +227,14 @@ void Interpreter::cmd_show_moves(const string& remaining_text) {
     print_moves(moves);
 }
 
-void Interpreter::cmd_run_computer() {
+void Interpreter::run_computer_move() {
     auto move = best_move(this->state(), this->difficulty, this->max_nodes, piece_score);
-    cout << "The computer chooses " << move << endl;
+    human_cli() << "The computer chooses " << move << endl;
     this->run_move(move);
+}
+
+void Interpreter::cmd_run_computer() {
+    run_computer_move();
 }
 
 void handle_integer(int& target, const string& name, const string& remaining_text) {
@@ -266,9 +271,11 @@ const StandardGameState& Interpreter::state() {
 }
 
 void Interpreter::cmd_accepted() {
+    // Ignore
 }
 
 void Interpreter::cmd_rejected() {
+    // Ignore
 }
 
 void Interpreter::cmd_variant(const string&) {

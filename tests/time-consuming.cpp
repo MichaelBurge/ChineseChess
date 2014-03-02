@@ -25,6 +25,7 @@ BOOST_AUTO_TEST_CASE( performance ) {
     auto interpreter = Interpreter();
     interpreter.max_nodes = 1000000;
     interpreter.difficulty = 2;
+    interpreter.are_extraneous_messages_disabled = true;
     interpreter.cmd_run_computer();
 }
 

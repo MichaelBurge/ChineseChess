@@ -9,6 +9,8 @@ struct HumanCLI : public std::ostream {
 struct Interpreter {
     StandardGameState _state;
     bool running;
+    bool computer_enabled;
+    bool are_extraneous_messages_disabled;
     int difficulty;
     int max_nodes;
 
@@ -21,6 +23,7 @@ struct Interpreter {
 
     const StandardGameState& state();
     void dispatch_command(const string& command);
+    void run_computer_move();
     void cmd_move(const string&);
     void cmd_show_moves(const string&);
     void cmd_new();

@@ -144,24 +144,51 @@ BOOST_AUTO_TEST_CASE( unique_hashes_for_first_couple_moves ) {
     BOOST_REQUIRE_EQUAL(count_unique_hashes(state, 2), perft(state, 2));
 }
 
+struct PerftSearch {
+    int& num_evaluated_nodes;
+    int num_nodes;
+    PerftSearch(int& num_evaluated_nodes) :
+	num_evaluated_nodes(num_evaluated_nodes),
+	num_nodes(0)
+        { }
+    inline int identity()
+    { return 0; }
+
+    inline bool should_cut()
+    { return false; }
+
+    inline int on_leaf_node(const StandardGameState& state)
+    {
+	num_evaluated_nodes++;
+	return 1;
+    }
+
+    inline int on_branch_node(const StandardGameState& state, const int& value)
+    {
+	num_evaluated_nodes++;
+	return value;
+    }
+
+    inline void accumulate(const int& value)
+    { num_nodes += value; }
+
+    inline PerftSearch next()
+    { return *this; }
+
+    inline int value()
+    { return num_nodes; }
+};
+
+
+
 BOOST_AUTO_TEST_CASE( can_use_hashes_to_search_a_tree ) {
     auto state = StandardGameState::new_game();
     const int search_depth = 2;
     int num_evaluated_nodes = 0;
-    int perft_lower =
-	fold_tree_with_hashing<int>(
-	    state,
-	    search_depth,
-	    1000,
-	    0,
-	    [&] (const StandardGameState& new_state) -> int {
-		num_evaluated_nodes++;
-		return 1;
-	    },
-	    [&] (const int& a, const int& b) {
-		return a + b;
-	    });
+    vector<optional<int> > cache(1000);
+    int hashed_perft = generalized_tree_fold(state, search_depth, cache, PerftSearch(num_evaluated_nodes));
+
     int actual_perft = perft(state, search_depth);
     BOOST_REQUIRE_LE(num_evaluated_nodes, actual_perft);
-    BOOST_REQUIRE_GE(perft_lower, actual_perft);
+    BOOST_REQUIRE_GE(hashed_perft, actual_perft);
 }

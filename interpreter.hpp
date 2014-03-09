@@ -34,7 +34,9 @@ struct Interpreter {
     void cmd_run_computer();
     void cmd_set_max_nodes(const string&);
     void cmd_set_difficulty(const string&);
+    void cmd_show_best_line();
     void cmd_show_move_scores();
+    void cmd_show_move_scores_simple();
 
     // XBoard communication commands
     // http://www.gnu.org/software/xboard/engine-intf.html

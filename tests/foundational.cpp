@@ -3,7 +3,7 @@
 #include "../parsing.hpp"
 #include "../position.hpp"
 #include "../scoring.hpp"
-#include "../minimax.hpp"
+#include "../gametree.hpp"
 #include "../uint128_t.hpp"
 #include "../rules-engines/bitboard.hpp"
 #include <iostream>

@@ -3,7 +3,7 @@
 #include "parsing.hpp"
 #include "exceptions.hpp"
 #include "scoring.hpp"
-#include "minimax.hpp"
+#include "gametree.hpp"
 
 static ostream bitbucket(0);
 
@@ -77,8 +77,14 @@ void Interpreter::dispatch_command(const string& command) {
     case str2int("max_nodes"):
         this->cmd_set_max_nodes(remaining_text);
         break;
+    case str2int("move_scores_simple"):
+	this->cmd_show_move_scores_simple();
+	break;
     case str2int("move_scores"):
 	this->cmd_show_move_scores();
+	break;
+    case str2int("show_line"):
+	this->cmd_show_best_line();
 	break;
 
     // XBoard commands
@@ -228,7 +234,7 @@ void Interpreter::cmd_show_moves(const string& remaining_text) {
 }
 
 void Interpreter::run_computer_move() {
-    auto move = best_move(this->state(), this->difficulty, this->max_nodes, piece_score);
+    auto move = best_move(this->state(), this->difficulty, piece_score);
     human_cli() << "The computer chooses " << move << endl;
     this->run_move(move);
 }
@@ -254,8 +260,24 @@ void Interpreter::cmd_set_difficulty(const string& remaining_text) {
     handle_integer(this->difficulty, "Difficulty", remaining_text);
 }
 
-void Interpreter::cmd_show_move_scores() {
+void Interpreter::cmd_show_move_scores_simple() {
     print_move_scores(move_scores(this->state(), standard_score_function));
+}
+
+void Interpreter::cmd_show_best_line() {
+    print_move_sequence(
+	best_move_sequence(
+	    this->state(),
+	    this->difficulty,
+	    standard_score_function));
+}
+
+void Interpreter::cmd_show_move_scores() {
+    print_move_scores(
+	move_scores_minimax(
+	    this->state(),
+	    this->difficulty,
+	    standard_score_function));
 }
 
 void Interpreter::cmd_xboard() {

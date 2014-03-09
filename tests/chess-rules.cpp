@@ -1,9 +1,9 @@
 #undef __STRICT_ANSI__
 #include "../direction.hpp"
+#include "../gametree.hpp"
 #include "../position.hpp"
 #include "../rules-engines/reference.hpp"
 #include "../scoring.hpp"
-#include "../minimax.hpp"
 #include "../interpreter.hpp"
 #include "../configuration.hpp"
 #include "../uint128_t.hpp"
@@ -216,7 +216,7 @@ BOOST_AUTO_TEST_CASE( data_structures ) {
 	});
     });
     BOOST_REQUIRE_EQUAL(state.current_turn(), RED);
-    best_move(state, 3, 1000, piece_score);
+    best_move(state, 3, piece_score);
     BOOST_REQUIRE_EQUAL(state.current_turn(), RED);
 
     BOOST_REQUIRE_EQUAL(state.get_piece(old_position), RED_GENERAL);
@@ -283,7 +283,8 @@ BOOST_AUTO_TEST_CASE( basic_minimax ) {
     state.insert_piece(ally_king_position,  RED_GENERAL);
 
     auto best = Move(chariot_position, Position(5, 4));
-    auto ai_move = best_move(state, 3, 1000, piece_score);
+    auto ai_move = best_move(state, 3, piece_score);
+    print_move_scores(move_scores(state, piece_score));
     BOOST_REQUIRE_EQUAL(ai_move, best);
 }
 

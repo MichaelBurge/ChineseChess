@@ -273,17 +273,18 @@ BOOST_AUTO_TEST_CASE( scoring ) {
 BOOST_AUTO_TEST_CASE( basic_minimax ) {
     auto state = StandardGameState(RED);
     auto ally_king_position  = Position(2, 5);
-    auto enemy_derp_position = Position(3, 3);
+    auto enemy_chariot_position = Position(3, 3);
     auto chariot_position    = Position(5, 5);
     auto enemy_king_position = Position(8, 4);
       
-    state.insert_piece(enemy_king_position, BLACK_GENERAL);
-    state.insert_piece(enemy_derp_position, BLACK_CHARIOT);
-    state.insert_piece(chariot_position,    RED_CHARIOT);
-    state.insert_piece(ally_king_position,  RED_GENERAL);
+    state.insert_piece(enemy_king_position,    BLACK_GENERAL);
+    state.insert_piece(enemy_chariot_position, BLACK_CHARIOT);
+    state.insert_piece(chariot_position,       RED_CHARIOT);
+    state.insert_piece(ally_king_position,     RED_GENERAL);
 
     auto best = Move(chariot_position, Position(5, 4));
     auto ai_move = best_move(state, 3, piece_score);
+    cout << state;
     print_move_scores(move_scores(state, piece_score));
     BOOST_REQUIRE_EQUAL(ai_move, best);
 }

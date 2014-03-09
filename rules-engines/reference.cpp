@@ -41,17 +41,17 @@ namespace implementation {
 		    return;
       
 		all_moves.push_back(
-				    Move(
-					 position,
-					 move_direction(
-							one_step,
-							rotate_left (direction))));
+		    Move(
+			position,
+			move_direction(
+			    one_step,
+			    rotate_left (direction))));
 		all_moves.push_back(
-				    Move(
-					 position,
-					 move_direction(
-							one_step,
-							rotate_right(direction))));
+		    Move(
+			position,
+			move_direction(
+			    one_step,
+			    rotate_right(direction))));
 	    });
     }
 

@@ -19,10 +19,8 @@ void enumerate_tree(const StandardGameState& initial, int depth, function<void(c
 int negamax(const StandardGameState& state, int depth, function<int(const StandardGameState&)> valuation) {
     typedef MinimaxSearch<int> SearchProcedure;
     TranspositionTable<int> transposition_table;
-    SearchProcedure search(valuation);
+    SearchProcedure search(state, depth, valuation);
     return generalized_tree_fold<int, SearchProcedure>(
-	state,
-	depth,
 	transposition_table,
 	search
     );

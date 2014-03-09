@@ -145,14 +145,22 @@ BOOST_AUTO_TEST_CASE( unique_hashes_for_first_couple_moves ) {
 }
 
 struct PerftSearch {
+    const StandardGameState& state;
     int& num_leaf_nodes;
     int& num_branch_nodes;
     int num_nodes;
-    PerftSearch(int& num_leaf_nodes, int& num_branch_nodes) :
+    int depth;
+
+    PerftSearch(const StandardGameState& state, int depth, int& num_leaf_nodes, int& num_branch_nodes) :
+	state(state),
         num_leaf_nodes(num_leaf_nodes),
 	num_branch_nodes(num_branch_nodes),
-	num_nodes(0)
+	num_nodes(0),
+        depth(depth)
         { }
+
+    inline void begin_depth() { }
+
     inline bool is_debug_output_enabled()
     { return true; }
 
@@ -177,8 +185,22 @@ struct PerftSearch {
     inline void accumulate(const int& value)
     { num_nodes += value; }
 
-    inline PerftSearch next()
-    { return *this; }
+    inline PerftSearch next(const StandardGameState&)
+    {
+	PerftSearch ret = *this;
+	ret.depth -= 1;
+	return ret;
+    }
+
+    // TODO: Change the tests to use lower & upper bounds when comparing perft
+    inline void use_lower_bound(const int& value) { }
+    inline void use_upper_bound(const int& value) { }
+
+    inline CachedValue<int> get_cached_value()
+    {
+	typedef CachedValue<int> cv;
+	return cv(state.get_hash(), num_nodes, cv::EXACT, depth);
+    }
 
     inline int value()
     { return num_nodes; }
@@ -193,10 +215,12 @@ BOOST_AUTO_TEST_CASE( can_use_hashes_to_search_a_tree ) {
     int num_branch_nodes;
     TranspositionTable<int> cache(1);
     int hashed_perft = generalized_tree_fold(
-	state,
-	search_depth,
 	cache,
-	PerftSearch(num_leaf_nodes, num_branch_nodes)
+	PerftSearch(
+	    state,
+	    search_depth,
+	    num_leaf_nodes,
+	    num_branch_nodes)
     );
 
     int actual_perft = perft(state, search_depth);
@@ -213,4 +237,25 @@ BOOST_AUTO_TEST_CASE( minimax_doesnt_give_stupid_moves ) {
 
     auto move2 = best_move(state, 3, standard_score_function);
     BOOST_CHECK_EQUAL(move2, Move("A10B10"));
+}
+
+BOOST_AUTO_TEST_CASE( both_cannon_captures_at_start_have_same_score) {
+    for (int depth = 0; depth < 6; depth++) {
+	BOOST_TEST_CHECKPOINT("cannon capture depth " << depth);
+
+	auto state = StandardGameState::new_game();
+	state.apply_move(Move("B1B10"));
+	auto first_capture_score = negamax(state, depth, standard_score_function);
+
+	state = StandardGameState::new_game();
+	state.apply_move(Move("H1H10"));
+	auto second_capture_score = negamax(state, depth, standard_score_function);
+
+	BOOST_REQUIRE_EQUAL(first_capture_score, second_capture_score);
+    }
+}
+
+BOOST_AUTO_TEST_CASE( same_position_with_different_players_hashes_differently) {
+    // TODO: Write this
+    BOOST_REQUIRE(false);
 }

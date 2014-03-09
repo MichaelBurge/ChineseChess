@@ -121,21 +121,21 @@ BOOST_AUTO_TEST_CASE( parsing_files ) {
 BOOST_AUTO_TEST_CASE( parsing_positions) {
     auto e8_position = Position(8, 5);
 
-    auto p1 = parse_position("E8");
+    auto p1 = parse_value<Position>("E8");
     BOOST_REQUIRE(p1);
     BOOST_REQUIRE_EQUAL((*p1).first, e8_position);
 
-    auto p2 = parse_position("derp");
+    auto p2 = parse_value<Position>("derp");
     BOOST_REQUIRE(!p2);
 }
 
 BOOST_AUTO_TEST_CASE( parsing_moves ) {
     auto e8_position = Position(8, 5);
-    auto m1 = parse_move("e8E7");
+    auto m1 = parse_value<Move>("e8E7");
     BOOST_REQUIRE(m1);
     BOOST_REQUIRE_EQUAL((*m1).first, Move(e8_position, Position(7, 5)));
 
-    auto m2 = parse_move("derp");
+    auto m2 = parse_value<Move>("derp");
     BOOST_REQUIRE(!m2);
 
     auto tk1 = parse_token("Herp|Derp", '|');
@@ -148,3 +148,4 @@ BOOST_AUTO_TEST_CASE( parsing_moves ) {
     BOOST_REQUIRE_EQUAL((*tk2).first, string("move"));
     BOOST_REQUIRE_EQUAL((*tk2).second, string("E1E8"));
 }
+ 

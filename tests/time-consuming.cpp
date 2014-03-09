@@ -203,3 +203,14 @@ BOOST_AUTO_TEST_CASE( can_use_hashes_to_search_a_tree ) {
     BOOST_REQUIRE_LE(num_leaf_nodes, actual_perft);
     BOOST_REQUIRE_GE(hashed_perft, actual_perft);
 }
+
+BOOST_AUTO_TEST_CASE( minimax_doesnt_give_stupid_moves ) {
+    auto state = StandardGameState::new_game();
+    auto move1 = best_move(state, 3, standard_score_function);
+    BOOST_CHECK_NE(move1, Move("B1B10"));
+    BOOST_CHECK_NE(move1, Move("H1H10"));
+    state.apply_move(Move("B1B10"));
+
+    auto move2 = best_move(state, 3, standard_score_function);
+    BOOST_CHECK_EQUAL(move2, Move("A10B10"));
+}

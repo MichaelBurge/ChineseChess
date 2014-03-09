@@ -39,7 +39,7 @@ void Interpreter::prompt() {
 }
 
 void Interpreter::dispatch_command(const string& command) {
-    auto move = parse_move(command);
+    auto move = parse_value<Move>(command);
     if (!!move) {
 	this->run_move((*move).first);
 	return;
@@ -53,12 +53,15 @@ void Interpreter::dispatch_command(const string& command) {
     auto remaining_text = (*primary).second;
 
     switch (str2int(command_token.c_str())) {
-    case str2int("show"):
-        this->cmd_show();
-        break;
     case str2int("exit"):
         this->cmd_exit();
         break;
+    case str2int("show"):
+        this->cmd_show();
+        break;
+    case str2int("show_score"):
+	this->cmd_show_score();
+	break;
     case str2int("new"):
         this->cmd_new();
         break;
@@ -204,8 +207,12 @@ void Interpreter::cmd_show() {
     cout << this->_state;
 }
 
+void Interpreter::cmd_show_score() {
+    cout << "Score: " << standard_score_function(this->state()) << endl;
+}
+
 void Interpreter::run_move(const Move& move) {
-    if (StandardRulesEngine::is_legal_move(this->_state, move)) {
+    if (StandardRulesEngine::is_legal_move(this->state(), move)) {
         this->_state.apply_move(move);
     } else {
 	cout << "Illegal move: " << move << endl;
@@ -213,7 +220,7 @@ void Interpreter::run_move(const Move& move) {
 }
 
 void Interpreter::cmd_move(const string& remaining_text) {
-    auto parsed_move = parse_move(remaining_text);
+    auto parsed_move = parse_value<Move>(remaining_text);
     if (!parsed_move) {
         cout << "Unable to parse move: `" << remaining_text << "`" << endl;
         return;
@@ -223,7 +230,7 @@ void Interpreter::cmd_move(const string& remaining_text) {
 
 void Interpreter::cmd_show_moves(const string& remaining_text) {
     auto moves = vector<Move>();
-    auto parsed_position = parse_position(remaining_text);
+    auto parsed_position = parse_value<Position>(remaining_text);
     if (!parsed_position) {
         moves = StandardRulesEngine::available_moves(this->state());
     } else {

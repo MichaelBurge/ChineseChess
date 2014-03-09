@@ -1,11 +1,14 @@
 #pragma once
 
+#include <boost/optional/optional.hpp>
 #include <ostream>
 #include <stdint.h>
 using namespace std;
+using namespace boost;
 
 struct Position {
-    inline Position(uint8_t value) : value(value) { };
+    inline Position() : value(numeric_limits<uint8_t>::max()) { }
+    inline Position(uint8_t value) : value(value) { }
     inline Position(uint8_t rank, uint8_t file) :
 	value(
 	      (
@@ -39,3 +42,6 @@ struct Position {
 
 ostream& operator<<(ostream& os, const Position&);
 string position_repr(const Position&);
+
+extern optional<pair<int, string> > parse_rank(const string& text);
+extern optional<pair<int, string> > parse_file(const string& text);

@@ -18,6 +18,7 @@ struct Move {
 	return this->from == b.from && this->to == b.to;
     }
 
+    Move(const string& text);
     inline Move(const Position& from, const Position& to) : from(from), to(to) { }
     inline Move(const Position& from, Direction direction) : from(from), to(move_direction(from, direction)) { }
 };

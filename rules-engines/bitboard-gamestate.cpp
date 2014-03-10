@@ -131,6 +131,8 @@ void BitboardGameState::remove_piece(const Position& position) {
 }
 
 void BitboardGameState::switch_turn() {
+    auto& zobrists = precomputed_zobrist_numbers();
+    this->hash ^= zobrists.is_red;
     current_turn(next_player(current_turn()));
 }
 

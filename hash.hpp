@@ -10,6 +10,7 @@ const int magic_random_seed = (int)3141592653;
 
 struct ZobristTable {
     Hash zobrists[16][90];
+    Hash is_red;
 };
 
 extern ZobristTable& precomputed_zobrist_numbers();

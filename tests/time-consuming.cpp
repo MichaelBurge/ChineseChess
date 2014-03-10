@@ -256,6 +256,25 @@ BOOST_AUTO_TEST_CASE( both_cannon_captures_at_start_have_same_score) {
 }
 
 BOOST_AUTO_TEST_CASE( same_position_with_different_players_hashes_differently) {
-    // TODO: Write this
-    BOOST_REQUIRE(false);
+    auto state = StandardGameState::new_game();
+    auto hash1 = state.get_hash();
+    state.switch_turn();
+    auto hash2 = state.get_hash();
+    BOOST_REQUIRE_NE(hash1, hash2);
+}
+
+BOOST_AUTO_TEST_CASE( having_no_moves_yields_a_negative_score) {
+    auto state = StandardGameState(RED);
+    auto center_of_castle = Position(2, 5);
+
+    // Chariots block off all possible moves for the general
+    state.insert_piece(center_of_castle, RED_GENERAL);
+    state.insert_piece(Position(9, 4), BLACK_CHARIOT);
+    state.insert_piece(Position(9, 6), BLACK_CHARIOT);
+    state.insert_piece(Position(1, 9), BLACK_CHARIOT);
+    state.insert_piece(Position(3, 9), BLACK_CHARIOT);
+    state.insert_piece(Position(10, 4), BLACK_GENERAL);
+
+    auto score = negamax(state, 5, standard_score_function);
+    BOOST_REQUIRE_LT(score, -100000);
 }

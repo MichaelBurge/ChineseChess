@@ -151,5 +151,7 @@ Hash recompute_zobrist_hash(const T& state) {
     state.for_each_piece([&] (Position position, Piece piece) {
 	hash ^= zobrists.zobrists[static_cast<Hash>(piece)][position.value];
     });
+    if (state.current_turn() == RED)
+	hash ^= zobrists.is_red;
     return hash;
 }

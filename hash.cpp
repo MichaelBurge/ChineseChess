@@ -16,6 +16,7 @@ ZobristTable set_zobrist_numbers() {
         for (int i = 0; i < 90; i++)
 	    ret.zobrists[static_cast<Hash>(piece)][i] = dis(gen);
     });
+    ret.is_red = dis(gen);
     return ret;
 }
 
@@ -26,6 +27,8 @@ ZobristTable& precomputed_zobrist_numbers() {
 
 void print_debug_zobrist_hashes() {
     auto& zobrists = precomputed_zobrist_numbers();
+    cout << "====Zobrist hashing debug output======" << endl;
+    cout << "Is red? " << zobrists.is_red << endl;
     iter_all_pieces([&] (Piece piece) {
 	for (int x = 0; x < 90; x++) {
 	    cout << "Position: "

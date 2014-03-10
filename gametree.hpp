@@ -49,6 +49,7 @@ struct MinimaxSearch {
 
     MinimaxSearch(const StandardGameState& state, int depth, Valuation valuation, bool _is_debug_output_enabled = false) :
 	state(state),
+	depth(depth),
 	best_value(numeric_limits<T>::min() + 1),
 	alpha(numeric_limits<T>::min() + 1),
 	beta(numeric_limits<T>::max()),

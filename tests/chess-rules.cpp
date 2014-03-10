@@ -284,8 +284,6 @@ BOOST_AUTO_TEST_CASE( basic_minimax ) {
 
     auto best = Move(chariot_position, Position(5, 4));
     auto ai_move = best_move(state, 3, piece_score);
-    cout << state;
-    print_move_scores(move_scores(state, piece_score));
     BOOST_REQUIRE_EQUAL(ai_move, best);
 }
 

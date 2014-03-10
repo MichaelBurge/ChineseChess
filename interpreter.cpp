@@ -214,7 +214,8 @@ void Interpreter::cmd_show() {
 }
 
 void Interpreter::cmd_show_score() {
-    cout << "Score: " << standard_score_function(this->state()) << endl;
+  cout << "Score: " << standard_score_function(this->state()) << endl;
+  cout << "Score(minimax): " << negamax(this->state(), this->difficulty, standard_score_function) << endl;
 }
 
 void Interpreter::run_move(const Move& move) {

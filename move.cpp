@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <iostream>
 #include <boost/optional/optional.hpp>
+#include <stdexcept>
 using namespace std;
 using namespace boost;
 

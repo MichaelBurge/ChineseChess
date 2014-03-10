@@ -9,6 +9,7 @@
 #include "../rules-engines/bitboard.hpp"
 #include <iostream>
 #define BOOST_TEST_MAIN 1
+#define BOOST_TEST_DYN_LINK
 
 // 'put_env' is not exported with strict ansi set
 #include <cstdlib>

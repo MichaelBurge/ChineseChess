@@ -11,6 +11,7 @@
 #include <iostream>
 #include <map>
 #define BOOST_TEST_MAIN 1
+#define BOOST_TEST_DYN_LINK
 
 // 'put_env' is not exported with strict ansi set
 #include <cstdlib>
@@ -235,7 +236,8 @@ BOOST_AUTO_TEST_CASE( minimax_doesnt_give_stupid_moves ) {
     BOOST_CHECK_NE(move1, Move("H1H10"));
     state.apply_move(Move("B1B10"));
 
-    auto move2 = best_move(state, 3, standard_score_function);
+    auto move2 = best_move(state, 4, standard_score_function);
+    cout << state;
     BOOST_CHECK_EQUAL(move2, Move("A10B10"));
 }
 
@@ -280,7 +282,7 @@ BOOST_AUTO_TEST_CASE( having_no_moves_yields_a_negative_score) {
 }
 
 BOOST_AUTO_TEST_CASE( debugging_minvalue_bug) {
-    auto state = StandardGameState(RED);
+    auto state = StandardGameState::new_game();
     state.apply_move(Move("h3h10"));
     state.apply_move(Move("i10h10"));
     state.apply_move(Move("g1i3"));
@@ -291,7 +293,6 @@ BOOST_AUTO_TEST_CASE( debugging_minvalue_bug) {
     state.apply_move(Move("g2g3"));
     state.apply_move(Move("i2e2"));
     auto best = best_move(state, 6, standard_score_function);
-    cout << state;
     // Checkmate
     BOOST_REQUIRE_EQUAL(best, Move("g3g1"));
 }

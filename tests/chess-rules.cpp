@@ -10,6 +10,7 @@
 #include "../rules-engines/bitboard.hpp"
 #include <iostream>
 #define BOOST_TEST_MAIN 1
+#define BOOST_TEST_DYN_LINK
 
 // 'put_env' is not exported with strict ansi set
 #include <cstdlib>
@@ -53,6 +54,9 @@ BOOST_AUTO_TEST_CASE( horse ) {
       move_direction(horsePosition, NORTH),
       BLACK_SOLDIER);
   BOOST_REQUIRE_EQUAL(StandardRulesEngine::num_available_moves(state), 6);
+
+  state = StandardGameState::new_game();
+  BOOST_REQUIRE(!StandardRulesEngine::is_legal_move(state, Move("b1b10")));
 }
 
 BOOST_AUTO_TEST_CASE( elephant ) {

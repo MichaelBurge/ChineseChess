@@ -28,11 +28,8 @@ struct CachedValue {
 	  depth(depth)
           {}
 
-    inline bool is_empty() const
-    { return value == Empty_Value; }
-
     inline bool is_cache_hit(Hash hash) const
-    { return !is_empty() && this->hash == hash; }
+    { return this->hash == hash; }
 };
 
 template<typename T>

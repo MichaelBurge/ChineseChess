@@ -45,3 +45,4 @@ string position_repr(const Position&);
 
 extern optional<pair<int, string> > parse_rank(const string& text);
 extern optional<pair<int, string> > parse_file(const string& text);
+extern string position_repr(const Position& position);

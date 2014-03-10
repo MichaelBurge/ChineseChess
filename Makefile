@@ -1,7 +1,7 @@
 primary_files = uint128_t.o parsing.o direction.o position.o move.o piece.o scoring.o interpreter.o rules-engines/reference-gamestate.o rules-engines/reference.o  rules-engines/bitboard-gamestate.o rules-engines/bitboard-rules.o rules-engines/bitboard.o gametree.o hash.o gametree.o
 
 home_machine_boost_include_dir = C:/mingw64/include/
-options = -O0 -ggdb -Wall -Wextra -std=c++11 -Isystem$(home_machine_boost_include_dir)
+options = -O3 -ggdb -Wall -Wextra -std=c++11 -Isystem$(home_machine_boost_include_dir)
 profiling_options = -p -pg
 compile = g++ $(options) -o $@ -c $<
 link = g++ $(options)  $^ -o $@
@@ -11,8 +11,6 @@ all: main.exe
 %.o: %.cpp
 	g++ $(options) -o $@ -c $<
 
-rules-engines/bitboard-gamestate.o: rules-engines/bitboard-gamestate.cpp
-	$(compile) -fno-exceptions
 rules-engines/bitboard-rules.o: rules-engines/bitboard-rules.cpp
 	$(compile) -fno-exceptions
 

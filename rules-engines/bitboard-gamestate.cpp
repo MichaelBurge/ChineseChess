@@ -1,8 +1,5 @@
 #include "bitboard-gamestate.hpp"
 #include <algorithm>
-#include <boost/lexical_cast.hpp>
-#include <stdexcept>
-#include <cassert>
 #include <iostream>
 using namespace boost;
 using namespace std;
@@ -31,7 +28,7 @@ Piece BitboardGameState::get_piece(const Position& position) const {
 #ifndef ENABLE_DEBUG_CONSISTENCY_CHECKS
     __builtin_unreachable();
 #else
-    abort();
+    throw logic_error("Unreachable code reached");
 #endif
 }
 
@@ -111,7 +108,7 @@ void BitboardGameState::insert_piece(const Position& position, const Piece& piec
 void BitboardGameState::remove_piece(const Position& position) {
     auto piece = get_piece(position);
     if (piece == EMPTY)
-	abort();
+      throw logic_error("Attempted to remove empty piece at " + position_repr(position));
     auto index = position.value;
 
     toggle_hash(this->hash, position, piece);
@@ -231,7 +228,7 @@ bool BitboardGameState::check_internal_consistency() const {
 	print_bitboard(cerr, a);
 	cerr << "b: " << b << endl;
 	print_bitboard(cerr, b);
-	abort();
+        throw logic_error(message);
     };
 
     auto assert_equal = [&] (const bitboard& a, const bitboard& b, string message) {

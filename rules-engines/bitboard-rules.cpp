@@ -575,7 +575,7 @@ vector<Move> _filter_available_moves(const BitboardGameState& state, function<bo
     return moves;
 }
 
-vector<Move> _captures_for_position(const BitboardGameState& state, const Position& position) {
+vector<Move> _captures_for_position(const BitboardGameState&, const Position&) {
     abort();
 }
 

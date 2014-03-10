@@ -44,7 +44,7 @@ namespace implementation {
     extern int num_available_moves(const ReferenceGameState&);
     extern int num_available_captures(const ReferenceGameState&);
     extern optional<Player> __winner(const ReferenceGameState&);
-};
+}
 
 class ReferenceRules {
 public:

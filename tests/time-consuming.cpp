@@ -170,13 +170,13 @@ struct PerftSearch {
     inline bool should_cut()
     { return false; }
 
-    inline int on_leaf_node(const StandardGameState& state)
+    inline int on_leaf_node()
     {
 	num_leaf_nodes++;
 	return 1;
     }
 
-    inline int on_branch_node(const StandardGameState& state, const int& value)
+    inline int on_branch_node(const StandardGameState&, const int& value)
     {
 	num_branch_nodes++;
 	return value;
@@ -193,8 +193,8 @@ struct PerftSearch {
     }
 
     // TODO: Change the tests to use lower & upper bounds when comparing perft
-    inline void use_lower_bound(const int& value) { }
-    inline void use_upper_bound(const int& value) { }
+    inline void use_lower_bound(const int&) { }
+    inline void use_upper_bound(const int&) { }
 
     inline CachedValue<int> get_cached_value()
     {

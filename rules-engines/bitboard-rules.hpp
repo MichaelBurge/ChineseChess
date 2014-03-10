@@ -35,7 +35,7 @@ namespace bitboard_implementation {
     extern void insert_vectorized_moves(const bitboard& board, const Position& root, vector<Move>& moves);
     extern bitboard moves_for_piece(const BitboardGameState& state, Position position, Piece piece);
     extern bool violates_flying_kings_rule(const BitboardGameState& state);
-};
+}
 
 class BitboardRules {
 public:

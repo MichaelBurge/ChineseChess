@@ -76,11 +76,11 @@ struct MinimaxSearch {
 	return alpha >= beta;
     }
 
-    inline T on_leaf_node(const StandardGameState& state) {
+    inline T on_leaf_node() {
 	return valuation(state);
     }
 
-    inline T on_branch_node(const StandardGameState& state, const T& value) {
+    inline T on_branch_node(const StandardGameState&, const T& value) {
 	T negamax_value = -value;
 	alpha = max(alpha, negamax_value);
 	return negamax_value;
@@ -210,7 +210,7 @@ Value generalized_tree_fold(
     };
 
     if (search.depth == 0) {
-	return search.on_leaf_node(search.state);
+	return search.on_leaf_node();
     }
 
     for (const Move& move : StandardRulesEngine::available_moves(search.state)) {

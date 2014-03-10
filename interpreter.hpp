@@ -8,6 +8,8 @@ struct HumanCLI : public std::ostream {
 
 struct Interpreter {
     StandardGameState _state;
+    vector<Move> history_moves;
+    vector<StandardGameState> history_state;
     bool running;
     bool computer_enabled;
     bool are_extraneous_messages_disabled;
@@ -38,6 +40,8 @@ struct Interpreter {
     void cmd_show_best_line();
     void cmd_show_move_scores();
     void cmd_show_move_scores_simple();
+    void cmd_analysis();
+    void cmd_history();
 
     // XBoard communication commands
     // http://www.gnu.org/software/xboard/engine-intf.html

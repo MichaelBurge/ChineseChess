@@ -278,3 +278,20 @@ BOOST_AUTO_TEST_CASE( having_no_moves_yields_a_negative_score) {
     auto score = negamax(state, 5, standard_score_function);
     BOOST_REQUIRE_LT(score, -100000);
 }
+
+BOOST_AUTO_TEST_CASE( debugging_minvalue_bug) {
+    auto state = StandardGameState(RED);
+    state.apply_move(Move("h3h10"));
+    state.apply_move(Move("i10h10"));
+    state.apply_move(Move("g1i3"));
+    state.apply_move(Move("h8h2"));
+    state.apply_move(Move("i3g5"));
+    state.apply_move(Move("h2g2"));
+    state.apply_move(Move("i1i2"));
+    state.apply_move(Move("g2g3"));
+    state.apply_move(Move("i2e2"));
+    auto best = best_move(state, 6, standard_score_function);
+    cout << state;
+    // Checkmate
+    BOOST_REQUIRE_EQUAL(best, Move("g3g1"));
+}

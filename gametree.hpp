@@ -241,3 +241,4 @@ extern void print_move_sequence(const vector<Move>& moves);
 extern void print_move_scores(const vector<pair<Move, int> >& scores);
 extern vector<pair<Move, int> > move_scores(const StandardGameState& state, function<int(const StandardGameState&)> valuation);
 extern vector<pair<Move, int> > move_scores_minimax(const StandardGameState& state, int depth, function<int(const StandardGameState&)> valuation);
+extern void print_analysis(const StandardGameState& state, int depth, function<int(const StandardGameState&)> valuation);

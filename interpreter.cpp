@@ -89,6 +89,12 @@ void Interpreter::dispatch_command(const string& command) {
     case str2int("show_line"):
 	this->cmd_show_best_line();
 	break;
+    case str2int("analysis"):
+	this->cmd_analysis();
+	break;
+    case str2int("history"):
+	this->cmd_history();
+	break;
 
     // XBoard commands
     case str2int("xboard"):
@@ -213,6 +219,8 @@ void Interpreter::cmd_show_score() {
 
 void Interpreter::run_move(const Move& move) {
     if (StandardRulesEngine::is_legal_move(this->state(), move)) {
+	this->history_state.push_back(this->state());
+	this->history_moves.push_back(move);
         this->_state.apply_move(move);
     } else {
 	cout << "Illegal move: " << move << endl;
@@ -277,6 +285,18 @@ void Interpreter::cmd_show_best_line() {
 	    this->state(),
 	    this->difficulty,
 	    standard_score_function));
+}
+
+void Interpreter::cmd_analysis() {
+    print_analysis(this->state(), this->difficulty, standard_score_function);
+}
+
+void Interpreter::cmd_history() {
+    if (this->history_moves.empty()) {
+	cout << "No history available" << endl;
+    } else {
+	print_move_sequence(this->history_moves);
+    }
 }
 
 void Interpreter::cmd_show_move_scores() {
@@ -377,6 +397,13 @@ void Interpreter::cmd_bk() {
 }
 
 void Interpreter::cmd_undo() {
+    if (this->history_state.empty()) {
+	cout << "No undo history" << endl;
+    } else {
+	this->_state = this->history_state.back();
+	history_state.pop_back();
+	history_moves.pop_back();
+    }
 }
 
 void Interpreter::cmd_remove() {

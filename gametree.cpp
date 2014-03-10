@@ -105,3 +105,16 @@ void print_move_sequence(const vector<Move>& moves) {
 	cout << turn++ << ". " << move << endl;
     }
 }
+
+void print_analysis(const StandardGameState& state, int depth, function<int(const StandardGameState&)> valuation) {
+    auto moves = best_move_sequence(state, depth, valuation);
+    auto state_accum = state;
+    int turn = 1;
+    int color = 1;
+    for (const Move& move : moves) {
+	state_accum.apply_move(move);
+	color *= -1;
+	int score = color * negamax(state_accum, depth, valuation);
+	cout << turn++ << ". " << move << " - Score: " << score << endl;
+    }
+}
